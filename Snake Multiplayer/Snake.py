@@ -6,7 +6,7 @@ particle = 25
 snake = [[13, 13], [13, 14]]
 direction = 0
 feedCordrnd = []
-
+#test
 pygame.init()
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode([1000, 1000])
