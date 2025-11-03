@@ -1,6 +1,18 @@
 import pygame
 import sys
 import random as randomizer
+import socket
+
+class Client:
+    def __init__(self):
+        HOST = "10.35.25.109"  # <- LAN-IP des Server-PCs eintragen
+        PORT = 50007
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.connect((HOST, PORT))
+    
+    def send_data(self, dx,dy):
+        print("Sende Daten an Server:", dx, dy)
+        self.sock.sendall(f"INPUT {dx} {dy}\n".encode("utf-8"))
 
 particle = 25
 snake = [[13, 13], [13, 14]]
@@ -12,13 +24,13 @@ clock = pygame.time.Clock()
 screen = pygame.display.set_mode([1000, 1000])
 
 # === Grafiken ===
-food_img = pygame.image.load("C:/Users/CC-Student/Desktop/Snakegame/apfel2.jpg") # Futerbild
+food_img = pygame.image.load("assets/apfel2.jpg") # Futerbild
 food_img = pygame.transform.scale(food_img, (particle, particle))
 
-body_img = pygame.image.load("C:/Users/CC-Student/Desktop/Snakegame/snakebody.jpg").convert_alpha() # Schlangenkörper
+body_img = pygame.image.load("assets/snakebody.jpg").convert_alpha() # Schlangenkörper
 body_img = pygame.transform.scale(body_img, (particle, particle))
 
-head_img = pygame.image.load("C:/Users/CC-Student/Desktop/Snakegame/snakehead.jpg").convert_alpha() #Schlangenkopf
+head_img = pygame.image.load("assets/snakehead.jpg").convert_alpha() #Schlangenkopf
 head_img = pygame.transform.scale(head_img, (particle, particle))
 
 font = pygame.font.SysFont(None, 40)  # Schriftgröße 40-  wählt Standard
@@ -83,6 +95,9 @@ def printing():
             screen.blit(body_img, (Coords[0], Coords[1]))
 
         draw_score()
+    
+    if SINGLE is None:
+        client.send_data(*Coords)  # Sende Kopfposition an Server
 
 def feedCordsRandomizer():
     while True:
@@ -96,23 +111,34 @@ feedCordrnd.append(feedCordsRandomizer())
 go = True
 endgame = False
 score = 0
-snake_speed = 50 # mehr = langsamer
+snake_speed = 1 # mehr = langsamer
 move_counter = 0
 #end region
 
 #region Game-Loop
+SINGLE = None
+try:
+    client = Client()  # Multiplayer Client initialisieren
+except Exception as e:
+    print("Verbindung zum Server fehlgeschlagen, starte im Einzelspielermodus.", e)
+    SINGLE = True
+
 while go:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            pygame.quit()
             sys.exit()
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP and direction != 2:
+            if event.key == pygame.K_ESCAPE:
+                pygame.quit()
+                sys.exit()
+            if event.key in [pygame.K_UP,pygame.K_w] and direction != 2:
                 direction = 0
-            if event.key == pygame.K_RIGHT and direction != 3:
+            if event.key in [pygame.K_RIGHT,pygame.K_d] and direction != 3:
                 direction = 1
-            if event.key == pygame.K_DOWN and direction != 0:
+            if event.key in [pygame.K_DOWN,pygame.K_s] and direction != 0:
                 direction = 2
-            if event.key == pygame.K_LEFT and direction != 1:
+            if event.key in [pygame.K_LEFT,pygame.K_a] and direction != 1:
                 direction = 3
 
     # nur bewegen wenn move_counter % snake_speed == 0
