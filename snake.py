@@ -4,6 +4,7 @@ import random as randomizer
 import socket
 import Snake_Functions
 import Powerups
+import os
 
 #class Client:
     #def __init__(self):
@@ -25,11 +26,16 @@ class PowerUps:
         self.position = None
         self.duration = 300  # Frames oder Sekunden, je nach Spieltempo
         self.types = ["speed_boost_x2", "speed_half", "extra_life"]
+
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        asset_path = os.path.join(base_path, "assets")
+
         self.image_files = {
-            "speed_boost_x2": "C:/Users/steff/Documents/GitHub/References-and-Projects/assets/powerup_speed2.png",
-            "speed_half": "C:/Users/steff/Documents/GitHub/References-and-Projects/assets/powerup_speedhalf.png",
-            "extra_life": "C:/Users/steff/Documents/GitHub/References-and-Projects/assets/powerup_extra_life.png"
+            "speed_boost_x2": os.path.join(asset_path, "powerup_speed2.png"),
+            "speed_half": os.path.join(asset_path, "powerup_speedhalf.png"),
+            "extra_life": os.path.join(asset_path, "powerup_extra_life.png")
         }
+
 
         self.images = {}
         for key, file in self.image_files.items():
@@ -76,21 +82,19 @@ screen = pygame.display.set_mode([1000, 1000])
 clock = pygame.time.Clock()
 powerups = PowerUps(particle_size=particle)
 
-# === Grafiken ===
-food_img = pygame.image.load("C:/Users/steff/Documents/GitHub/References-and-Projects/assets/apfel2.jpg") # Futerbild
+base_path = os.path.dirname(os.path.abspath(__file__))
+asset_path = os.path.join(base_path, "assets")
+
+food_img = pygame.image.load(os.path.join(asset_path, "apfel2.jpg"))  # Futterbild
 food_img = pygame.transform.scale(food_img, (particle, particle))
 
-body_img = pygame.image.load("C:/Users/steff/Documents/GitHub/References-and-Projects/assets/snakebody.jpg").convert_alpha() # Schlangenkörper
+body_img = pygame.image.load(os.path.join(asset_path, "snakebody.jpg")).convert_alpha()
 body_img = pygame.transform.scale(body_img, (particle, particle))
 
-head_img = pygame.image.load("C:/Users/steff/Documents/GitHub/References-and-Projects/assets/snakehead.jpg").convert_alpha() #Schlangenkopf
+head_img = pygame.image.load(os.path.join(asset_path, "snakehead.jpg")).convert_alpha()
 head_img = pygame.transform.scale(head_img, (particle, particle))
 
-font = pygame.font.SysFont(None, 40)  # Schriftgröße 40-  wählt Standard
-
-
- 
-
+font = pygame.font.SysFont(None, 40)
 
 def draw_score():
     score_text = font.render(f"Punkte: {score}", True, (0, 0, 0))  # Schwarz
