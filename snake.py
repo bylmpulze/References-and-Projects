@@ -2,38 +2,95 @@ import pygame
 import sys
 import random as randomizer
 import socket
+import Snake_Functions
+import Powerups
 
-class Client:
-    def __init__(self):
-        HOST = "10.35.25.109"  # <- LAN-IP des Server-PCs eintragen
-        PORT = 50007
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.connect((HOST, PORT))
+#class Client:
+    #def __init__(self):
+        #HOST = "10.35.25.109"  # <- LAN-IP des Server-PCs eintragen
+        #PORT = 50007
+        #self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        #self.sock.connect((HOST, PORT))
     
-    def send_data(self, dx,dy):
-        print("Sende Daten an Server:", dx, dy)
-        self.sock.sendall(f"INPUT {dx} {dy}\n".encode("utf-8"))
+    #def send_data(self, dx,dy):
+        #print("Sende Daten an Server:", dx, dy)
+        #self.sock.sendall(f"INPUT {dx} {dy}/n".encode("utf-8"))
+
+#powerUps
+class PowerUps:
+    def __init__(self, particle_size=25):
+        self.particle_size = particle_size
+        self.active_powerup = None
+        self.timer = 0
+        self.position = None
+        self.duration = 300  # Frames oder Sekunden, je nach Spieltempo
+        self.types = ["speed_boost_x2", "speed_half", "extra_life"]
+        self.image_files = {
+            "speed_boost_x2": "C:/Users/steff/Documents/GitHub/References-and-Projects/assets/powerup_speed2.png",
+            "speed_half": "C:/Users/steff/Documents/GitHub/References-and-Projects/assets/powerup_speedhalf.png",
+            "extra_life": "C:/Users/steff/Documents/GitHub/References-and-Projects/assets/powerup_extra_life.png"
+        }
+
+        self.images = {}
+        for key, file in self.image_files.items():
+            img = pygame.image.load(file).convert_alpha()
+            img = pygame.transform.scale(img, (self.particle_size, self.particle_size))
+            self.images[key] = img
+
+    def spawn_powerup(self, snake): # powerup spawn randomizer
+        if self.position is None and randomizer.random() < 0.01:  # ~1% Chance pro Frame
+            while True:
+                coord = [randomizer.randint(0, 27), randomizer.randint(0, 27)]
+                if coord not in snake:
+                    self.position = coord
+                    self.active_powerup = randomizer.choice(self.types)
+                    break
+
+    def draw(self, screen): # Show powerup
+        if self.position and self.active_powerup:
+            pos_px = [self.position[0] * self.particle_size, self.position[1] * self.particle_size]
+            screen.blit(self.images[self.active_powerup], pos_px)
+
+    def check_collision(self, snake_head): #checks if the powerup got picked up
+        if self.position and snake_head == self.position:
+            collected = self.active_powerup
+            self.position = None
+            self.active_powerup = None
+            self.timer = 0
+            return collected
+        return None
+
 
 particle = 25
 snake = [[13, 13], [13, 14]]
 direction = 0
 feedCordrnd = []
+go = True
+endgame = False
+score = 0
+snake_speed = 4 # mehr = langsamer
+move_counter = 0
 
 pygame.init()
-clock = pygame.time.Clock()
 screen = pygame.display.set_mode([1000, 1000])
+clock = pygame.time.Clock()
+powerups = PowerUps(particle_size=particle)
 
 # === Grafiken ===
-food_img = pygame.image.load("assets/apfel2.jpg") # Futerbild
+food_img = pygame.image.load("C:/Users/steff/Documents/GitHub/References-and-Projects/assets/apfel2.jpg") # Futerbild
 food_img = pygame.transform.scale(food_img, (particle, particle))
 
-body_img = pygame.image.load("assets/snakebody.jpg").convert_alpha() # Schlangenkörper
+body_img = pygame.image.load("C:/Users/steff/Documents/GitHub/References-and-Projects/assets/snakebody.jpg").convert_alpha() # Schlangenkörper
 body_img = pygame.transform.scale(body_img, (particle, particle))
 
-head_img = pygame.image.load("assets/snakehead.jpg").convert_alpha() #Schlangenkopf
+head_img = pygame.image.load("C:/Users/steff/Documents/GitHub/References-and-Projects/assets/snakehead.jpg").convert_alpha() #Schlangenkopf
 head_img = pygame.transform.scale(head_img, (particle, particle))
 
 font = pygame.font.SysFont(None, 40)  # Schriftgröße 40-  wählt Standard
+
+
+ 
+
 
 def draw_score():
     score_text = font.render(f"Punkte: {score}", True, (0, 0, 0))  # Schwarz
@@ -72,6 +129,7 @@ def game_over_screen():
 def printing():
     screen.fill((255, 255, 255))  # Weißer Hintergrund
 
+
     # Apfel
     for a in feedCordrnd:
         Coords = [a[0] * particle, a[1] * particle]
@@ -96,8 +154,8 @@ def printing():
 
         draw_score()
     
-    if SINGLE is None:
-        client.send_data(*Coords)  # Sende Kopfposition an Server
+    #if SINGLE is None:
+        #client.send_data(*Coords)  # Sende Kopfposition an Server
 
 def feedCordsRandomizer():
     while True:
@@ -108,20 +166,15 @@ def feedCordsRandomizer():
 
 feedCordrnd.append(feedCordsRandomizer())
 
-go = True
-endgame = False
-score = 0
-snake_speed = 1 # mehr = langsamer
-move_counter = 0
 #end region
 
 #region Game-Loop
-SINGLE = None
-try:
-    client = Client()  # Multiplayer Client initialisieren
-except Exception as e:
-    print("Verbindung zum Server fehlgeschlagen, starte im Einzelspielermodus.", e)
-    SINGLE = True
+#SINGLE = None
+#try:
+    #client = Client()  # Multiplayer Client initialisieren
+#except Exception as e:
+    #print("Verbindung zum Server fehlgeschlagen, starte im Einzelspielermodus.", e)
+    #SINGLE = True
 
 while go:
     for event in pygame.event.get():
@@ -140,30 +193,45 @@ while go:
                 direction = 2
             if event.key in [pygame.K_LEFT,pygame.K_a] and direction != 1:
                 direction = 3
+            if event.key in [pygame.K_SPACE]: 
+                restartenvironment()
 
     # nur bewegen wenn move_counter % snake_speed == 0
     if move_counter % snake_speed == 0:
-        
+        # Kopf bewegen
         new_head = snake[0].copy()
         if direction == 0: new_head[1] -= 1
         if direction == 1: new_head[0] += 1
         if direction == 2: new_head[1] += 1
         if direction == 3: new_head[0] -= 1
 
-        # wenn schlange rand berührt
+
+        
+        # Power-Up Kollision
+        powerups.spawn_powerup(snake)
+        collected = powerups.check_collision(new_head)
+        if collected:
+            if collected == "speed_boost_x2":
+                snake_speed = max(1, snake_speed // 2)
+            elif collected == "speed_half":
+                snake_speed = snake_speed * 2
+            elif collected == "extra_life":
+                endgame = False
+
+        # Spielfeldbegrenzung
         new_head[0] %= 40
         new_head[1] %= 40
 
-        # wenn schlange schwanz berührt
+        # Selbstkollision
         if new_head in snake:
-            game_over_screen()  
+            game_over_screen()
             restartenvironment()
 
         # Körper verschieben
         if not endgame:
             snake = [new_head] + snake[:-1]
 
-        # apfelpunkt
+        # Apfel essen
         for i, food in enumerate(feedCordrnd):
             if food == new_head:
                 snake.append(snake[-1].copy())
@@ -171,12 +239,13 @@ while go:
                 score += 10
                 break
 
-        # Neuer Apfeldings
+        # Neuer Apfel
         if len(feedCordrnd) == 0:
             feedCordrnd.append(feedCordsRandomizer())
 
     # Update
     printing()
+    powerups.draw(screen)
     pygame.display.update()
 
     move_counter += 1
