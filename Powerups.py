@@ -1,11 +1,8 @@
 import pygame
-
 import random as randomizer
 
 
-
-
-class PowerUps:
+class PowerUp:
     def __init__(self, particle_size=25):
         self.particle_size = particle_size
         self.active_powerup = None
