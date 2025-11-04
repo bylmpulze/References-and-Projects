@@ -5,6 +5,17 @@ import socket
 HOST = "10.35.25.109"  # auf allen Interfaces lauschen
 PORT = [50007, 50008, 50009]  # Liste der Ports für mehrere Clients
 
+
+def get_local_ipv4(target=("8.8.8.8", 80)):  # kann auch ("192.0.2.1", 80) sein
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(target)  # keine Pakete werden gesendet
+        return s.getsockname()[0]
+    finally:
+        s.close()
+
+HOST = get_local_ipv4()
+
 def run(port):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as srv:
         srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
