@@ -1,75 +1,81 @@
-# server.py
-import threading
+import asyncio
 import socket
 
-HOST = "10.35.25.109"  # auf allen Interfaces lauschen
-PORT = [50007, 50008, 50009]  # Liste der Ports für mehrere Clients
+HOST = "0.0.0.0"
+PORT = 50007  # ein Port genügt; mehrere Ports sind möglich, aber meist unnötig
 
-
-def get_local_ipv4(target=("8.8.8.8", 80)):  # kann auch ("192.0.2.1", 80) sein
+def get_local_ipv4(target=("192.0.2.1", 80)):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
-        s.connect(target)  # keine Pakete werden gesendet
+        s.connect(target)  # sendet nichts; wählt Route/Interface
         return s.getsockname()[0]
     finally:
         s.close()
 
-HOST = get_local_ipv4()
+class BroadcastServer:
+    def __init__(self):
+        # Speichere nur Writer; Peername kann bei Bedarf separat gemappt werden
+        self.clients: set[asyncio.StreamWriter] = set()
 
-def run(port):
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as srv:
-        srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        srv.bind((HOST, port))
-        srv.listen(1)
-        print(f"Server läuft auf {HOST}:{port} – warte auf Client...")
-        conn, addr = srv.accept()
-        print(f"Client verbunden: {addr}")
-        with conn:
-            f_in = conn.makefile("r", encoding="utf-8", newline="\n")
-            x, y = 320, 240
-            w, h = 640, 480
-            speed_limit = 10
-            while True:
-                line = f_in.readline()
-                print(f"Empfangene Daten vom Client {port}:", line.strip())
-                if not line:
-                    print("Client getrennt.")
-                    break
-                parts = line.strip().split()
-                if len(parts) == 3 and parts[0] == "INPUT":
-                    try:
-                        dx = int(parts[1]); dy = int(parts[2])
-                    except ValueError:
-                        dx = dy = 0
-                    dx = max(-speed_limit, min(speed_limit, dx))
-                    dy = max(-speed_limit, min(speed_limit, dy))
-                    x = max(0, min(w - 40, x + dx))
-                    y = max(0, min(h - 40, y + dy))
-                    conn.sendall(f"STATE {x} {y}\n".encode("utf-8"))
-                else:
-                    conn.sendall(f"STATE {x} {y}\n".encode("utf-8"))
-
-
-def start_server(port):
-    while 1:
+    async def handle_client(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+        peer = writer.get_extra_info("peername")
+        self.clients.add(writer)
+        print(f"Client verbunden: {peer}")
         try:
-            run(port)
-        except Exception as e:
-            print("Fehler im Server:", e)
-   
+            while True:
+                line = await reader.readline()  # erwartet \n-terminierte Nachrichten
+                if not line:
+                    print(f"Client getrennt: {peer}")
+                    break
+                # Optional: Validierung/Begrenzung
+                if len(line) > 8192:
+                    continue  # zu lange Zeile verwerfen
 
+                # Broadcast an alle anderen
+                await self.broadcast(line, exclude=writer)
+        finally:
+            # Client entfernen und sauber schließen
+            if writer in self.clients:
+                self.clients.discard(writer)
+            try:
+                writer.close()
+                await writer.wait_closed()
+            except Exception:
+                pass
+
+    async def broadcast(self, data: bytes, exclude: asyncio.StreamWriter | None = None):
+        dead: list[asyncio.StreamWriter] = []
+        # Zuerst write() an alle (nicht blockierend), dann drain() gesammelt
+        for w in list(self.clients):
+            if exclude is not None and w is exclude:
+                continue
+            try:
+                w.write(data)
+            except Exception:
+                dead.append(w)
+        # Flusskontrolle berücksichtigen
+        await asyncio.gather(*(w.drain() for w in list(self.clients)
+                               if (exclude is None or w is not exclude) and w not in dead),
+                             return_exceptions=True)
+        # Tote Verbindungen aufräumen
+        for w in dead:
+            if w in self.clients:
+                self.clients.discard(w)
+            try:
+                w.close()
+                await w.wait_closed()
+            except Exception:
+                pass
+
+async def main():
+    server_logic = BroadcastServer()
+    # host = get_local_ipv4()  # falls du explizit auf der aktiven LAN-IP lauschen willst
+    host = HOST
+    server = await asyncio.start_server(server_logic.handle_client, host, PORT)
+    addr_list = ", ".join(str(s.getsockname()) for s in server.sockets)
+    print(f"Server läuft auf {addr_list} – warte auf Clients...")
+    async with server:
+        await server.serve_forever()
 
 if __name__ == "__main__":
-    workers = []
-    for port in PORT:
-        server_thread = threading.Thread(target=start_server, args=(port,), daemon=True)
-        server_thread.start()
-        workers.append(server_thread)
-    
-    for worker in workers:
-        worker.join()
-
-
-
-
-
+    asyncio.run(main())

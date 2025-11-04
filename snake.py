@@ -1,23 +1,10 @@
+import os
 import pygame
 import sys
 import random as randomizer
-import socket
 import Snake_Functions
 from powerups import PowerUp
-import os
-
-#class Client:
-    #def __init__(self):
-        #HOST = "10.35.25.109"  # <- LAN-IP des Server-PCs eintragen
-        #PORT = 50007
-        #self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        #self.sock.connect((HOST, PORT))
-    
-    #def send_data(self, dx,dy):
-        #print("Sende Daten an Server:", dx, dy)
-        #self.sock.sendall(f"INPUT {dx} {dy}/n".encode("utf-8"))
-
-
+from client import Client
 
 
 particle = 25
@@ -86,7 +73,6 @@ def game_over_screen():
 def printing():
     screen.fill((255, 255, 255))  # Weißer Hintergrund
 
-
     # Apfel
     for a in feedCordrnd:
         Coords = [a[0] * particle, a[1] * particle]
@@ -110,9 +96,9 @@ def printing():
             screen.blit(body_img, (Coords[0], Coords[1]))
 
         draw_score()
-    
-    #if SINGLE is None:
-        #client.send_data(*Coords)  # Sende Kopfposition an Server
+        
+        if SINGLE is None:
+            client.queue_send(*Coords,i)  # Sende Kopfposition an Server
 
 def feedCordsRandomizer():
     while True:
@@ -126,12 +112,12 @@ feedCordrnd.append(feedCordsRandomizer())
 #end region
 
 #region Game-Loop
-#SINGLE = None
-#try:
-    #client = Client()  # Multiplayer Client initialisieren
-#except Exception as e:
-    #print("Verbindung zum Server fehlgeschlagen, starte im Einzelspielermodus.", e)
-    #SINGLE = True
+SINGLE = None
+try:
+    client = Client()  # Multiplayer Client initialisieren
+except Exception as e:
+    print("Verbindung zum Server fehlgeschlagen, starte im Einzelspielermodus.", e)
+    SINGLE = True
 
 while go:
     for event in pygame.event.get():
@@ -161,8 +147,6 @@ while go:
         if direction == 1: new_head[0] += 1
         if direction == 2: new_head[1] += 1
         if direction == 3: new_head[0] -= 1
-
-
         
         # Power-Up Kollision
         powerups.spawn_powerup(snake)
@@ -202,6 +186,16 @@ while go:
 
     # Update
     printing()
+    data_from_server = client.receive_now()
+    if data_from_server:
+        print("data_from_server",data_from_server)
+        # Schlange 
+        #STATE 1000 1000
+        x,y = data_from_server.strip().split()[1:3]
+        print("x,y",x,y)
+        screen.blit(body_img, (int(x), int(y)))
+
+
     powerups.draw(screen)
     pygame.display.update()
 
