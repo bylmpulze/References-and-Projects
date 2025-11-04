@@ -1,10 +1,10 @@
 import asyncio
 import socket
 
-HOST = "0.0.0.0"
+HOST = "127.0.0.1"
 PORT = 50007  # ein Port genügt; mehrere Ports sind möglich, aber meist unnötig
 
-def get_local_ipv4(target=("192.0.2.1", 80)):
+def get_local_ipv4(target=("8.8.8.8", 80)):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         s.connect(target)  # sendet nichts; wählt Route/Interface
@@ -73,7 +73,7 @@ async def main():
     host = HOST
     server = await asyncio.start_server(server_logic.handle_client, host, PORT)
     addr_list = ", ".join(str(s.getsockname()) for s in server.sockets)
-    print(f"Server läuft auf {addr_list} – warte auf Clients...")
+    print(f"Server läuft auf {addr_list} - warte auf Clients...")
     async with server:
         await server.serve_forever()
 

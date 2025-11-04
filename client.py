@@ -26,12 +26,11 @@ class Client:
         self._reader_thread.start()
         self._sender_thread.start()
 
-    def queue_send(self, delta_x: int, delta_y: int, part_index: int) -> None:
+    def queue_send(self, data) -> None:
         """
         Enqueue a message to be sent by the sender thread.
         """
-        line = f"INPUT {delta_x} {delta_y} {part_index}\n".encode("utf-8")
-        self.outgoing_messages.put(line)
+        self.outgoing_messages.put(data)
 
     def send_immediate(self, delta_x: int, delta_y: int, part_index: int) -> None:
         """

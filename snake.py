@@ -1,8 +1,8 @@
 import os
 import pygame
 import sys
+import json
 import random as randomizer
-import Snake_Functions
 from powerups import PowerUp
 from client import Client
 
@@ -48,6 +48,12 @@ def restartenvironment ():
     feedCordrnd = [feedCordsRandomizer()]
     score = 0
     endgame = False
+
+def feedCordsRandomizer():
+    while True:
+        Coord = [randomizer.randint(0, 27), randomizer.randint(0, 27)]
+        if Coord not in snake and Coord not in feedCordrnd:
+            return Coord
 
 def game_over_screen():
     screen.fill((255, 255, 255))  # Weißer Hintergrund
@@ -97,14 +103,7 @@ def printing():
 
         draw_score()
         
-        if SINGLE is None:
-            client.queue_send(*Coords,i)  # Sende Kopfposition an Server
 
-def feedCordsRandomizer():
-    while True:
-        Coord = [randomizer.randint(0, 27), randomizer.randint(0, 27)]
-        if Coord not in snake and Coord not in feedCordrnd:
-            return Coord
 
 
 feedCordrnd.append(feedCordsRandomizer())
@@ -112,12 +111,29 @@ feedCordrnd.append(feedCordsRandomizer())
 #end region
 
 #region Game-Loop
-SINGLE = None
+SINGLE = False
 try:
     client = Client()  # Multiplayer Client initialisieren
 except Exception as e:
     print("Verbindung zum Server fehlgeschlagen, starte im Einzelspielermodus.", e)
     SINGLE = True
+
+other_snakes = {}
+
+def draw_other_snakes(other_snakes):
+    for other_snake in other_snakes.values():
+        for i, (x, y) in enumerate(other_snake):
+            x *= particle
+            y *= particle
+            if i == 0:
+                # Kopf zeichnen
+                rotated_head = pygame.transform.rotate(head_img, 0)
+                screen.blit(rotated_head, (int(x), int(y)))
+            else:
+                # Körper zeichnen
+                screen.blit(body_img, (int(x), int(y)))
+
+
 
 while go:
     for event in pygame.event.get():
@@ -147,7 +163,7 @@ while go:
         if direction == 1: new_head[0] += 1
         if direction == 2: new_head[1] += 1
         if direction == 3: new_head[0] -= 1
-        
+                
         # Power-Up Kollision
         powerups.spawn_powerup(snake)
         collected = powerups.check_collision(new_head)
@@ -184,22 +200,18 @@ while go:
         if len(feedCordrnd) == 0:
             feedCordrnd.append(feedCordsRandomizer())
 
+    if not SINGLE and move_counter % 2 == 0:
+        client.queue_send( (json.dumps(snake) + "\n").encode("utf-8")  )
+
     # Update
     printing()
-    data_from_server = client.receive_now()
-    if data_from_server:
-        print("data_from_server",data_from_server)
-        # Schlange 
-        #STATE 1000 1000
-        x,y = data_from_server.strip().split()[1:3]
-        print("x,y",x,y)
-        screen.blit(body_img, (int(x), int(y)))
-
-
+    while data_from_server := client.receive_now():
+        other_snakes_data = json.loads(data_from_server)
+        other_snakes["first"] = other_snakes_data
+    draw_other_snakes(other_snakes)
+        
     powerups.draw(screen)
     pygame.display.update()
 
     move_counter += 1
     clock.tick(60)  # 60 FPS
-
-    #region Multiplayer 
