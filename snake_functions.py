@@ -1,12 +1,11 @@
 import random as randomizer
 import pygame
-import snake
 
 # Feedspawn around 39x25 pixels ( 975 )
 def feedCordsRandomizer():
     while True:
         Coord = [randomizer.randint(0, 27), randomizer.randint(0, 27)]
-        if Coord not in snake.snake and Coord not in snake.feedCordrnd:
+        if Coord not in snake and Coord not in feedCordrnd:
             return Coord
         
 def draw_other_snakes(other_snakes, particle, screen, snake_skins):
