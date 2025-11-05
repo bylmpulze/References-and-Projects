@@ -18,7 +18,8 @@ snake_speed = 4 # mehr = langsamer
 move_counter = 0
 
 pygame.init()
-screen = pygame.display.set_mode([1000, 1000])
+SCREEN_SIZE = 800
+screen = pygame.display.set_mode([SCREEN_SIZE, SCREEN_SIZE])
 clock = pygame.time.Clock()
 powerups = PowerUp(particle_size=particle)
 
@@ -33,6 +34,34 @@ body_img = pygame.transform.scale(body_img, (particle, particle))
 
 head_img = pygame.image.load(os.path.join(asset_path, "snakehead.jpg")).convert_alpha()
 head_img = pygame.transform.scale(head_img, (particle, particle))
+
+PLAYER_COLORS = {
+    "p1": (0, 200, 0),    # green
+    "p2": (220, 40, 40),  # red
+    "p3": (40, 120, 220), # blue
+    "p4": (230, 170, 30), # yellow
+}
+
+PLAYERID = None
+
+def tint_surface(src: pygame.Surface, color: tuple[int,int,int]) -> pygame.Surface:
+    # Preserves per-pixel alpha and shading by multiplying RGB
+    # color is (r,g,b) in 0..255
+    tinted = src.copy()
+    mask = pygame.Surface(src.get_size(), flags=pygame.SRCALPHA)
+    # Fill with the tint color, full alpha to affect RGB channels
+    mask.fill((*color, 255))
+    # Multiply: darkens channels proportionally to the tint
+    tinted.blit(mask, (0, 0), special_flags=pygame.BLEND_RGB_MULT)
+    return tinted
+
+def make_snake_skins(color):
+    return (
+        tint_surface(body_img, color),     # or recolor_exact(body_img, color)
+        tint_surface(head_img, color),     # or recolor_exact(head_img, color)
+    )
+
+snake_skins = {sid: make_snake_skins(col) for sid, col in PLAYER_COLORS.items()}
 
 font = pygame.font.SysFont(None, 40)
 
@@ -121,20 +150,42 @@ except Exception as e:
 other_snakes = {}
 
 def draw_other_snakes(other_snakes):
-    for other_snake in other_snakes.values():
+    for snake_id,other_snake in other_snakes.items():
         for i, (x, y) in enumerate(other_snake):
             x *= particle
             y *= particle
             if i == 0:
                 # Kopf zeichnen
-                rotated_head = pygame.transform.rotate(head_img, 0)
+                snake_head = snake_skins["p2"][0]  # Beispiel: p2 Farbe für andere Spieler
+                rotated_head = pygame.transform.rotate(snake_head, 0)
                 screen.blit(rotated_head, (int(x), int(y)))
             else:
                 # Körper zeichnen
-                screen.blit(body_img, (int(x), int(y)))
+                snake_body = snake_skins["p2"][1]  # Beispiel: p2 Farbe für andere Spieler
+                screen.blit(snake_body, (int(x), int(y)))
 
 
+def identfy(player_id):
+    font = pygame.font.SysFont(None, SCREEN_SIZE)
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
 
+        screen.fill((255, 255, 255))  # Weißer Hintergrund
+        id_text = font.render(f"{player_id}", True, (0, 0, 0))  # Schwarz
+        width,height = id_text.get_size()
+        x = SCREEN_SIZE//2 - width//2
+        y = SCREEN_SIZE//2 - height//2
+        screen.blit(id_text, (x, y))  # Zentriert
+        pygame.display.update()
+        
+                
 while go:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -154,6 +205,8 @@ while go:
                 direction = 3
             if event.key in [pygame.K_SPACE]: 
                 restartenvironment()
+            if event.key in [pygame.K_F1]:
+                identfy(PLAYERID)
 
     # nur bewegen wenn move_counter % snake_speed == 0
     if move_counter % snake_speed == 0:
@@ -176,8 +229,8 @@ while go:
                 endgame = False
 
         # Spielfeldbegrenzung
-        new_head[0] %= 40
-        new_head[1] %= 40
+        new_head[0] %= (SCREEN_SIZE // particle)
+        new_head[1] %= (SCREEN_SIZE // particle)
 
         # Selbstkollision
         if new_head in snake:
@@ -206,8 +259,12 @@ while go:
     # Update
     printing()
     while data_from_server := client.receive_now():
-        other_snakes_data = json.loads(data_from_server)
-        other_snakes["first"] = other_snakes_data
+        if "WELCOME" in data_from_server:
+            print("Eingeloggt ins Spiel.",data_from_server)
+            PLAYERID = data_from_server.split()[1]
+        else:
+            other_snakes_data = json.loads(data_from_server)
+            other_snakes["first"] = other_snakes_data
     draw_other_snakes(other_snakes)
         
     powerups.draw(screen)

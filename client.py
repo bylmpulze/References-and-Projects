@@ -25,6 +25,7 @@ class Client:
         self._sender_thread = threading.Thread(target=self._send_loop, daemon=True)
         self._reader_thread.start()
         self._sender_thread.start()
+        self.queue_send(b"HELLO Player\n")
 
     def queue_send(self, data) -> None:
         """
