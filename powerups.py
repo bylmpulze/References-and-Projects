@@ -1,6 +1,9 @@
 import pygame
 import random as randomizer
+import os
 
+base_path = os.path.dirname(os.path.abspath(__file__))
+asset_path = os.path.join(base_path, "assets")
 
 class PowerUp:
     def __init__(self, particle_size=25):
@@ -13,7 +16,8 @@ class PowerUp:
         self.image_files = {
             "speed_boost_x2": "assets/powerup_speed2.png",
             "speed_half": "assets/powerup_speedhalf.png",
-            "extra_life": "assets/powerup_extra_life.png"
+            "extra_life": "assets/powerup_extra_life.png",
+            "change_direction": "assets/powerup_change_direction.jpg"
         }
 
         self.images = {}
@@ -28,7 +32,8 @@ class PowerUp:
                 coord = [randomizer.randint(0, 27), randomizer.randint(0, 27)]
                 if coord not in snake:
                     self.position = coord
-                    self.active_powerup = randomizer.choice(self.types)
+                    #self.active_powerup = randomizer.choice(self.types)
+                    self.active_powerup = "change_direction"
                     break
 
     def draw(self, screen): # Show powerup

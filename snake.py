@@ -72,12 +72,14 @@ def draw_score():
 
 #region restart
 def restartenvironment ():
-    global snake, direction, feedCordrnd, score, endgame
+    global snake, direction, feedCordrnd, score, endgame, powerup_active
     snake = [[13, 13], [13, 14]]
     direction = 0
     feedCordrnd = [feedCordsRandomizer()]
     score = 0
     endgame = False
+    powerup_active = -9999
+
 
 def feedCordsRandomizer():
     while True:
@@ -163,30 +165,41 @@ def identfy(player_id):
         y = SCREEN_SIZE//2 - height//2
         screen.blit(id_text, (x, y))  # Zentriert
         pygame.display.update()
-        
 
-inuminty_colleted = None
+
+
+def handle_keypress(event, direction, change_direction_collected):
+    powerup_active = pygame.time.get_ticks() - (change_direction_collected or 0)
+    powerup_active = 0 < powerup_active < 10_000 
+    print(powerup_active)
+    if event.key == pygame.K_ESCAPE:
+        pygame.quit()
+        sys.exit()
+    if event.key in [pygame.K_UP,pygame.K_w] and direction != 2:
+        direction = 2 if powerup_active else 0
+    if event.key in [pygame.K_RIGHT,pygame.K_d] and direction != 3:
+        direction = 3 if powerup_active else 1
+    if event.key in [pygame.K_DOWN,pygame.K_s] and direction != 0:
+        direction = 0 if powerup_active else 2
+    if event.key in [pygame.K_LEFT,pygame.K_a] and direction != 1:
+        direction = 1 if powerup_active else 3
+    if event.key in [pygame.K_SPACE]: 
+        restartenvironment()
+    if event.key in [pygame.K_F1]:
+        identfy(PLAYERID)
+    return direction
+
+
+change_direction_collected = -9999
+inuminty_collected = None
 while go:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                pygame.quit()
-                sys.exit()
-            if event.key in [pygame.K_UP,pygame.K_w] and direction != 2:
-                direction = 0
-            if event.key in [pygame.K_RIGHT,pygame.K_d] and direction != 3:
-                direction = 1
-            if event.key in [pygame.K_DOWN,pygame.K_s] and direction != 0:
-                direction = 2
-            if event.key in [pygame.K_LEFT,pygame.K_a] and direction != 1:
-                direction = 3
-            if event.key in [pygame.K_SPACE]: 
-                restartenvironment()
-            if event.key in [pygame.K_F1]:
-                identfy(PLAYERID)
+            direction = handle_keypress(event, direction,change_direction_collected) 
+               
 
     # nur bewegen wenn move_counter % snake_speed == 0
     if move_counter % snake_speed == 0:
@@ -209,6 +222,9 @@ while go:
                 inuminty_colleted = pygame.time.get_ticks()
                 print("Unverwundbarkeit aktiviert für 5 Sekunden!")
                 print(inuminty_colleted)
+            elif collected == "change_direction":
+                change_direction_collected = pygame.time.get_ticks() 
+
 
         # Spielfeldbegrenzung
         new_head[0] %= (SCREEN_SIZE // particle)
@@ -216,7 +232,7 @@ while go:
 
         # Selbstkollision
         if new_head in snake:
-            elapsed = pygame.time.get_ticks() - (inuminty_colleted or 0)
+            elapsed = pygame.time.get_ticks() - (inuminty_collected or 0)
             if elapsed > 5000:
                 game_over_screen()
                 restartenvironment()
@@ -260,3 +276,4 @@ while go:
 
     move_counter += 1
     clock.tick(60)  # 60 FPS
+#Multiplayer
