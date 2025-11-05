@@ -166,7 +166,27 @@ def identfy(player_id):
         screen.blit(id_text, (x, y))  # Zentriert
         pygame.display.update()
 
+def handle_drunk(event,direction):
+    if event.key in [pygame.K_UP,pygame.K_w] and direction != 0:
+        direction = 2 
+    if event.key in [pygame.K_RIGHT,pygame.K_d] and direction != 1:
+        direction = 3 
+    if event.key in [pygame.K_DOWN,pygame.K_s] and direction != 2:
+        direction = 0 
+    if event.key in [pygame.K_LEFT,pygame.K_a] and direction != 3:
+        direction = 1 
+    return direction
 
+def handle_normal(event,direction):
+    if event.key in [pygame.K_UP,pygame.K_w] and direction != 2:
+        direction = 0 
+    if event.key in [pygame.K_RIGHT,pygame.K_d] and direction != 3:
+        direction = 1 
+    if event.key in [pygame.K_DOWN,pygame.K_s] and direction != 0:
+        direction = 2
+    if event.key in [pygame.K_LEFT,pygame.K_a] and direction != 1:
+        direction = 3 
+    return direction
 
 def handle_keypress(event, direction, change_direction_collected):
     powerup_active = pygame.time.get_ticks() - (change_direction_collected or 0)
@@ -175,14 +195,10 @@ def handle_keypress(event, direction, change_direction_collected):
     if event.key == pygame.K_ESCAPE:
         pygame.quit()
         sys.exit()
-    if event.key in [pygame.K_UP,pygame.K_w] and direction != 2:
-        direction = 2 if powerup_active else 0
-    if event.key in [pygame.K_RIGHT,pygame.K_d] and direction != 3:
-        direction = 3 if powerup_active else 1
-    if event.key in [pygame.K_DOWN,pygame.K_s] and direction != 0:
-        direction = 0 if powerup_active else 2
-    if event.key in [pygame.K_LEFT,pygame.K_a] and direction != 1:
-        direction = 1 if powerup_active else 3
+    if powerup_active: 
+        direction = handle_drunk(event, direction) 
+    else:
+        direction = handle_normal(event, direction) 
     if event.key in [pygame.K_SPACE]: 
         restartenvironment()
     if event.key in [pygame.K_F1]:
@@ -276,4 +292,4 @@ while go:
 
     move_counter += 1
     clock.tick(60)  # 60 FPS
-#Multiplayer
+#Multiplayer inc

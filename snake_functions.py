@@ -1,5 +1,6 @@
 import random as randomizer
 import pygame
+import snake
 
 # Feedspawn around 39x25 pixels ( 975 )
 def feedCordsRandomizer():
