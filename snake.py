@@ -79,6 +79,8 @@ def restartenvironment ():
     score = 0
     endgame = False
     powerup_active = -9999
+    powerups.delete_powerup()
+
 
 
 def feedCordsRandomizer():
@@ -166,7 +168,8 @@ def identfy(player_id):
         screen.blit(id_text, (x, y))  # Zentriert
         pygame.display.update()
 
-def handle_drunk(event,direction):
+#powerup change_direction movement handler (opposite_directions -> down = up)
+def handle_powerup_drunk(event,direction):
     if event.key in [pygame.K_UP,pygame.K_w] and direction != 0:
         direction = 2 
     if event.key in [pygame.K_RIGHT,pygame.K_d] and direction != 1:
@@ -177,7 +180,8 @@ def handle_drunk(event,direction):
         direction = 1 
     return direction
 
-def handle_normal(event,direction):
+#normal movement_handler
+def handle_normal_movement(event,direction):
     if event.key in [pygame.K_UP,pygame.K_w] and direction != 2:
         direction = 0 
     if event.key in [pygame.K_RIGHT,pygame.K_d] and direction != 3:
@@ -188,17 +192,18 @@ def handle_normal(event,direction):
         direction = 3 
     return direction
 
+
 def handle_keypress(event, direction, change_direction_collected):
     powerup_active = pygame.time.get_ticks() - (change_direction_collected or 0)
-    powerup_active = 0 < powerup_active < 10_000 
-    print(powerup_active)
+    powerup_active = 0 < powerup_active < 5_000 # powerup_active time = 5 seconds
+    print("Drunk Powerup aktiv = ", powerup_active)
     if event.key == pygame.K_ESCAPE:
         pygame.quit()
         sys.exit()
     if powerup_active: 
-        direction = handle_drunk(event, direction) 
+        direction = handle_powerup_drunk(event, direction) 
     else:
-        direction = handle_normal(event, direction) 
+        direction = handle_normal_movement(event, direction) 
     if event.key in [pygame.K_SPACE]: 
         restartenvironment()
     if event.key in [pygame.K_F1]:
@@ -206,15 +211,15 @@ def handle_keypress(event, direction, change_direction_collected):
     return direction
 
 
-change_direction_collected = -9999
-inuminty_collected = None
+powerup_drunk_collected = -9999
+immunity_collected = None
 while go:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
         if event.type == pygame.KEYDOWN:
-            direction = handle_keypress(event, direction,change_direction_collected) 
+            direction = handle_keypress(event, direction,powerup_drunk_collected) 
                
 
     # nur bewegen wenn move_counter % snake_speed == 0
@@ -235,11 +240,11 @@ while go:
             elif collected == "speed_half":
                 snake_speed = snake_speed * 2
             elif collected == "extra_life":
-                inuminty_colleted = pygame.time.get_ticks()
+                immunity_collected = pygame.time.get_ticks()
                 print("Unverwundbarkeit aktiviert für 5 Sekunden!")
-                print(inuminty_colleted)
-            elif collected == "change_direction":
-                change_direction_collected = pygame.time.get_ticks() 
+                print(immunity_collected)
+            elif collected == "powerup_drunk":
+                powerup_drunk_collected = pygame.time.get_ticks() 
 
 
         # Spielfeldbegrenzung
@@ -248,7 +253,7 @@ while go:
 
         # Selbstkollision
         if new_head in snake:
-            elapsed = pygame.time.get_ticks() - (inuminty_collected or 0)
+            elapsed = pygame.time.get_ticks() - (immunity_collected or 0)
             if elapsed > 5000:
                 game_over_screen()
                 restartenvironment()
@@ -292,4 +297,3 @@ while go:
 
     move_counter += 1
     clock.tick(60)  # 60 FPS
-#Multiplayer inc
