@@ -5,6 +5,7 @@ import json
 import random as randomizer
 from powerups import PowerUp
 from client import Client
+from Snake_Functions import draw_other_snakes
 
 
 particle = 25
@@ -149,21 +150,6 @@ except Exception as e:
 
 other_snakes = {}
 
-def draw_other_snakes(other_snakes):
-    for snake_id,other_snake in other_snakes.items():
-        for i, (x, y) in enumerate(other_snake):
-            x *= particle
-            y *= particle
-            if i == 0:
-                # Kopf zeichnen
-                snake_head = snake_skins["p2"][0]  # Beispiel: p2 Farbe für andere Spieler
-                rotated_head = pygame.transform.rotate(snake_head, 0)
-                screen.blit(rotated_head, (int(x), int(y)))
-            else:
-                # Körper zeichnen
-                snake_body = snake_skins["p2"][1]  # Beispiel: p2 Farbe für andere Spieler
-                screen.blit(snake_body, (int(x), int(y)))
-
 
 def identfy(player_id):
     font = pygame.font.SysFont(None, SCREEN_SIZE)
@@ -173,9 +159,7 @@ def identfy(player_id):
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
+                return
 
         screen.fill((255, 255, 255))  # Weißer Hintergrund
         id_text = font.render(f"{player_id}", True, (0, 0, 0))  # Schwarz
@@ -241,6 +225,10 @@ while go:
             if elapsed > 5000:
                 game_over_screen()
                 restartenvironment()
+        
+        for snake_id,other_snake in other_snakes.items():
+            if new_head in other_snake:
+                game_over_screen()
 
         # Körper verschieben
         if not endgame:
@@ -272,9 +260,9 @@ while go:
             print("Eingeloggt ins Spiel.",data_from_server)
             PLAYERID = data_from_server.split()[1]
         else:
-            other_snakes_data = json.loads(data_from_server)
-            other_snakes["first"] = other_snakes_data
-    draw_other_snakes(other_snakes)
+            snake_id, other_snakes_data = data_from_server.split(":", 1)
+            other_snakes[snake_id] = json.loads(other_snakes_data)
+    draw_other_snakes(other_snakes, particle, screen, snake_skins)
         
     powerups.draw(screen)
     pygame.display.update()
