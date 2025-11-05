@@ -212,7 +212,8 @@ def handle_keypress(event, direction, change_direction_collected):
 
 
 powerup_drunk_collected = -9999
-immunity_collected = None
+immunity_collected_time = None
+power_up_not_collected_time = None
 while go:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -240,11 +241,16 @@ while go:
             elif collected == "speed_half":
                 snake_speed = snake_speed * 2
             elif collected == "extra_life":
-                immunity_collected = pygame.time.get_ticks()
+                immunity_collected_time = pygame.time.get_ticks()
                 print("Unverwundbarkeit aktiviert für 5 Sekunden!")
-                print(immunity_collected)
+                print(immunity_collected_time)
             elif collected == "powerup_drunk":
                 powerup_drunk_collected = pygame.time.get_ticks() 
+        else:
+            power_up_not_collected_time = pygame.time.get_ticks() - (powerups.powerup_spawntime or 0)
+            if power_up_not_collected_time > 5000:
+                    print("powerup_spawntimer debug", power_up_not_collected_time)
+                    powerups.delete_powerup()
 
 
         # Spielfeldbegrenzung
@@ -253,7 +259,7 @@ while go:
 
         # Selbstkollision
         if new_head in snake:
-            elapsed = pygame.time.get_ticks() - (immunity_collected or 0)
+            elapsed = pygame.time.get_ticks() - (immunity_collected_time or 0)
             if elapsed > 5000:
                 game_over_screen()
                 restartenvironment()
