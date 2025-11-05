@@ -72,7 +72,7 @@ def draw_score():
 
 #region restart
 def restartenvironment ():
-    global snake, direction, feedCordrnd, score, endgame, powerup_active
+    global snake, direction, feedCordrnd, score, endgame, powerup_active, snake_speed
     snake = [[13, 13], [13, 14]]
     direction = 0
     feedCordrnd = [feedCordsRandomizer()]
@@ -80,7 +80,7 @@ def restartenvironment ():
     endgame = False
     powerup_active = -9999
     powerups.delete_powerup()
-
+    snake_speed = 4
 
 
 def feedCordsRandomizer():
@@ -249,9 +249,7 @@ while go:
         else:
             power_up_not_collected_time = pygame.time.get_ticks() - (powerups.powerup_spawntime or 0)
             if power_up_not_collected_time > 5000:
-                    print("powerup_spawntimer debug", power_up_not_collected_time)
                     powerups.delete_powerup()
-
 
         # Spielfeldbegrenzung
         new_head[0] %= (SCREEN_SIZE // particle)
