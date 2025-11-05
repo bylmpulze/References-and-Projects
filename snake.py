@@ -185,7 +185,8 @@ def identfy(player_id):
         screen.blit(id_text, (x, y))  # Zentriert
         pygame.display.update()
         
-                
+
+inuminty_colleted = None
 while go:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -226,7 +227,9 @@ while go:
             elif collected == "speed_half":
                 snake_speed = snake_speed * 2
             elif collected == "extra_life":
-                endgame = False
+                inuminty_colleted = pygame.time.get_ticks()
+                print("Unverwundbarkeit aktiviert für 5 Sekunden!")
+                print(inuminty_colleted)
 
         # Spielfeldbegrenzung
         new_head[0] %= (SCREEN_SIZE // particle)
@@ -234,8 +237,10 @@ while go:
 
         # Selbstkollision
         if new_head in snake:
-            game_over_screen()
-            restartenvironment()
+            elapsed = pygame.time.get_ticks() - (inuminty_colleted or 0)
+            if elapsed > 5000:
+                game_over_screen()
+                restartenvironment()
 
         # Körper verschieben
         if not endgame:
@@ -244,6 +249,10 @@ while go:
         # Apfel essen
         for i, food in enumerate(feedCordrnd):
             if food == new_head:
+                snake.append(snake[-1].copy())
+                snake.append(snake[-1].copy())
+                snake.append(snake[-1].copy())
+                snake.append(snake[-1].copy())
                 snake.append(snake[-1].copy())
                 del feedCordrnd[i]
                 score += 10
