@@ -5,7 +5,7 @@ import json
 import random as randomizer
 from powerups import PowerUp
 from client import Client
-from Snake_Functions import draw_other_snakes
+from snake_functions import draw_other_snakes
 
 
 particle = 25
