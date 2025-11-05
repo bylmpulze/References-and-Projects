@@ -48,4 +48,11 @@ class PowerUp:
             self.timer = 0
             return collected
         return None
+    
+    def delete_powerup(self):
+            self.position = None
+            self.active_powerup = None
+            self.timer = 0
+            return 
+    
  
