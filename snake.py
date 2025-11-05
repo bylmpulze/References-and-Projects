@@ -4,7 +4,7 @@ import sys
 import json
 import random as randomizer
 from powerups import PowerUp
-from client import Client
+from client import Client, FakeClient
 
 
 particle = 25
@@ -105,18 +105,13 @@ def printing():
         
 
 
-
 feedCordrnd.append(feedCordsRandomizer())
 
-#end region
-
-#region Game-Loop
 SINGLE = False
 try:
     client = Client()  # Multiplayer Client initialisieren
 except Exception as e:
-    print("Verbindung zum Server fehlgeschlagen, starte im Einzelspielermodus.", e)
-    SINGLE = True
+    client = FakeClient()
 
 other_snakes = {}
 
@@ -132,7 +127,6 @@ def draw_other_snakes(other_snakes):
             else:
                 # Körper zeichnen
                 screen.blit(body_img, (int(x), int(y)))
-
 
 
 while go:

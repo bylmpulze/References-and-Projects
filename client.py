@@ -109,3 +109,14 @@ class Client:
             self.socket.close()
         except OSError:
             pass
+
+
+class FakeClient:
+    def __init__(self):
+        pass
+
+    def receive_now(self):
+        return None
+
+    def queue_send(self, data):
+        pass
