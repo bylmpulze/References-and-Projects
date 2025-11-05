@@ -10,6 +10,7 @@ class PowerUp:
         self.particle_size = particle_size
         self.active_powerup = None
         self.timer = 0
+        self.powerup_spawntime = 0
         self.position = None
         self.duration = 300  # Frames oder Sekunden, je nach Spieltempo
         self.types = ["speed_boost_x2", "speed_half", "extra_life", "powerup_drunk"]
@@ -33,6 +34,8 @@ class PowerUp:
                 if coord not in snake:
                     self.position = coord
                     self.active_powerup = randomizer.choice(self.types)
+                    print("powerup activ")
+                    self.powerup_spawntime = pygame.time.get_ticks() 
                     break
 
     def draw(self, screen): # Show powerup
