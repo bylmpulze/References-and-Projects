@@ -233,10 +233,6 @@ while go:
         for i, food in enumerate(feedCordrnd):
             if food == new_head:
                 snake.append(snake[-1].copy())
-                snake.append(snake[-1].copy())
-                snake.append(snake[-1].copy())
-                snake.append(snake[-1].copy())
-                snake.append(snake[-1].copy())
                 del feedCordrnd[i]
                 score += 10
                 break
