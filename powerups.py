@@ -12,12 +12,12 @@ class PowerUp:
         self.timer = 0
         self.position = None
         self.duration = 300  # Frames oder Sekunden, je nach Spieltempo
-        self.types = ["speed_boost_x2", "speed_half", "extra_life"]
+        self.types = ["speed_boost_x2", "speed_half", "extra_life", "powerup_drunk"]
         self.image_files = {
             "speed_boost_x2": "assets/powerup_speed2.png",
             "speed_half": "assets/powerup_speedhalf.png",
             "extra_life": "assets/powerup_extra_life.png",
-            "change_direction": "assets/powerup_change_direction.jpg"
+            "powerup_drunk": "assets/powerup_drunk.jpg"
         }
 
         self.images = {}
@@ -32,8 +32,7 @@ class PowerUp:
                 coord = [randomizer.randint(0, 27), randomizer.randint(0, 27)]
                 if coord not in snake:
                     self.position = coord
-                    #self.active_powerup = randomizer.choice(self.types)
-                    self.active_powerup = "change_direction"
+                    self.active_powerup = randomizer.choice(self.types)
                     break
 
     def draw(self, screen): # Show powerup
