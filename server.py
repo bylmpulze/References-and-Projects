@@ -94,6 +94,17 @@ class BroadcastServer:
                     print(f"Client getrennt: {peer}")
                     break
 
+                 # Im handle_client nach dem Lesen der Zeile:
+                text = line.decode("utf-8", errors="strict").strip()
+
+                # Beispiel-Kommando: "DEAD SNAKE <id>"
+                if text.startswith("DEAD SNAKE"):
+                    # Optional: validieren/parsen
+                    await self.broadcast((text + "\n").encode("utf-8"), exclude=writer)  # an alle außer Auslöser
+                    continue  
+
+                # ... sonst wie bisher weiterleiten (Chat-Style) ...
+
                 now = time.time()
                 self.snakes.append((now, line))
 
