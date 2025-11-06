@@ -146,7 +146,7 @@ if ip_addr is None:
     client = FakeClient()
 else:
     try:
-        client = Client()  # Multiplayer Client initialisieren
+        client = Client(ip_addr)  # Multiplayer Client initialisieren
     except Exception as e:
         client = FakeClient()
         
