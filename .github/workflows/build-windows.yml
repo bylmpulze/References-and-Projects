@@ -24,11 +24,11 @@ jobs:
 
       - name: Build with PyInstaller
         run: |
-          pyinstaller snake.py ^
-            --name Snake ^
-            --onefile ^
-            --noconsole ^
-            --add-data "assets;assets" ^
+          pyinstaller snake.py `
+            --name Snake `
+            --onefile `
+            --noconsole `
+            --add-data "assets;assets" `
             --hidden-import pygame
         shell: pwsh
 
