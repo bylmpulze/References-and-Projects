@@ -138,7 +138,7 @@ class BroadcastServer:
 
 async def main():
     server_logic = BroadcastServer()
-    host = HOST
+    host = get_local_ipv4()
     server = await asyncio.start_server(server_logic.handle_client, host, PORT)
     addr_list = ", ".join(str(s.getsockname()) for s in server.sockets)
     print(f"Server läuft auf {addr_list} - warte auf Clients...")
