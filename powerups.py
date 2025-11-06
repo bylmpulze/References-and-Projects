@@ -25,8 +25,13 @@ class PowerUp:
         self.images = {}
         for key, file in self.image_files.items():
             img = pygame.image.load(file).convert_alpha()
-            img = pygame.transform.scale(img, (self.particle_size, self.particle_size))
+            img = pygame.transform.scale(self.resource_path(img), (self.particle_size, self.particle_size))
             self.images[key] = img
+        
+    def resource_path(self, rel_path: str) -> str:
+        base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+        return os.path.join(base_path, rel_path)
+
 
     def spawn_powerup(self, snake): # powerup spawn randomizer
         current_frametime = pygame.time.get_ticks()
