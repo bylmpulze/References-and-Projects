@@ -32,3 +32,16 @@ Erstellt mit **Python** & **Pygame**.
 - Bibliotheken:
   ```bash
   pip install pygame
+
+## Ideen 
+Snakegame ideen:
+
+Multi screen - über mehrere Bildschirme
+
+verschiedene Schlangenbilder  - Eigene Bilder importieren - Kopf z.b
+
+
+Power ups -  memes
+- wodkaflasche
+- Doppelte Geschwindigkeit
+- Halbe Geschwindigkeit
