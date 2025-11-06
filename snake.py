@@ -126,14 +126,14 @@ if ip_addr is None:
 else:
     try:
         client = Client(ip_addr)  # Multiplayer Client initialisieren
-    except Exception as e:
+    except Exception as _:
         client = FakeClient()
         
 
 other_snakes = {}
 
 
-def identfy(player_id):
+def identify(player_id):
     font = pygame.font.SysFont(None, SCREEN_SIZE)
     while True:
         for event in pygame.event.get():
@@ -151,8 +151,9 @@ def identfy(player_id):
         screen.blit(id_text, (x, y))  # Zentriert
         pygame.display.update()
 
-#powerup change_direction movement handler (opposite_directions -> down = up)
+
 def handle_powerup_drunk(event,direction):
+    """ powerup change_direction movement handler (opposite_directions -> down = up) """
     if event.key in [pygame.K_UP,pygame.K_w] and direction != 0:
         direction = 2 
     if event.key in [pygame.K_RIGHT,pygame.K_d] and direction != 1:
@@ -189,7 +190,7 @@ def handle_keypress(event, direction, change_direction_collected):
     if event.key in [pygame.K_SPACE]: 
         restart_environment()
     if event.key in [pygame.K_F1]:
-        identfy(PLAYERID)
+        identify(PLAYERID)
     return direction
 
 
@@ -231,7 +232,7 @@ while go:
         else:
             power_up_not_collected_time = pygame.time.get_ticks() - (powerups.powerup_spawntime or 0)
             if power_up_not_collected_time > 5000:
-                    powerups.delete_powerup()
+                powerups.delete_powerup()
 
         # Spielfeldbegrenzung
         new_head[0] %= (SCREEN_SIZE // particle)

@@ -6,7 +6,11 @@ import sys
 
 
 def resource_path(rel_path: str) -> str:
-    base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    try:
+        base_path = sys._MEIPASS
+        base_path = os.path.join(base_path, "game")
+    except Exception:
+        base_path = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(base_path, rel_path)
 
 class PowerUp:
@@ -21,10 +25,10 @@ class PowerUp:
         self.spawn_duration = 2000
         self.types = ["speed_boost_x2", "speed_half", "extra_life", "powerup_drunk"]
         self.image_files = {
-            "speed_boost_x2": "game/assets/powerup_speed2.png",
-            "speed_half": "game/assets/powerup_speedhalf.png",
-            "extra_life": "game/assets/powerup_extra_life.png",
-            "powerup_drunk": "game/assets/powerup_drunk.jpg",
+            "speed_boost_x2": "assets/powerup_speed2.png",
+            "speed_half": "assets/powerup_speedhalf.png",
+            "extra_life": "assets/powerup_extra_life.png",
+            "powerup_drunk": "assets/powerup_drunk.jpg",
         }
 
         # Laden MIT resource_path und korrekt skalieren
