@@ -1,39 +1,39 @@
-name: Build Windows EXE
-
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
+    tags:
+      - "v*.*.*"
 
 jobs:
   build-win:
     runs-on: windows-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      - name: Install dependencies
-        run: |
+      - run: |
           python -m pip install --upgrade pip
-          if (Test-Path requirements.txt) { pip install -r requirements.txt } else { pip install pygame pyinstaller }
-
-      - name: Build with PyInstaller
-        run: |
-          pyinstaller snake.py `
-            --name Snake `
-            --onefile `
-            --noconsole `
-            --add-data "assets;assets" `
-            --hidden-import pygame
+          pip install -r requirements.txt
+      - run: pyinstaller snake.py --name Snake --onefile --noconsole --add-data "assets;assets" --hidden-import pygame
         shell: pwsh
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: Snake-Windows
           path: dist/Snake.exe
+
+  release:
+    needs: build-win
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: Snake-Windows
+          path: build
+      - run: zip -j Snake-Windows.zip build/Snake.exe
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "Snake-Windows.zip"
+          tag: ${{ github.ref_name }}
+          generateReleaseNotes: true
