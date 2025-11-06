@@ -1,12 +1,13 @@
 import os
 import pygame
 import sys
+import json
 import random as randomizer
 import snake_functions
 from powerups import PowerUp
-from client import FakeClient
-
-
+from client import Client, FakeClient
+from snake_functions import draw_other_snakes
+from selector_screen import menu_screen
 
 particle = 25
 snake = [[13, 13], [13, 14]]
@@ -17,6 +18,79 @@ endgame = False
 score = 0
 snake_speed = 4 # mehr = langsamer
 move_counter = 0
+
+pygame.init()
+SCREEN_SIZE = 800
+flags = pygame.SCALED | pygame.DOUBLEBUF
+screen = pygame.display.set_mode((SCREEN_SIZE, SCREEN_SIZE), flags, vsync=1)
+clock = pygame.time.Clock()
+powerups = PowerUp(particle_size=particle)
+
+base_path = os.path.dirname(os.path.abspath(__file__))
+asset_path = os.path.join(base_path, "assets")
+
+food_img = pygame.image.load(os.path.join(asset_path, "apfel2.jpg"))  # Futterbild
+food_img = pygame.transform.scale(food_img, (particle, particle))
+
+body_img = pygame.image.load(os.path.join(asset_path, "snakebody.jpg")).convert_alpha()
+body_img = pygame.transform.scale(body_img, (particle, particle))
+
+head_img = pygame.image.load(os.path.join(asset_path, "snakehead.jpg")).convert_alpha()
+head_img = pygame.transform.scale(head_img, (particle, particle))
+
+PLAYER_COLORS = {
+    "p1": (0, 200, 0),    # green
+    "p2": (220, 40, 40),  # red
+    "p3": (40, 120, 220), # blue
+    "p4": (230, 170, 30), # yellow
+}
+
+PLAYERID = None
+
+def tint_surface(src: pygame.Surface, color: tuple[int,int,int]) -> pygame.Surface:
+    # Preserves per-pixel alpha and shading by multiplying RGB
+    # color is (r,g,b) in 0..255
+    tinted = src.copy()
+    mask = pygame.Surface(src.get_size(), flags=pygame.SRCALPHA)
+    # Fill with the tint color, full alpha to affect RGB channels
+    mask.fill((*color, 255))
+    # Multiply: darkens channels proportionally to the tint
+    tinted.blit(mask, (0, 0), special_flags=pygame.BLEND_RGB_MULT)
+    return tinted
+
+def make_snake_skins(color):
+    return (
+        tint_surface(body_img, color),     # or recolor_exact(body_img, color)
+        tint_surface(head_img, color),     # or recolor_exact(head_img, color)
+    )
+
+snake_skins = {sid: make_snake_skins(col) for sid, col in PLAYER_COLORS.items()}
+
+font = pygame.font.SysFont(None, 40)
+
+def draw_score():
+    score_text = font.render(f"Punkte: {score}", True, (0, 0, 0))  # Schwarz
+    screen.blit(score_text, (10, 10))  # Oben links 
+
+#region restart
+def restartenvironment ():
+    global snake, direction, feedCordrnd, score, endgame, powerup_active, snake_speed
+    snake = [[13, 13], [13, 14]]
+    direction = 0
+    feedCordrnd = [feedCordsRandomizer()]
+    score = 0
+    endgame = False
+    powerup_active = -9999
+    powerups.delete_powerup()
+    snake_speed = 4
+
+# --- Fester Logik-Takt + Interpolation ---
+STEP_DT = 0.10  # 10 Moves/s (Gitter-Updates)
+accumulator = 0.0
+
+
+
+client = FakeClient()
 
 def feedCordsRandomizer():
     while True:
@@ -44,37 +118,6 @@ def game_over_screen():
 
 
 
-# --- Display mit VSync (wo verfügbar) ---
-pygame.init()
-flags = pygame.SCALED | pygame.DOUBLEBUF
-screen = pygame.display.set_mode((1000, 1000), flags, vsync=1)
-clock = pygame.time.Clock()
-
-base_path = os.path.dirname(os.path.abspath(__file__))
-asset_path = os.path.join(base_path, "assets")
-
-
-food_img = pygame.image.load(os.path.join(asset_path, "apfel2.jpg")) # Futterbild
-food_img = pygame.transform.scale(food_img, (particle, particle))
-
-
-body_img = pygame.image.load(os.path.join(asset_path, "snakebody.jpg")).convert_alpha()
-body_img = pygame.transform.scale(body_img, (particle, particle))
-
-
-head_img = pygame.image.load(os.path.join(asset_path, "snakehead.jpg")).convert_alpha()
-head_img = pygame.transform.scale(head_img, (particle, particle))
-
-powerups = PowerUp(particle_size=particle)
-font = pygame.font.SysFont(None, 40)
-
-# --- Fester Logik-Takt + Interpolation ---
-STEP_DT = 0.10  # 10 Moves/s (Gitter-Updates)
-accumulator = 0.0
-
-
-
-client = FakeClient()
 
         
 
@@ -100,8 +143,8 @@ def logic_step():
     if direction == 3: new_head[0] -= 1
 
     # Wrap um das Grid
-    new_head[0] %= 40
-    new_head[1] %= 40
+    new_head[0] %= (SCREEN_SIZE // particle)
+    new_head[1] %= (SCREEN_SIZE // particle)
 
     # Selbstkollision -> Restart Screen + Reset
     if new_head in curr_snake:
