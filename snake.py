@@ -39,33 +39,9 @@ body_img = pygame.transform.scale(body_img, (particle, particle))
 head_img = pygame.image.load(resource_path("assets/snakehead.jpg")).convert_alpha()
 head_img = pygame.transform.scale(head_img, (particle, particle))
 
-PLAYER_COLORS = {
-    "p1": (0, 200, 0),    # green
-    "p2": (220, 40, 40),  # red
-    "p3": (40, 120, 220), # blue
-    "p4": (230, 170, 30), # yellow
-}
 
 PLAYERID = None
 
-def tint_surface(src: pygame.Surface, color: tuple[int,int,int]) -> pygame.Surface:
-    # Preserves per-pixel alpha and shading by multiplying RGB
-    # color is (r,g,b) in 0..255
-    tinted = src.copy()
-    mask = pygame.Surface(src.get_size(), flags=pygame.SRCALPHA)
-    # Fill with the tint color, full alpha to affect RGB channels
-    mask.fill((*color, 255))
-    # Multiply: darkens channels proportionally to the tint
-    tinted.blit(mask, (0, 0), special_flags=pygame.BLEND_RGB_MULT)
-    return tinted
-
-def make_snake_skins(color):
-    return (
-        tint_surface(body_img, color),     # or recolor_exact(body_img, color)
-        tint_surface(head_img, color),     # or recolor_exact(head_img, color)
-    )
-
-snake_skins = {sid: make_snake_skins(col) for sid, col in PLAYER_COLORS.items()}
 
 font = pygame.font.SysFont(None, 40)
 
@@ -300,7 +276,7 @@ while go:
         else:
             snake_id, other_snakes_data = data_from_server.split(":", 1)
             other_snakes[snake_id] = json.loads(other_snakes_data)
-    draw_other_snakes(other_snakes, particle, screen, snake_skins)
+    draw_other_snakes(other_snakes, particle, screen, body_img, head_img)
         
     powerups.draw(screen)
     pygame.display.update()
