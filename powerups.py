@@ -4,6 +4,11 @@ import os
 import sys
 
 
+
+def resource_path(rel_path: str) -> str:
+    base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, rel_path)
+
 class PowerUp:
     def __init__(self, particle_size=25):
         self.particle_size = particle_size
@@ -13,19 +18,21 @@ class PowerUp:
         self.powerup_spawntime = 0
         self.powerup_despawntime = 0
         self.spawn_powerup_delay = 0
-        self.spawn_duration = 2000  # Frames oder Sekunden, je nach Spieltempo
+        self.spawn_duration = 2000
         self.types = ["speed_boost_x2", "speed_half", "extra_life", "powerup_drunk"]
         self.image_files = {
             "speed_boost_x2": "assets/powerup_speed2.png",
             "speed_half": "assets/powerup_speedhalf.png",
             "extra_life": "assets/powerup_extra_life.png",
-            "powerup_drunk": "assets/powerup_drunk.jpg"
+            "powerup_drunk": "assets/powerup_drunk.jpg",
         }
 
+        # Laden MIT resource_path und korrekt skalieren
         self.images = {}
-        for key, file in self.image_files.items():
-            img = pygame.image.load(file).convert_alpha()
-            img = pygame.transform.scale(self.resource_path(img), (self.particle_size, self.particle_size))
+        for key, rel_file in self.image_files.items():
+            img_path = resource_path(rel_file)  # absoluter Pfad (MEIPASS-fähig)
+            img = pygame.image.load(img_path).convert_alpha()  # Surface laden
+            img = pygame.transform.scale(img, (self.particle_size, self.particle_size))  # Surface skalieren
             self.images[key] = img
         
     def resource_path(self, rel_path: str) -> str:
