@@ -6,7 +6,7 @@ import random as randomizer
 from powerups import PowerUp
 from client import Client, FakeClient
 from snake_functions import draw_other_snakes
-
+from selector_screen import menu_screen
 
 particle = 25
 snake = [[13, 13], [13, 14]]
@@ -139,11 +139,15 @@ def printing():
 
 feedCordrnd.append(feedCordsRandomizer())
 
-SINGLE = False
-try:
-    client = Client()  # Multiplayer Client initialisieren
-except Exception as e:
+ip_addr = menu_screen(screen, SCREEN_SIZE)
+if ip_addr is None:
     client = FakeClient()
+else:
+    try:
+        client = Client()  # Multiplayer Client initialisieren
+    except Exception as e:
+        client = FakeClient()
+        
 
 other_snakes = {}
 
@@ -273,8 +277,8 @@ while go:
         if len(feedCordrnd) == 0:
             feedCordrnd.append(feedCordsRandomizer())
 
-    if not SINGLE and move_counter % 2 == 0:
-        client.queue_send( (json.dumps(snake) + "\n").encode("utf-8")  )
+    if move_counter % 2 == 0:
+        client.queue_send( (json.dumps(snake) + "\n").encode("utf-8") )
 
     # Update
     printing()
