@@ -178,7 +178,6 @@ def handle_normal_movement(event,direction):
 def handle_keypress(event, direction, change_direction_collected):
     powerup_active = pygame.time.get_ticks() - (change_direction_collected or 0)
     powerup_active = 0 < powerup_active < 5_000 # powerup_active time = 5 seconds
-    print("Drunk Powerup aktiv = ", powerup_active)
     if event.key == pygame.K_ESCAPE:
         pygame.quit()
         sys.exit()
