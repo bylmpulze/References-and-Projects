@@ -42,7 +42,6 @@ class PowerUp:
 
     def spawn_powerup(self, snake): # powerup spawn randomizer
         current_frametime = pygame.time.get_ticks()
-        print ("current frametime = ", current_frametime)
         if self.position is None and (current_frametime - self.powerup_despawntime) > self.spawn_duration: 
             while True:
                 coord = [randomizer.randint(0, 27), randomizer.randint(0, 27)]
@@ -50,8 +49,6 @@ class PowerUp:
                     self.position = coord
                     self.active_powerup = randomizer.choice(self.types)
                     self.powerup_spawned = True
-                    print("powerup activ")
-                    print("status of powerup_spawned",  self.powerup_spawned)
                     self.powerup_spawntime = pygame.time.get_ticks() 
                     return True
                   
@@ -74,7 +71,7 @@ class PowerUp:
             self.timer = 0
             self.powerup_despawntime = pygame.time.get_ticks()
             self.powerup_spawned = False
-            print("powerup despawntime: " , self.powerup_despawntime)
+
 
     
  
