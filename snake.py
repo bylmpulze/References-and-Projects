@@ -122,7 +122,6 @@ def printing():
     for i, x in enumerate(snake):
         Coords = [x[0] * particle, x[1] * particle]
         if i == 0:
-            
             if direction == 0:   
                 rotated_head = pygame.transform.rotate(head_img, 0)
             elif direction == 1: 
