@@ -32,9 +32,12 @@ jobs:
         with:
           name: Snake-Windows
           path: build
-      - run: zip -j Snake-Windows.zip build/Snake.exe
+      - run: |
+          cp build/Snake.exe .
+          zip -j Snake-Windows.zip build/Snake.exe
       - uses: ncipollo/release-action@v1
         with:
-          artifacts: "Snake-Windows.zip"
-          tag: ${{ github.ref_name }}
+          tag: nightly-${{ github.run_number }}
+          name: Nightly ${{ github.run_number }}
           generateReleaseNotes: true
+          artifacts: "Snake.exe, Snake-Windows.zip"
