@@ -24,8 +24,12 @@ screen = pygame.display.set_mode([SCREEN_SIZE, SCREEN_SIZE])
 clock = pygame.time.Clock()
 powerups = PowerUp(particle_size=particle)
 
-base_path = os.path.dirname(os.path.abspath(__file__))
-asset_path = os.path.join(base_path, "assets")
+
+def resource_path(rel_path: str) -> str:
+    base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, rel_path)
+
+asset_path = resource_path("assets")
 
 food_img = pygame.image.load(os.path.join(asset_path, "apfel2.jpg"))  # Futterbild
 food_img = pygame.transform.scale(food_img, (particle, particle))

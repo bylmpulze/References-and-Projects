@@ -1,9 +1,8 @@
 import pygame
 import random as randomizer
 import os
+import sys
 
-base_path = os.path.dirname(os.path.abspath(__file__))
-asset_path = os.path.join(base_path, "assets")
 
 class PowerUp:
     def __init__(self, particle_size=25):
