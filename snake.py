@@ -29,15 +29,14 @@ def resource_path(rel_path: str) -> str:
     base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
     return os.path.join(base_path, rel_path)
 
-asset_path = resource_path("assets")
 
-food_img = pygame.image.load(os.path.join(asset_path, "apfel2.jpg"))  # Futterbild
+food_img = pygame.image.load(resource_path("assets/apfel2.jpg"))  # Futterbild
 food_img = pygame.transform.scale(food_img, (particle, particle))
 
-body_img = pygame.image.load(os.path.join(asset_path, "snakebody.jpg")).convert_alpha()
+body_img = pygame.image.load(resource_path("assets/snakebody.jpg")).convert_alpha()
 body_img = pygame.transform.scale(body_img, (particle, particle))
 
-head_img = pygame.image.load(os.path.join(asset_path, "snakehead.jpg")).convert_alpha()
+head_img = pygame.image.load(resource_path("assets/snakehead.jpg")).convert_alpha()
 head_img = pygame.transform.scale(head_img, (particle, particle))
 
 PLAYER_COLORS = {
