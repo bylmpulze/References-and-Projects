@@ -2,9 +2,10 @@ import os
 import pygame
 import sys
 import random as randomizer
+import snake_functions
 from powerups import PowerUp
-from Snake_Functions import feedCordsRandomizer
-from client import Client
+from client import FakeClient
+
 
 
 particle = 25
@@ -17,52 +18,74 @@ score = 0
 snake_speed = 4 # mehr = langsamer
 move_counter = 0
 
+def feedCordsRandomizer():
+    while True:
+        Coord = [randomizer.randint(0, 27), randomizer.randint(0, 27)]
+        if Coord not in snake and Coord not in feedCordrnd:
+            return Coord
+
+def game_over_screen():
+    screen.fill((255, 255, 255))  # Weißer Hintergrund
+    game_over_text = font.render(f"Spiel zuende! Deine Punktzahl: {score}", True, (255, 0, 0))
+    restart_text = font.render("Klicke um neu zu starten", True, (0, 0, 0))
+    
+    screen.blit(game_over_text, (50, 300))
+    screen.blit(restart_text, (50, 350))
+    pygame.display.update()
+
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+                waiting = False
+
 
 
 # --- Display mit VSync (wo verfügbar) ---
 pygame.init()
-
-
 flags = pygame.SCALED | pygame.DOUBLEBUF
 screen = pygame.display.set_mode((1000, 1000), flags, vsync=1)
 clock = pygame.time.Clock()
 
-powerups = PowerUp(particle_size=particle)
-
 base_path = os.path.dirname(os.path.abspath(__file__))
 asset_path = os.path.join(base_path, "assets")
 
-food_img = pygame.image.load(os.path.join(asset_path, "apfel2.jpg"))  # Futterbild
+
+food_img = pygame.image.load(os.path.join(asset_path, "apfel2.jpg")) # Futterbild
 food_img = pygame.transform.scale(food_img, (particle, particle))
+
 
 body_img = pygame.image.load(os.path.join(asset_path, "snakebody.jpg")).convert_alpha()
 body_img = pygame.transform.scale(body_img, (particle, particle))
 
+
 head_img = pygame.image.load(os.path.join(asset_path, "snakehead.jpg")).convert_alpha()
 head_img = pygame.transform.scale(head_img, (particle, particle))
 
+powerups = PowerUp(particle_size=particle)
 font = pygame.font.SysFont(None, 40)
-
 
 # --- Fester Logik-Takt + Interpolation ---
 STEP_DT = 0.10  # 10 Moves/s (Gitter-Updates)
 accumulator = 0.0
 
+
+
+client = FakeClient()
+
+        
+
 # Speichere vorherigen und aktuellen Schlangenzustand für Interpolation
 prev_snake = [seg.copy() for seg in snake]
 curr_snake = [seg.copy() for seg in snake]
 
-def restartenvironment ():
-    global snake, direction, feedCordrnd, score, endgame
-    snake = [[13, 13], [13, 14]]
-    direction = 0
-    feedCordrnd = [feedCordsRandomizer(snake,feedCordrnd)]
-    score = 0
-    endgame = False
-
 def draw_score():
-    score_text = font.render(f"Punkte: {score}", True, (0, 0, 0))  # Schwarz
-    screen.blit(score_text, (10, 10))  # Oben links 
+    score_text = font.render(f"Punkte: {score}", True, (0, 0, 0)) # Schwarz
+    screen.blit(score_text, (10, 10)) # Oben links 
+
 
 def logic_step():
     global snake, prev_snake, curr_snake, score, endgame, feedCordrnd, direction, snake_speed
@@ -101,7 +124,7 @@ def logic_step():
 
     # Apfel nachspawnen
     if len(feedCordrnd) == 0:
-        feedCordrnd.append(feedCordsRandomizer(snake,feedCordrnd))
+        feedCordrnd.append(feedCordsRandomizer())
 
     # Power-Ups
     powerups.spawn_powerup(curr_snake)
@@ -148,18 +171,9 @@ def render_interpolated(alpha: float):
         else:
             screen.blit(body_img, (x, y))
 
-    #draw_score()
+    draw_score()
 
-    # Multiplayer: Remote-Position vom Server (interpoliert) zeichnen
-    """
-    data = client.receive_now() if SINGLE is None else None
-    if data:
-        # Erwartetes Format: "STATE t x y"
-        parts = data.strip().split()
-        if len(parts) >= 3:
-            rx, ry = int(parts[-2]), int(parts[-1])
-            screen.blit(body_img, (rx, ry))
-    """
+
     powerups.draw(screen)
     pygame.display.update()
 
