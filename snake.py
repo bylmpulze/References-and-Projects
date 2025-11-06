@@ -3,10 +3,10 @@ import pygame
 import sys
 import json
 import random as randomizer
-from powerups import PowerUp
-from client import Client, FakeClient
-from snake_functions import draw_other_snakes
-from selector_screen import menu_screen
+from game.powerups import PowerUp
+from game.client import Client, FakeClient
+from game.snake_functions import draw_other_snakes
+from game.selector_screen import menu_screen
 
 particle = 25
 snake = [[13, 13], [13, 14]]
@@ -30,13 +30,13 @@ def resource_path(rel_path: str) -> str:
     return os.path.join(base_path, rel_path)
 
 
-food_img = pygame.image.load(resource_path("assets/apfel2.jpg"))  # Futterbild
+food_img = pygame.image.load(resource_path("game/assets/apfel2.jpg"))  # Futterbild
 food_img = pygame.transform.scale(food_img, (particle, particle))
 
-body_img = pygame.image.load(resource_path("assets/snakebody.jpg")).convert_alpha()
+body_img = pygame.image.load(resource_path("game/assets/snakebody.jpg")).convert_alpha()
 body_img = pygame.transform.scale(body_img, (particle, particle))
 
-head_img = pygame.image.load(resource_path("assets/snakehead.jpg")).convert_alpha()
+head_img = pygame.image.load(resource_path("game/assets/snakehead.jpg")).convert_alpha()
 head_img = pygame.transform.scale(head_img, (particle, particle))
 
 

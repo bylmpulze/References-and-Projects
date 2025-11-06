@@ -3,11 +3,11 @@ import pygame
 import sys
 import json
 import random as randomizer
-import snake_functions
-from powerups import PowerUp
-from client import Client, FakeClient
-from snake_functions import draw_other_snakes
-from selector_screen import menu_screen
+import game.snake_functions as snake_functions
+from game.powerups import PowerUp
+from game.client import Client, FakeClient
+from game.snake_functions import draw_other_snakes
+from game.selector_screen import menu_screen
 
 particle = 25
 snake = [[13, 13], [13, 14]]
