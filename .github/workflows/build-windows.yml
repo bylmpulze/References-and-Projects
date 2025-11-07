@@ -17,7 +17,7 @@ jobs:
       - run: |
           python -m pip install --upgrade pip
           pip install pygame pyinstaller
-      - run: pyinstaller snake.py --name Snake --onefile --noconsole --add-data "game/assets;game/assets" --hidden-import pygame
+      - run: pyinstaller "Snake Multiplayer/snake.py" --name Snake --onefile --noconsole --add-data "Snake Multiplayer/game/assets;Snake Multiplayer/game/assets" --hidden-import pygame
         shell: pwsh
       - uses: actions/upload-artifact@v4
         with:
