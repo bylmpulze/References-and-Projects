@@ -160,5 +160,24 @@ def preview_colors():
     pygame.quit()
     sys.exit()
 
+def handle_snake_collisions(new_head, snake, other_snakes, immunity_collected_time) -> bool:
+    """
+    Check if the snake collides with itself or other snakes. Considers immunity.
+    """
+
+    elapsed = pygame.time.get_ticks() - (immunity_collected_time or 0)
+    if elapsed < 5000:
+        return False  # immune to collisions
+
+    # self collision
+    if new_head in snake:
+        return True
+
+    for _, other_snake in other_snakes.items():
+        if new_head in other_snake:
+            return True
+
+    return False
+
 if __name__ == "__main__":
     preview_colors()

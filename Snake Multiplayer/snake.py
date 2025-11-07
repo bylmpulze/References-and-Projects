@@ -5,7 +5,7 @@ import json
 import random as randomizer
 from game.powerups import PowerUp
 from game.client import Client, FakeClient
-from game.snake_functions import draw_other_snakes
+from game.snake_functions import draw_other_snakes,handle_snake_collisions
 from game.selector_screen import menu_screen
 
 particle = 25
@@ -50,7 +50,7 @@ def draw_score():
     screen.blit(score_text, (10, 10))  # Oben links 
 
 #region restart
-def restartenvironment ():
+def restart_environment ():
     global snake, direction, feedCordrnd, score, endgame, powerup_active, snake_speed
     snake = [[13, 13], [13, 14]]
     direction = 0
@@ -85,6 +85,7 @@ def game_over_screen():
                 sys.exit()
             if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
                 waiting = False
+                restart_environment()
 
 #endregion
 
@@ -125,14 +126,14 @@ if ip_addr is None:
 else:
     try:
         client = Client(ip_addr)  # Multiplayer Client initialisieren
-    except Exception as e:
+    except Exception as _:
         client = FakeClient()
         
 
 other_snakes = {}
 
 
-def identfy(player_id):
+def identify(player_id):
     font = pygame.font.SysFont(None, SCREEN_SIZE)
     while True:
         for event in pygame.event.get():
@@ -150,8 +151,9 @@ def identfy(player_id):
         screen.blit(id_text, (x, y))  # Zentriert
         pygame.display.update()
 
-#powerup change_direction movement handler (opposite_directions -> down = up)
+
 def handle_powerup_drunk(event,direction):
+    """ powerup change_direction movement handler (opposite_directions -> down = up) """
     if event.key in [pygame.K_UP,pygame.K_w] and direction != 0:
         direction = 2 
     if event.key in [pygame.K_RIGHT,pygame.K_d] and direction != 1:
@@ -186,9 +188,9 @@ def handle_keypress(event, direction, change_direction_collected):
     else:
         direction = handle_normal_movement(event, direction) 
     if event.key in [pygame.K_SPACE]: 
-        restartenvironment()
+        restart_environment()
     if event.key in [pygame.K_F1]:
-        identfy(PLAYERID)
+        identify(PLAYERID)
     return direction
 
 
@@ -230,22 +232,15 @@ while go:
         else:
             power_up_not_collected_time = pygame.time.get_ticks() - (powerups.powerup_spawntime or 0)
             if power_up_not_collected_time > 5000:
-                    powerups.delete_powerup()
+                powerups.delete_powerup()
 
         # Spielfeldbegrenzung
         new_head[0] %= (SCREEN_SIZE // particle)
         new_head[1] %= (SCREEN_SIZE // particle)
 
-        # Selbstkollision
-        if new_head in snake:
-            elapsed = pygame.time.get_ticks() - (immunity_collected_time or 0)
-            if elapsed > 5000:
-                game_over_screen()
-                restartenvironment()
-        
-        for snake_id,other_snake in other_snakes.items():
-            if new_head in other_snake:
-                game_over_screen()
+        if handle_snake_collisions(new_head, snake, other_snakes, immunity_collected_time):
+            client.queue_send(f"DEAD SNAKE {PLAYERID}\n".encode("utf-8"))
+            game_over_screen()
 
         # Körper verschieben
         if not endgame:
@@ -253,7 +248,7 @@ while go:
 
         # Apfel essen
         for i, food in enumerate(feedCordrnd):
-            if food == new_head:
+            if food == new_head: 
                 snake.append(snake[-1].copy())
                 del feedCordrnd[i]
                 score += 10
@@ -272,6 +267,10 @@ while go:
         if "WELCOME" in data_from_server:
             print("Eingeloggt ins Spiel.",data_from_server)
             PLAYERID = data_from_server.split()[1]
+        elif "DEAD SNAKE" in data_from_server:
+            dead_snake_id = data_from_server.split()[2]
+            if dead_snake_id in other_snakes:
+                del other_snakes[dead_snake_id]
         else:
             snake_id, other_snakes_data = data_from_server.split(":", 1)
             other_snakes[snake_id] = json.loads(other_snakes_data)
