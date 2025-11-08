@@ -32,7 +32,6 @@ class PowerUp:
         self.powerup_spawntime = 0
         self.powerup_despawntime = 0
         self.spawn_powerup_delay = 0
-        self.spawn_duration = 2000
         self.config = powerupconfig
         self.types = ["speed_boost_x2", "speed_half", "extra_life", "powerup_drunk"]
         self.image_files = {
