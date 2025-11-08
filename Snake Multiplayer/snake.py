@@ -2,7 +2,7 @@ import os
 import pygame
 import sys
 import json
-from game.powerups import PowerUp
+from game.powerups import PowerUp, powerupconfig
 from game.client import Client, FakeClient
 from game.snake_functions import draw_other_snakes,handle_snake_collisions
 from game.selector_screen import menu_screen
@@ -221,7 +221,7 @@ while go:
                 powerup_drunk_collected = pygame.time.get_ticks()
         else:
             power_up_not_collected_time = pygame.time.get_ticks() - (powerups.powerup_spawntime or 0) 
-            if power_up_not_collected_time > 5000: #delete powerup aftrer 5 sec
+            if power_up_not_collected_time > powerupconfig.power_up_activ_time: ##löscht powerup (settings in PowerUpConfig)
                 powerups.delete_powerup()
 
         # Spielfeldbegrenzung
