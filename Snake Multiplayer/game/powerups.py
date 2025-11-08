@@ -13,6 +13,16 @@ def resource_path(rel_path: str) -> str:
         base_path = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(base_path, rel_path)
 
+class PowerUpConfig:
+    def __init__(self):
+        self.spawn_duration = 5000
+        self.speed_boost_x2 = True
+        self.speed_half = False
+        self.extra_life = False
+        self.powerup_drunk = True
+
+powerupconfig = PowerUpConfig ()
+
 class PowerUp:
     def __init__(self, particle_size=25):
         self.particle_size = particle_size
@@ -23,6 +33,7 @@ class PowerUp:
         self.powerup_despawntime = 0
         self.spawn_powerup_delay = 0
         self.spawn_duration = 2000
+        self.config = powerupconfig
         self.types = ["speed_boost_x2", "speed_half", "extra_life", "powerup_drunk"]
         self.image_files = {
             "speed_boost_x2": "assets/powerup_speed2.png",
@@ -45,16 +56,25 @@ class PowerUp:
 
 
     def spawn_powerup(self, snake): # powerup spawn randomizer
+        global powerupconfig
         current_frametime = pygame.time.get_ticks()
-        if self.position is None and (current_frametime - self.powerup_despawntime) > self.spawn_duration: 
+        if self.position is None and (current_frametime - self.powerup_despawntime) > powerupconfig.spawn_duration:  #prüft ob kein Powerup derzeit aktiv ist und wann das letzte respawnt wurde
+            available_powerups = [
+                l for l in self.types if getattr(self.config, l)
+            ]
+            if not available_powerups:
+                print(" Keine Power-ups Aktiviert!")
+                return False
+            
             while True:
                 coord = [randomizer.randint(0, 27), randomizer.randint(0, 27)]
                 if coord not in snake:
                     self.position = coord
-                    self.active_powerup = randomizer.choice(self.types)
-                    self.powerup_spawned = True
-                    self.powerup_spawntime = pygame.time.get_ticks() 
-                    return True
+                    break
+
+            self.active_powerup = randomizer.choice(available_powerups)
+            self.powerup_spawned = True
+            self.powerup_spawntime = pygame.time.get_ticks()
                   
     def draw(self, screen): # Show powerup
         if self.position and self.active_powerup:
