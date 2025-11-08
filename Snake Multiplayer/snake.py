@@ -190,19 +190,6 @@ def handle_keypress(event, direction, change_direction_collected):
 powerup_drunk_collected = -9999
 immunity_collected_time = None
 power_up_not_collected_time = None
-import random
-
-# Funktion, um Apfel zufällig zu spawnen
-def spawn_food():
-    while True:
-        x = random.randint(0, (SCREEN_SIZE // particle) - 1)
-        y = random.randint(0, (SCREEN_SIZE // particle) - 1)
-        if [x, y] not in snake:  # Apfel nicht auf der Schlange
-            return [x, y]
-
-powerup_drunk_collected = -9999
-immunity_collected_time = None
-power_up_not_collected_time = None
 
 while go:
     for event in pygame.event.get():
@@ -251,20 +238,13 @@ while go:
             snake = [new_head] + snake[:-1]
 
         # Apfel essen
-        ate_food = False
         for i, food in enumerate(feedCordrnd):
             if food == new_head:
                 snake.append(snake[-1].copy())
                 del feedCordrnd[i]
                 score += 10
-                feedCordrnd.append(spawn_food())  # neuen Apfel generieren
                 client.queue_send("FOOD_EATEN\n".encode("utf-8"))
-                ate_food = True
                 break
-
-        #spawnt apfel auch wenn kein server besteht
-        if not feedCordrnd:
-            feedCordrnd.append(spawn_food())
 
     # Multiplayer-Sync: Schlange senden
     if move_counter % 2 == 0:

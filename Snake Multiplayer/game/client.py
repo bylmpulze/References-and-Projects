@@ -120,6 +120,7 @@ class FakeClient:
         self.snake = []
         self.foodCords = []
         self.foodCords.append(get_random_food_coords(self.snake,self.foodCords))
+        self.queue.append(f"FOOD_SPAWNED {self.foodCords[0][0]} {self.foodCords[0][1]}")
 
     def receive_now(self):
         if not self.queue:
