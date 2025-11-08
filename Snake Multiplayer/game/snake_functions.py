@@ -1,6 +1,7 @@
 import sys
 import pygame
 import random
+from game.powerups import powerupconfig
 
 PLAYER_COLORS = {
     "p1":  (0, 200, 0),
@@ -176,7 +177,7 @@ def handle_snake_collisions(new_head, snake, other_snakes, immunity_collected_ti
     """
 
     elapsed = pygame.time.get_ticks() - (immunity_collected_time or 0)
-    if elapsed < 5000:
+    if elapsed < powerupconfig.extra_life_duration:
         return False  # immune to collisions
 
     # self collision
