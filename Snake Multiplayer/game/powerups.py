@@ -15,12 +15,13 @@ def resource_path(rel_path: str) -> str:
 
 class PowerUpConfig:
     def __init__(self):
-        self.speed_boost_x2 = False
-        self.speed_half = False
+        self.speed_boost_x2 = True
+        self.speed_half = True
         self.extra_life = False  
         self.powerup_drunk = False
-        self.speed_boost_x2_duration = 5000 # dauer - doppelte Geschwindigkeit  (1000 = 1 sec) 
-        self.extra_life_duration = 1500 #1.5 sekunden unverwundbarkeit ( 1000 = 1 sec) (fertig)
+        self.powerup_drunk_duration = 0 # Dauer - umgekehrte steuerung (nicht fertig)
+        self.speed_boost_x2_duration = 5000 # Dauer - doppelte Geschwindigkeit  (1000 = 1 sec) (nicht fertig)
+        self.extra_life_duration = 1500 #1.5 sekunden Unverwundbarkeit ( 1000 = 1 sec) (fertig)
         self.power_up_activ_time = 5000 #löscht powerup  (1000 = 1 sec) (fertig)
         self.spawn_duration = 1000 # spawnzeit nach letztem Powerup ( 1000 = 1 sec) (fertig)
         
