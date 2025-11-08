@@ -190,16 +190,28 @@ def handle_keypress(event, direction, change_direction_collected):
 powerup_drunk_collected = -9999
 immunity_collected_time = None
 power_up_not_collected_time = None
+import random
+
+# Funktion, um Apfel zufällig zu spawnen
+def spawn_food():
+    while True:
+        x = random.randint(0, (SCREEN_SIZE // particle) - 1)
+        y = random.randint(0, (SCREEN_SIZE // particle) - 1)
+        if [x, y] not in snake:  # Apfel nicht auf der Schlange
+            return [x, y]
+
+powerup_drunk_collected = -9999
+immunity_collected_time = None
+power_up_not_collected_time = None
+
 while go:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
         if event.type == pygame.KEYDOWN:
-            direction = handle_keypress(event, direction,powerup_drunk_collected) 
-               
+            direction = handle_keypress(event, direction, powerup_drunk_collected)
 
-    # nur bewegen wenn move_counter % snake_speed == 0
     if move_counter % snake_speed == 0:
         # Kopf bewegen
         new_head = snake[0].copy()
@@ -207,8 +219,7 @@ while go:
         if direction == 1: new_head[0] += 1
         if direction == 2: new_head[1] += 1
         if direction == 3: new_head[0] -= 1
-                
-        # Power-Up Kollision
+
         powerups.spawn_powerup(snake)
         collected = powerups.check_collision(new_head)
         if collected:
@@ -219,18 +230,18 @@ while go:
             elif collected == "extra_life":
                 immunity_collected_time = pygame.time.get_ticks()
                 print("Unverwundbarkeit aktiviert für 5 Sekunden!")
-                print(immunity_collected_time)
             elif collected == "powerup_drunk":
-                powerup_drunk_collected = pygame.time.get_ticks() 
+                powerup_drunk_collected = pygame.time.get_ticks()
         else:
-            power_up_not_collected_time = pygame.time.get_ticks() - (powerups.powerup_spawntime or 0)
-            if power_up_not_collected_time > 5000:
+            power_up_not_collected_time = pygame.time.get_ticks() - (powerups.powerup_spawntime or 0) 
+            if power_up_not_collected_time > 5000: #delete powerup aftrer 5 sec
                 powerups.delete_powerup()
 
         # Spielfeldbegrenzung
         new_head[0] %= (SCREEN_SIZE // particle)
         new_head[1] %= (SCREEN_SIZE // particle)
 
+        # Kollisionscheck
         if handle_snake_collisions(new_head, snake, other_snakes, immunity_collected_time):
             client.queue_send(f"DEAD SNAKE {PLAYERID}\n".encode("utf-8"))
             game_over_screen()
@@ -240,23 +251,35 @@ while go:
             snake = [new_head] + snake[:-1]
 
         # Apfel essen
+        ate_food = False
         for i, food in enumerate(feedCordrnd):
-            if food == new_head: 
+            if food == new_head:
                 snake.append(snake[-1].copy())
                 del feedCordrnd[i]
                 score += 10
-                client.queue_send("FOOD_EATEN\n".encode("utf-8")) 
+                feedCordrnd.append(spawn_food())  # neuen Apfel generieren
+                client.queue_send("FOOD_EATEN\n".encode("utf-8"))
+                ate_food = True
                 break
-       
 
+        #spawnt apfel auch wenn kein server besteht
+        if not feedCordrnd:
+            feedCordrnd.append(spawn_food())
+
+    # Multiplayer-Sync: Schlange senden
     if move_counter % 2 == 0:
-        client.queue_send( (json.dumps(snake) + "\n").encode("utf-8") )
+        client.queue_send((json.dumps(snake) + "\n").encode("utf-8"))
 
-    # Update
+    # Anzeige
     printing()
+    draw_other_snakes(other_snakes, particle, screen, body_img, head_img)
+    powerups.draw(screen)
+    pygame.display.update()
+
+    # Serverdaten empfangen
     while data_from_server := client.receive_now():
         if "WELCOME" in data_from_server:
-            print("Eingeloggt ins Spiel.",data_from_server)
+            print("Eingeloggt ins Spiel.", data_from_server)
             PLAYERID = data_from_server.split()[1]
         elif "DEAD SNAKE" in data_from_server:
             dead_snake_id = data_from_server.split()[2]
@@ -264,15 +287,10 @@ while go:
                 del other_snakes[dead_snake_id]
         elif "FOOD_SPAWNED" in data_from_server:
             _, x, y = data_from_server.split()
-            print("FOOD_SPAWNED",data_from_server)
             feedCordrnd = [[int(x), int(y)]]
         else:
             snake_id, other_snakes_data = data_from_server.split(":", 1)
             other_snakes[snake_id] = json.loads(other_snakes_data)
-    draw_other_snakes(other_snakes, particle, screen, body_img, head_img)
-        
-    powerups.draw(screen)
-    pygame.display.update()
 
     move_counter += 1
     clock.tick(60)  # 60 FPS

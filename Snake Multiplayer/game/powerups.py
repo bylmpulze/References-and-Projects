@@ -17,8 +17,8 @@ class PowerUpConfig:
     def __init__(self):
         self.spawn_duration = 5000
         self.speed_boost_x2 = True
-        self.speed_half = False
-        self.extra_life = False
+        self.speed_half = True
+        self.extra_life = True
         self.powerup_drunk = True
 
 powerupconfig = PowerUpConfig ()
