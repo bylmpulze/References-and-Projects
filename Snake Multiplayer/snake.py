@@ -2,7 +2,6 @@ import os
 import pygame
 import sys
 import json
-import random as randomizer
 from game.powerups import PowerUp
 from game.client import Client, FakeClient
 from game.snake_functions import draw_other_snakes,handle_snake_collisions
@@ -58,19 +57,13 @@ def restart_environment ():
     global snake, direction, feedCordrnd, score, endgame, powerup_active, snake_speed
     snake = [[13, 13], [13, 14]]
     direction = 0
-    feedCordrnd = [feedCordsRandomizer()]
+    feedCordrnd = []
     score = 0
     endgame = False
     powerup_active = -9999
     powerups.delete_powerup()
     snake_speed = 4
 
-
-def feedCordsRandomizer():
-    while True:
-        Coord = [randomizer.randint(0, 27), randomizer.randint(0, 27)]
-        if Coord not in snake and Coord not in feedCordrnd:
-            return Coord
 
 def game_over_screen():
     screen.fill((255, 255, 255))  # Weißer Hintergrund
@@ -91,9 +84,7 @@ def game_over_screen():
                 waiting = False
                 restart_environment()
 
-#endregion
 
-# region Grafiken 
 def printing():
     screen.fill((255, 255, 255))  # Weißer Hintergrund
 
@@ -121,8 +112,6 @@ def printing():
         draw_score()
         
 
-
-feedCordrnd.append(feedCordsRandomizer())
 
 ip_addr = menu_screen(screen, SCREEN_SIZE)
 if ip_addr is None:
@@ -256,11 +245,9 @@ while go:
                 snake.append(snake[-1].copy())
                 del feedCordrnd[i]
                 score += 10
+                client.queue_send("FOOD_EATEN\n".encode("utf-8")) 
                 break
-
-        # Neuer Apfel
-        if len(feedCordrnd) == 0:
-            feedCordrnd.append(feedCordsRandomizer())
+       
 
     if move_counter % 2 == 0:
         client.queue_send( (json.dumps(snake) + "\n").encode("utf-8") )
@@ -275,6 +262,10 @@ while go:
             dead_snake_id = data_from_server.split()[2]
             if dead_snake_id in other_snakes:
                 del other_snakes[dead_snake_id]
+        elif "FOOD_SPAWNED" in data_from_server:
+            _, x, y = data_from_server.split()
+            print("FOOD_SPAWNED",data_from_server)
+            feedCordrnd = [[int(x), int(y)]]
         else:
             snake_id, other_snakes_data = data_from_server.split(":", 1)
             other_snakes[snake_id] = json.loads(other_snakes_data)

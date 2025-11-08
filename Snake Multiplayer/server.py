@@ -1,6 +1,7 @@
 import time
 import socket
 import asyncio
+from game.snake_functions import get_random_food_coords
 
 HOST = "127.0.0.1"
 PORT = 50007
@@ -21,6 +22,8 @@ class BroadcastServer:
         self._next_id = 1
         self.max_line = max_line
         self.handshake_timeout = handshake_timeout
+        self.food_locations = []
+        self.food_locations.append( get_random_food_coords([], self.food_locations) )
 
     async def _readline_capped(self, reader: asyncio.StreamReader) -> bytes:
         line = await reader.readline()
@@ -81,6 +84,10 @@ class BroadcastServer:
         self.client_meta[writer] = meta
         print(f"Client verbunden: {peer} as {meta}")
 
+        # send food locations to new client
+        for x,y in self.food_locations:
+            await self.broadcast((f"FOOD_SPAWNED {x} {y} \n").encode("utf-8"))  # an alle außer Auslöser
+
         try:
             while True:
                 try:
@@ -102,6 +109,11 @@ class BroadcastServer:
                     # Optional: validieren/parsen
                     await self.broadcast((text + "\n").encode("utf-8"), exclude=writer)  # an alle außer Auslöser
                     continue  
+                if text.startswith("FOOD_EATEN"):
+                    x, y = get_random_food_coords([], self.food_locations)
+                    self.food_locations.append((x, y))
+                    await self.broadcast((f"FOOD_SPAWNED {x} {y} \n").encode("utf-8"))  # an alle außer Auslöser
+                    continue
 
                 # ... sonst wie bisher weiterleiten (Chat-Style) ...
 

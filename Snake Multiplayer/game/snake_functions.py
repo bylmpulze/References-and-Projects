@@ -1,5 +1,6 @@
 import sys
 import pygame
+import random
 
 PLAYER_COLORS = {
     "p1":  (0, 200, 0),
@@ -159,6 +160,15 @@ def preview_colors():
 
     pygame.quit()
     sys.exit()
+
+
+def get_random_food_coords(snake,existing_food_cords):
+    """ Generate random food coordinates not colliding with snake or existing food. """
+    while True:
+        coords = [random.randint(0, 27), random.randint(0, 27)]
+        if coords not in snake and coords not in existing_food_cords:
+            return coords
+
 
 def handle_snake_collisions(new_head, snake, other_snakes, immunity_collected_time) -> bool:
     """

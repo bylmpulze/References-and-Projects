@@ -1,6 +1,8 @@
 import socket
 import threading
 import queue
+import json
+from game.snake_functions import get_random_food_coords
 
 class Client:
     """
@@ -114,10 +116,24 @@ class Client:
 
 class FakeClient:
     def __init__(self):
-        pass
+        self.queue = []
+        self.snake = []
+        self.foodCords = []
+        self.foodCords.append(get_random_food_coords(self.snake,self.foodCords))
 
     def receive_now(self):
-        return None
+        if not self.queue:
+            return None
+        
+        return self.queue.pop(0)
 
     def queue_send(self, data):
-        pass
+        line = data.decode("utf-8").strip()
+        try:
+            self.snake = json.loads(line)
+        except json.JSONDecodeError:
+            if "FOOD_EATEN" in line:
+                x,y = get_random_food_coords(self.snake,self.foodCords)
+                self.foodCords = [x,y]
+                self.queue.append(f"FOOD_SPAWNED {x} {y}")
+        
