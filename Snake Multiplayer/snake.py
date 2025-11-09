@@ -66,12 +66,13 @@ def draw_topbar():
 # Restart / Game Over
 # -----------------------------
 def restart_environment():
-    global snake, direction, feedCordrnd, score, endgame, powerup_active, snake_speed
+    global snake, direction, feedCordrnd, score, endgame, powerup_active, snake_speed,powerup_magnet_activ
     snake = [[13, 13], [13, 14]]
     direction = 0
     feedCordrnd = []
     score = 0
     endgame = False
+    powerup_magnet_activ = False
     powerup_active = -9999
     powerups.delete_powerup()
     snake_speed = 4
@@ -179,10 +180,14 @@ def handle_keypress(event, direction, change_direction_collected):
         restart_environment()
     return direction
 
+
+
+
+powerup_magnet_collected_time = 0
 powerup_drunk_collected = -9999
 immunity_collected_time = None
 power_up_not_collected_time = None
-
+powerup_magnet_activ = False
 # -----------------------------
 # Main Loop
 # -----------------------------
@@ -216,10 +221,30 @@ while go:
                 immunity_collected_time = pygame.time.get_ticks()
             elif collected == "powerup_drunk":
                 powerup_drunk_collected = pygame.time.get_ticks()
+            elif collected == "powerup_magnet":
+                powerup_magnet_collected_time = pygame.time.get_ticks()
+                powerup_magnet_activ = True
+
         else:
             power_up_not_collected_time = pygame.time.get_ticks() - (powerups.powerup_spawntime or 0) 
             if power_up_not_collected_time > powerupconfig.power_up_activ_time:
                 powerups.delete_powerup()
+        #Powerup_magnet 
+        if 0 < pygame.time.get_ticks() - powerup_magnet_collected_time < powerupconfig.powerup_magnet_duration and powerup_magnet_activ:
+            for food in feedCordrnd:
+                if food[0] < snake[0][0]:
+                    food[0] += 1
+                elif food[0] > snake[0][0]:
+                    food[0] -= 1
+                if food[1] < snake[0][1]:
+                    food[1] += 1
+                elif food[1] > snake[0][1]:
+                    food[1] -= 1
+                if food == snake[0]:
+                    del feedCordrnd[i]
+                    snake.append(snake[-1].copy())
+                    score += 10
+                    client.queue_send("FOOD_EATEN\n".encode("utf-8"))
 
         new_head[0] %= (constants.SCREEN_SIZE // particle)
         new_head[1] %= (constants.GAME_SIZE // particle)  # Spielfeld begrenzt nur auf Game_Size
