@@ -2,23 +2,7 @@ import sys
 import pygame
 import random
 from game.powerups import powerupconfig
-
-PLAYER_COLORS = {
-    "p1":  (0, 200, 0),
-    "p2":  (220, 40, 40),
-    "p3":  (40, 120, 220),
-    "p4":  (230, 170, 30),
-    "p5":  (160, 32, 240),
-    "p6":  (255, 105, 180),
-    "p7":  (0, 200, 200),
-    "p8":  (255, 140, 0),
-    "p9":  (128, 0, 0),
-    "p10": (0, 128, 128),
-    "p11": (139, 69, 19),
-    "p12": (112, 128, 144),
-}
-
-PLAYER_KEYS = list(PLAYER_COLORS.keys())  # ["p1","p2","p3","p4"]
+import game.constants as constants
 
 def tint_surface(src: pygame.Surface, color: tuple[int,int,int]) -> pygame.Surface:
     tinted = src.copy()
@@ -50,9 +34,9 @@ def key_for_rank(rank: int) -> str:
     # clamp auf verfügbares Farbspektrum
     if rank < 0:
         rank = 0
-    if rank >= len(PLAYER_KEYS):
-        rank = len(PLAYER_KEYS) - 1
-    return PLAYER_KEYS[rank]
+    if rank >= len(constants.PLAYER_KEYS):
+        rank = len(constants.PLAYER_KEYS) - 1
+    return constants.PLAYER_KEYS[rank]
 
 def draw_other_snakes(other_snakes: dict[str, list[tuple[int,int]]],
                       particle: int, screen: pygame.Surface,
@@ -62,8 +46,8 @@ def draw_other_snakes(other_snakes: dict[str, list[tuple[int,int]]],
 
     # Precompute skins per player key
     predefined_skins = {
-        pk: make_snake_skins(body_img, head_img, PLAYER_COLORS[pk])
-        for pk in PLAYER_KEYS
+        pk: make_snake_skins(body_img, head_img, constants.PLAYER_COLORS[pk])
+        for pk in constants.PLAYER_KEYS
     }
 
     for snake_id, segments in other_snakes.items():
@@ -104,7 +88,7 @@ def preview_colors():
     cell = 28
     padding = 16
     per_row = 6  # how many previews per row
-    count = len(PLAYER_COLORS)
+    count = len(constants.PLAYER_COLORS)
     rows = (count + per_row - 1) // per_row
 
     # Each preview tile size
@@ -119,7 +103,7 @@ def preview_colors():
 
     # Pre-tint skins
     tinted = {}
-    for key, col in PLAYER_COLORS.items():
+    for key, col in constants.PLAYER_COLORS.items():
         head_s, body_s = make_snake_skins(body_img, head_img, col)
         tinted[key] = (head_s, body_s)
 
@@ -136,7 +120,7 @@ def preview_colors():
 
         # Draw grid of previews
         idx = 0
-        for key in PLAYER_COLORS.keys():
+        for key in constants.PLAYER_COLORS.keys():
             r = idx // per_row
             c = idx % per_row
             x0 = c * tile_w + padding
@@ -150,7 +134,7 @@ def preview_colors():
             screen.blit(body_s, (x0 + cell * 2, y0))
 
             # label
-            label = f"{key}  {PLAYER_COLORS[key]}"
+            label = f"{key}  {constants.PLAYER_COLORS[key]}"
             text = font.render(label, True, (230, 230, 230))
             screen.blit(text, (x0, y0 + cell + 6))
 
