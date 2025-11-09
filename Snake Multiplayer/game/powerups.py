@@ -18,13 +18,16 @@ class PowerUpConfig:
     def __init__(self):
         self.speed_boost_x2 = False
         self.speed_half = False
-        self.extra_life = True  
-        self.powerup_drunk = False
+        self.extra_life = False  
+        self.powerup_magnet = False
+        self.powerup_drunk = True
         self.powerup_drunk_duration = 0 # Dauer - umgekehrte steuerung (nicht fertig)
+        self.powerup_magnet_duration = 1500 #Dauer Apfel heranziehen (nicht fertig)
         self.speed_boost_x2_duration = 5000 # Dauer - doppelte Geschwindigkeit  (1000 = 1 sec) (nicht fertig)
         self.extra_life_duration = 1500 #1.5 sekunden Unverwundbarkeit ( 1000 = 1 sec) (fertig)
         self.power_up_activ_time = 5000 #löscht powerup  (1000 = 1 sec) (fertig)
         self.spawn_duration = 1000 # spawnzeit nach letztem Powerup ( 1000 = 1 sec) (fertig)
+        
         
 
 
@@ -40,12 +43,13 @@ class PowerUp:
         self.powerup_despawntime = 0
         self.spawn_powerup_delay = 0
         self.config = powerupconfig
-        self.types = ["speed_boost_x2", "speed_half", "extra_life", "powerup_drunk"]
+        self.types = ["speed_boost_x2", "speed_half", "extra_life", "powerup_drunk", "powerup_magnet"]
         self.image_files = {
             "speed_boost_x2": "assets/powerup_speed2.png",
             "speed_half": "assets/powerup_speedhalf.png",
             "extra_life": "assets/powerup_extra_life.png",
             "powerup_drunk": "assets/powerup_drunk.jpg",
+            "powerup_magnet": "assets/powerup_magnet.webp"
         }
 
         # Laden MIT resource_path und korrekt skalieren
@@ -77,6 +81,8 @@ class PowerUp:
                 if coord not in snake:
                     self.position = coord
                     break
+
+            
 
             self.active_powerup = randomizer.choice(available_powerups)
             self.powerup_spawned = True
