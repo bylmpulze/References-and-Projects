@@ -2,6 +2,7 @@ import os
 import pygame
 import sys
 import json
+import constants
 from game.powerups import PowerUp, powerupconfig
 from game.client import Client, FakeClient
 from game.snake_functions import draw_other_snakes, handle_snake_collisions
@@ -18,10 +19,10 @@ snake_speed = 4  # mehr = langsamer
 move_counter = 0
 
 pygame.init()
-SCREEN_SIZE = 800
-TOPBAR_HEIGHT = 40
-GAME_SIZE = SCREEN_SIZE - TOPBAR_HEIGHT
-screen = pygame.display.set_mode([SCREEN_SIZE, SCREEN_SIZE])
+constants.SCREEN_SIZE = 800
+constants.TOPBAR_HEIGHT = 40
+GAME_SIZE = constants.SCREEN_SIZE - constants.TOPBAR_HEIGHT
+screen = pygame.display.set_mode([constants.SCREEN_SIZE, constants.SCREEN_SIZE])
 clock = pygame.time.Clock()
 powerups = PowerUp(particle_size=particle)
 
@@ -51,7 +52,7 @@ font = pygame.font.SysFont(None, 40)
 # -----------------------------
 def draw_topbar():
     # Hintergrund
-    pygame.draw.rect(screen, (200, 200, 200), (0, 0, SCREEN_SIZE, TOPBAR_HEIGHT))
+    pygame.draw.rect(screen, (200, 200, 200), (0, 0, constants.SCREEN_SIZE, constants.TOPBAR_HEIGHT))
     
     # Score
     score_text = font.render(f"Punkte: {score}", True, (0, 0, 0))
@@ -59,7 +60,7 @@ def draw_topbar():
     
     # Einstellungen-Button
     settings_text = font.render("Einstellungen", True, (0, 0, 0))
-    settings_rect = settings_text.get_rect(topright=(SCREEN_SIZE - 10, 10))
+    settings_rect = settings_text.get_rect(topright=(constants.SCREEN_SIZE - 10, 10))
     screen.blit(settings_text, settings_rect)
     
     return settings_rect
@@ -107,12 +108,12 @@ def printing():
     
     # Apfel
     for a in feedCordrnd:
-        Coords = [a[0] * particle, a[1] * particle + TOPBAR_HEIGHT]
+        Coords = [a[0] * particle, a[1] * particle + constants.TOPBAR_HEIGHT]
         screen.blit(food_img, (Coords[0], Coords[1]))
 
     # Schlange
     for i, x in enumerate(snake):
-        Coords = [x[0] * particle, x[1] * particle + TOPBAR_HEIGHT]
+        Coords = [x[0] * particle, x[1] * particle + constants.TOPBAR_HEIGHT]
         if i == 0:
             if direction == 0:   
                 rotated_head = pygame.transform.rotate(head_img, 0)
@@ -131,7 +132,7 @@ def printing():
 # -----------------------------
 # Multiplayer Setup
 # -----------------------------
-ip_addr = menu_screen(screen, SCREEN_SIZE)
+ip_addr = menu_screen(screen, constants.SCREEN_SIZE)
 if ip_addr is None:
     client = FakeClient()
 else:
@@ -223,7 +224,7 @@ while go:
             if power_up_not_collected_time > powerupconfig.power_up_activ_time:
                 powerups.delete_powerup()
 
-        new_head[0] %= (SCREEN_SIZE // particle)
+        new_head[0] %= (constants.SCREEN_SIZE // particle)
         new_head[1] %= (GAME_SIZE // particle)  # Spielfeld begrenzt nur auf Game_Size
 
         if handle_snake_collisions(new_head, snake, other_snakes, immunity_collected_time):
