@@ -19,9 +19,6 @@ snake_speed = 4  # mehr = langsamer
 move_counter = 0
 
 pygame.init()
-constants.SCREEN_SIZE = 800
-constants.TOPBAR_HEIGHT = 40
-GAME_SIZE = constants.SCREEN_SIZE - constants.TOPBAR_HEIGHT
 screen = pygame.display.set_mode([constants.SCREEN_SIZE, constants.SCREEN_SIZE])
 clock = pygame.time.Clock()
 powerups = PowerUp(particle_size=particle)
@@ -225,7 +222,7 @@ while go:
                 powerups.delete_powerup()
 
         new_head[0] %= (constants.SCREEN_SIZE // particle)
-        new_head[1] %= (GAME_SIZE // particle)  # Spielfeld begrenzt nur auf Game_Size
+        new_head[1] %= (constants.GAME_SIZE // particle)  # Spielfeld begrenzt nur auf Game_Size
 
         if handle_snake_collisions(new_head, snake, other_snakes, immunity_collected_time):
             client.queue_send(f"DEAD SNAKE {PLAYERID}\n".encode("utf-8"))
