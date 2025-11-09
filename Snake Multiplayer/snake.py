@@ -2,7 +2,7 @@ import os
 import pygame
 import sys
 import json
-import constants
+import game.constants as constants
 from game.powerups import PowerUp, powerupconfig
 from game.client import Client, FakeClient
 from game.snake_functions import draw_other_snakes, handle_snake_collisions
