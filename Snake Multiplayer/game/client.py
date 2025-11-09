@@ -137,4 +137,9 @@ class FakeClient:
                 x,y = get_random_food_coords(self.snake,self.foodCords)
                 self.foodCords = [x,y]
                 self.queue.append(f"FOOD_SPAWNED {x} {y}")
+            elif "DEAD SNAKE" in line:
+                x,y = get_random_food_coords(self.snake,self.foodCords)
+                self.foodCords = [x,y]
+                self.queue.append(f"FOOD_SPAWNED {x} {y}")
+
         
