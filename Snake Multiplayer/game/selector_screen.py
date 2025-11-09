@@ -1,6 +1,7 @@
 import re
 import sys
 import pygame
+from game.settings import save_settings, load_settings
 
 def is_valid_ip(ip: str) -> bool:
     """Checks whether the given string is a valid IPv4 address."""
@@ -21,8 +22,9 @@ def menu_screen(screen, SCREEN_SIZE):
     input_text = ""
     selected_mode = None
     error_text = ""
-    font_big = pygame.font.SysFont(None, 80)
-    font_small = pygame.font.SysFont(None, 40)
+    font_big = pygame.font.SysFont("Segoe UI Emoji", 80)
+    font_small = pygame.font.SysFont("Segoe UI Emoji", 40)
+    settings = load_settings()
 
     while True:
         screen.fill((255, 255, 255))
@@ -33,12 +35,13 @@ def menu_screen(screen, SCREEN_SIZE):
         if selected_mode == "multi":
             draw_text_centered(screen, SCREEN_SIZE,"Gib IP-Adresse ein:", font_small, (0, 0, 0), 470)
             pygame.draw.rect(screen, (220, 220, 220), (SCREEN_SIZE//2 - 150, 500, 300, 40))
-            ip_render = font_small.render(input_text or "127.0.0.1", True, (0, 0, 0))
+            ip_render = font_small.render(input_text or settings.get("multiplayer_ip"), True, (0, 0, 0))
             screen.blit(ip_render, (SCREEN_SIZE//2 - 140, 505))
-            draw_text_centered(screen, SCREEN_SIZE,"Drücke ENTER zum Start oder ESC zum Abbrechen", font_small, (0, 0, 0), 560)
+            draw_text_centered(screen, SCREEN_SIZE,"Drücke ENTER zum Start", font_small, (0, 0, 0), 580)
+            draw_text_centered(screen, SCREEN_SIZE,"oder ESC zum Abbrechen", font_small, (0, 0, 0), 620)
             
             if error_text:
-                draw_text_centered(screen, SCREEN_SIZE,error_text, font_small, (255, 0, 0), 600)
+                draw_text_centered(screen, SCREEN_SIZE,error_text, font_small, (255, 0, 0), 660)
 
         pygame.display.flip()
 
@@ -58,12 +61,14 @@ def menu_screen(screen, SCREEN_SIZE):
                 # --- Multiplayer IP entry ---
                 elif selected_mode == "multi":
                     if event.key == pygame.K_ESCAPE:
-                        # Cancel input → return to singleplayer
-                        return None
+                        # Cancel input → return to menu
+                        selected_mode = None
 
                     elif event.key == pygame.K_RETURN:
-                        ip_to_check = input_text or "127.0.0.1"
+                        ip_to_check = input_text or settings.get("multiplayer_ip")
                         if is_valid_ip(ip_to_check):
+                            settings["multiplayer_ip"] = ip_to_check
+                            save_settings(settings)
                             return ip_to_check
                         else:
                             error_text = f"❌ Ungültige IP-Adresse: {ip_to_check}"

@@ -12,6 +12,10 @@ DEFAULT_SETTINGS = {
     "fullscreen": False,
     "tickrate": 60,
     "player_color": "p1",
+    "multiplayer_ip": "127.0.0.1",
+    "default_name": "Spieler1",
+    "avatar_path": None,
+    "language": "de"
 }
 
 
@@ -46,19 +50,24 @@ def ensure_dirs() -> None:
     for p in (config_dir(), data_dir(), cache_dir(), log_dir()):
         p.mkdir(parents=True, exist_ok=True)
 
-SETTINGS_FILE = config_dir() / "settings.json"
+def get_settings_path() -> Path:
+    return config_dir() / "settings.json"
+
 
 def load_settings() -> dict:
     ensure_dirs()
-    if SETTINGS_FILE.exists():
+    settings_file = get_settings_path()
+    if settings_file.exists():
         try:
-            return {**DEFAULT_SETTINGS, **json.loads(SETTINGS_FILE.read_text(encoding="utf-8"))}
+            return {**DEFAULT_SETTINGS, **json.loads(settings_file.read_text(encoding="utf-8"))}
         except Exception:
             return DEFAULT_SETTINGS.copy()
     return DEFAULT_SETTINGS.copy()
 
 def save_settings(settings: dict) -> None:
     ensure_dirs()
-    tmp: Path = SETTINGS_FILE.with_suffix(".tmp")
+    settings_file = get_settings_path()
+    print( f"Saving settings to {settings_file}" )
+    tmp: Path = settings_file.with_suffix(".tmp")
     tmp.write_text(json.dumps(settings, indent=2), encoding="utf-8")
-    tmp.replace(SETTINGS_FILE)  # atomarer Austausch minimiert Korruption
+    tmp.replace(settings_file)  # atomarer Austausch minimiert Korruption

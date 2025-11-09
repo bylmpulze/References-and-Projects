@@ -39,7 +39,7 @@ jobs:
           zip -j Snake-Windows.zip build/Snake.exe
       - uses: ncipollo/release-action@v1
         with:
-          tag: main      
+          tag: latest   
           name: main          
           allowUpdates: true  # bestehendes Release aktualisieren
           replacesArtifacts: true  # vorhandene Assets ersetzen
