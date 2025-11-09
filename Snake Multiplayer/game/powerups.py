@@ -2,6 +2,7 @@ import pygame
 import random as randomizer
 import os
 import sys
+import game.constants as constants
 
 
 
@@ -15,9 +16,9 @@ def resource_path(rel_path: str) -> str:
 
 class PowerUpConfig:
     def __init__(self):
-        self.speed_boost_x2 = True
-        self.speed_half = True
-        self.extra_life = False  
+        self.speed_boost_x2 = False
+        self.speed_half = False
+        self.extra_life = True  
         self.powerup_drunk = False
         self.powerup_drunk_duration = 0 # Dauer - umgekehrte steuerung (nicht fertig)
         self.speed_boost_x2_duration = 5000 # Dauer - doppelte Geschwindigkeit  (1000 = 1 sec) (nicht fertig)
@@ -83,7 +84,7 @@ class PowerUp:
                   
     def draw(self, screen): # Show powerup
         if self.position and self.active_powerup:
-            pos_px = [self.position[0] * self.particle_size, self.position[1] * self.particle_size]
+            pos_px = [self.position[0] * self.particle_size, self.position[1] * self.particle_size + constants.TOPBAR_HEIGHT]
             screen.blit(self.images[self.active_powerup], pos_px)
 
     def check_collision(self, snake_head): #checks if the powerup got picked up
