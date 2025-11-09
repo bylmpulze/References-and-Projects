@@ -12,7 +12,10 @@ DEFAULT_SETTINGS = {
     "fullscreen": False,
     "tickrate": 60,
     "player_color": "p1",
-    "multiplayer_ip": "127.0.0.1"
+    "multiplayer_ip": "127.0.0.1",
+    "default_name": "Spieler1",
+    "avatar_path": None,
+    "language": "de"
 }
 
 
