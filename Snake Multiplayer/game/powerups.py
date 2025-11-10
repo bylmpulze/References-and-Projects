@@ -60,10 +60,6 @@ class PowerUp:
             img = pygame.transform.scale(img, (self.particle_size, self.particle_size))  # Surface skalieren
             self.images[key] = img
         
-    def resource_path(self, rel_path: str) -> str:
-        base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
-        return os.path.join(base_path, rel_path)
-
 
     def spawn_powerup(self, snake): # powerup spawn randomizer
         global powerupconfig
@@ -81,8 +77,6 @@ class PowerUp:
                 if coord not in snake:
                     self.position = coord
                     break
-
-            
 
             self.active_powerup = randomizer.choice(available_powerups)
             self.powerup_spawned = True
