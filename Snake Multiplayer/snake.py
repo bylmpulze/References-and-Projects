@@ -12,7 +12,6 @@ particle = 25
 snake = [[13, 13], [13, 14]]
 direction = 0
 feedCordrnd = []
-go = True
 endgame = False
 score = 0
 snake_speed = 4  # mehr = langsamer
@@ -44,23 +43,19 @@ head_img = pygame.transform.scale(head_img, (particle, particle))
 PLAYERID = None
 font = pygame.font.SysFont(None, 40)
 
-# -----------------------------
-# Topbar
-# -----------------------------
-def draw_topbar():
-    # Hintergrund
-    pygame.draw.rect(screen, (200, 200, 200), (0, 0, constants.SCREEN_SIZE, constants.TOPBAR_HEIGHT))
-    
-    # Score
-    score_text = font.render(f"Punkte: {score}", True, (0, 0, 0))
-    screen.blit(score_text, (10, 10))
-    
-    # Einstellungen-Button
+def draw_topbar(just_rect = False):
+
     settings_text = font.render("Einstellungen", True, (0, 0, 0))
     settings_rect = settings_text.get_rect(topright=(constants.SCREEN_SIZE - 10, 10))
+    if just_rect:
+        return settings_rect
+
+    pygame.draw.rect(screen, (200, 200, 200), (0, 0, constants.SCREEN_SIZE, constants.TOPBAR_HEIGHT))
+    
+    score_text = font.render(f"Punkte: {score}", True, (0, 0, 0))
+    screen.blit(score_text, (10, 10))
     screen.blit(settings_text, settings_rect)
     
-    return settings_rect
 
 # -----------------------------
 # Restart / Game Over
@@ -95,14 +90,11 @@ def game_over_screen():
                 waiting = False
                 restart_environment()
 
-# -----------------------------
-# Spielfeld zeichnen
-# -----------------------------
-def printing():
+
+def draw_game_elements():
+    """ Draws the top_bar, the game, the players snake and food"""
     screen.fill((255, 255, 255))
-    
-    # Topbar
-    settings_rect = draw_topbar()
+    draw_topbar() # Topbar
     
     # Apfel
     for a in feedCordrnd:
@@ -125,7 +117,6 @@ def printing():
         else:
             screen.blit(body_img, (Coords[0], Coords[1]))
     
-    return settings_rect
 
 # -----------------------------
 # Multiplayer Setup
@@ -182,7 +173,6 @@ def handle_keypress(event, direction, change_direction_collected):
 
 
 
-
 powerup_magnet_collected_time = 0
 powerup_drunk_collected = -9999
 immunity_collected_time = None
@@ -191,8 +181,8 @@ powerup_magnet_activ = False
 # -----------------------------
 # Main Loop
 # -----------------------------
-while go:
-    settings_rect = draw_topbar()
+while True:
+    settings_rect = draw_topbar(True)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -267,7 +257,7 @@ while go:
     if move_counter % 2 == 0:
         client.queue_send((json.dumps(snake) + "\n").encode("utf-8"))
 
-    printing()
+    draw_game_elements()
     draw_other_snakes(other_snakes, particle, screen, body_img, head_img)
     powerups.draw(screen)
     pygame.display.update()
