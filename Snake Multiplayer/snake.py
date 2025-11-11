@@ -2,13 +2,13 @@ import os
 import pygame
 import sys
 import json
-import game.constants as constants
+import game.constants as CONSTANTS
 from game.powerups import PowerUp, powerupconfig
 from game.client import Client, FakeClient
 from game.snake_functions import draw_other_snakes, handle_snake_collisions
 from game.selector_screen import menu_screen
 
-particle = 25
+
 snake = [[13, 13], [13, 14]]
 direction = 0
 feedCordrnd = []
@@ -18,9 +18,9 @@ snake_speed = 4  # mehr = langsamer
 move_counter = 0
 
 pygame.init()
-screen = pygame.display.set_mode([constants.SCREEN_SIZE, constants.SCREEN_SIZE])
+screen = pygame.display.set_mode([CONSTANTS.SCREEN_SIZE, CONSTANTS.SCREEN_SIZE])
 clock = pygame.time.Clock()
-powerups = PowerUp(particle_size=particle)
+powerups = PowerUp(particle_size=CONSTANTS.PARTICLE_SIZE)
 
 def resource_path(rel_path: str) -> str:
     try:
@@ -32,13 +32,13 @@ def resource_path(rel_path: str) -> str:
 
 # Assets laden
 food_img = pygame.image.load(resource_path("game/assets/apfel2.jpg"))
-food_img = pygame.transform.scale(food_img, (particle, particle))
+food_img = pygame.transform.scale(food_img, (CONSTANTS.PARTICLE_SIZE, CONSTANTS.PARTICLE_SIZE))
 
 body_img = pygame.image.load(resource_path("game/assets/snakebody.jpg")).convert_alpha()
-body_img = pygame.transform.scale(body_img, (particle, particle))
+body_img = pygame.transform.scale(body_img, (CONSTANTS.PARTICLE_SIZE, CONSTANTS.PARTICLE_SIZE))
 
 head_img = pygame.image.load(resource_path("game/assets/snakehead.jpg")).convert_alpha()
-head_img = pygame.transform.scale(head_img, (particle, particle))
+head_img = pygame.transform.scale(head_img, (CONSTANTS.PARTICLE_SIZE, CONSTANTS.PARTICLE_SIZE))
 
 PLAYERID = None
 font = pygame.font.SysFont(None, 40)
@@ -46,11 +46,11 @@ font = pygame.font.SysFont(None, 40)
 def draw_topbar(just_rect = False):
 
     settings_text = font.render("Einstellungen", True, (0, 0, 0))
-    settings_rect = settings_text.get_rect(topright=(constants.SCREEN_SIZE - 10, 10))
+    settings_rect = settings_text.get_rect(topright=(CONSTANTS.SCREEN_SIZE - 10, 10))
     if just_rect:
         return settings_rect
 
-    pygame.draw.rect(screen, (200, 200, 200), (0, 0, constants.SCREEN_SIZE, constants.TOPBAR_HEIGHT))
+    pygame.draw.rect(screen, (200, 200, 200), (0, 0, CONSTANTS.SCREEN_SIZE, CONSTANTS.TOPBAR_HEIGHT))
     
     score_text = font.render(f"Punkte: {score}", True, (0, 0, 0))
     screen.blit(score_text, (10, 10))
@@ -98,12 +98,12 @@ def draw_game_elements():
     
     # Apfel
     for a in feedCordrnd:
-        Coords = [a[0] * particle, a[1] * particle + constants.TOPBAR_HEIGHT]
+        Coords = [a[0] * CONSTANTS.PARTICLE_SIZE, a[1] * CONSTANTS.PARTICLE_SIZE + CONSTANTS.TOPBAR_HEIGHT]
         screen.blit(food_img, (Coords[0], Coords[1]))
 
     # Schlange
     for i, x in enumerate(snake):
-        Coords = [x[0] * particle, x[1] * particle + constants.TOPBAR_HEIGHT]
+        Coords = [x[0] * CONSTANTS.PARTICLE_SIZE, x[1] * CONSTANTS.PARTICLE_SIZE + CONSTANTS.TOPBAR_HEIGHT]
         if i == 0:
             if direction == 0:   
                 rotated_head = pygame.transform.rotate(head_img, 0)
@@ -121,7 +121,7 @@ def draw_game_elements():
 # -----------------------------
 # Multiplayer Setup
 # -----------------------------
-ip_addr = menu_screen(screen, constants.SCREEN_SIZE)
+ip_addr = menu_screen(screen, CONSTANTS.SCREEN_SIZE)
 if ip_addr is None:
     client = FakeClient()
 else:
@@ -236,8 +236,8 @@ while True:
                     score += 10
                     client.queue_send("FOOD_EATEN\n".encode("utf-8"))
 
-        new_head[0] %= (constants.SCREEN_SIZE // particle)
-        new_head[1] %= (constants.GAME_SIZE // particle)  # Spielfeld begrenzt nur auf Game_Size
+        new_head[0] %= (CONSTANTS.SCREEN_SIZE // CONSTANTS.PARTICLE_SIZE)
+        new_head[1] %= (CONSTANTS.GAME_SIZE // CONSTANTS.PARTICLE_SIZE)  # Spielfeld begrenzt nur auf Game_Size
 
         if handle_snake_collisions(new_head, snake, other_snakes, immunity_collected_time):
             client.queue_send(f"DEAD SNAKE {PLAYERID}\n".encode("utf-8"))
@@ -258,7 +258,7 @@ while True:
         client.queue_send((json.dumps(snake) + "\n").encode("utf-8"))
 
     draw_game_elements()
-    draw_other_snakes(other_snakes, particle, screen, body_img, head_img)
+    draw_other_snakes(other_snakes, CONSTANTS.PARTICLE_SIZE, screen, body_img, head_img)
     powerups.draw(screen)
     pygame.display.update()
 
