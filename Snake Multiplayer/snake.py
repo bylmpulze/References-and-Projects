@@ -16,6 +16,7 @@ endgame = False
 score = 0
 snake_speed = 4  # mehr = langsamer
 move_counter = 0
+POWER_UPS = {}
 
 pygame.init()
 screen = pygame.display.set_mode([CONSTANTS.SCREEN_SIZE, CONSTANTS.SCREEN_SIZE])
@@ -200,28 +201,32 @@ while True:
         if direction == 2: new_head[1] += 1
         if direction == 3: new_head[0] -= 1
 
-        powerups.spawn_powerup(snake)
-        collected = powerups.check_collision(new_head)
-        if collected:
-            if collected == "speed_boost_x2":
-                snake_speed = max(1, snake_speed // 2)
-            elif collected == "speed_half":
-                snake_speed = snake_speed * 2
-            elif collected == "extra_life":
-                immunity_collected_time = pygame.time.get_ticks()
-            elif collected == "powerup_drunk":
-                powerup_drunk_collected = pygame.time.get_ticks()
-            elif collected == "powerup_magnet":
-                powerup_magnet_collected_time = pygame.time.get_ticks()
-                powerup_magnet_activ = True
+        new_dict = {}
+        for pw_id, power_up in POWER_UPS.items():
 
-        else:
-            power_up_not_collected_time = pygame.time.get_ticks() - (powerups.powerup_spawntime or 0) 
-            if power_up_not_collected_time > powerupconfig.power_up_activ_time:
-                powerups.delete_powerup()
+            collected = power_up.check_collision(new_head)
+            if collected:
+                client.queue_send(f"POWER_UP_COLLECTED {pw_id}".encode("utf-8"))
+                if collected == "speed_boost_x2":
+                    snake_speed = max(1, snake_speed // 2)
+                elif collected == "speed_half":
+                    snake_speed = snake_speed * 2
+                elif collected == "extra_life":
+                    immunity_collected_time = pygame.time.get_ticks()
+                elif collected == "powerup_drunk":
+                    powerup_drunk_collected = pygame.time.get_ticks()
+                elif collected == "powerup_magnet":
+                    powerup_magnet_collected_time = pygame.time.get_ticks()
+                    powerup_magnet_activ = True
+            else:
+                new_dict[pw_id] = power_up
+                power_up_not_collected_time = pygame.time.get_ticks() - (powerups.powerup_spawntime or 0) 
+                if power_up_not_collected_time > powerupconfig.power_up_activ_time:
+                    pass
+        POWER_UPS = new_dict
         #Powerup_magnet 
         if 0 < pygame.time.get_ticks() - powerup_magnet_collected_time < powerupconfig.powerup_magnet_duration and powerup_magnet_activ:
-            for food in feedCordrnd:
+            for i,food in enumerate(feedCordrnd):
                 if food[0] < snake[0][0]:
                     food[0] += 1
                 elif food[0] > snake[0][0]:
@@ -259,7 +264,10 @@ while True:
 
     draw_game_elements()
     draw_other_snakes(other_snakes, CONSTANTS.PARTICLE_SIZE, screen, body_img, head_img)
-    powerups.draw(screen)
+    
+    for pw_id,powerup in POWER_UPS.items():
+        powerup.draw(screen)
+
     pygame.display.update()
 
     while data_from_server := client.receive_now():
@@ -272,6 +280,11 @@ while True:
         elif "FOOD_SPAWNED" in data_from_server:
             _, x, y = data_from_server.split()
             feedCordrnd = [[int(x), int(y)]]
+        elif "POWER_UP_SPAWNED" in data_from_server:
+            _, pw_id, x,y, pw_type = data_from_server.split()
+            POWER_UPS[pw_id] = PowerUp(CONSTANTS.PARTICLE_SIZE)
+            POWER_UPS[pw_id].add_powerup(snake,pw_id,x,y,pw_type)
+
         else:
             snake_id, other_snakes_data = data_from_server.split(":", 1)
             other_snakes[snake_id] = json.loads(other_snakes_data)

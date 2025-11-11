@@ -41,7 +41,7 @@ Multi screen - über mehrere Bildschirme
 verschiedene Schlangenbilder  - Eigene Bilder importieren - Kopf z.b
 
 
-Power ups -  memes
-- wodkaflasche
-- Doppelte Geschwindigkeit
-- Halbe Geschwindigkeit
+TODO:
+  SERVER SPAWNT POWERUPS
+  SERVER ENTFERNTE TOTE CLIENTS
+  

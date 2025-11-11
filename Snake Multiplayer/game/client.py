@@ -2,6 +2,9 @@ import socket
 import threading
 import queue
 import json
+import random
+import pygame
+from game.powerups import powerupconfig
 from game.snake_functions import get_random_food_coords
 
 class Client:
@@ -118,6 +121,7 @@ class FakeClient:
     def __init__(self):
         self.queue = []
         self.snake = []
+        self.power_ups = {0 : {"x":5,"y":5,"pw_type": "speed_boost_x2"}}
         self.foodCords = []
         self.foodCords.append(get_random_food_coords(self.snake,self.foodCords))
         self.queue.append(f"FOOD_SPAWNED {self.foodCords[0][0]} {self.foodCords[0][1]}")
@@ -125,11 +129,37 @@ class FakeClient:
     def receive_now(self):
         if not self.queue:
             return None
-        
+                
         return self.queue.pop(0)
+    
+    def handle_powerup_spawn(self):
+
+        available_powerups = [
+            "speed_boost_x2", "speed_half", "extra_life", "powerup_drunk", "powerup_magnet"
+        ]
+      
+        if not self.power_ups.items():
+            while True:
+                coord = [random.randint(0, 27), random.randint(0, 27)]
+                if coord not in self.snake:
+                    x,y = coord
+                    break
+            pw_type = random.choice(available_powerups)
+            self.power_ups[0] = {"x":x,"y":y,"pw_type": pw_type}
+
+        
+        self.active_powerup = random.choice(available_powerups)
+        self.powerup_spawned = True
+        self.powerup_spawntime = pygame.time.get_ticks()
+
+        for pw_id, power_up in self.power_ups.items():
+            self.queue.append(f"POWER_UP_SPAWNED {pw_id} {power_up['x']} {power_up['y']} {power_up['pw_type']}")
 
     def queue_send(self, data):
+
+    
         line = data.decode("utf-8").strip()
+
         try:
             self.snake = json.loads(line)
         except json.JSONDecodeError:
@@ -141,5 +171,8 @@ class FakeClient:
                 x,y = get_random_food_coords(self.snake,self.foodCords)
                 self.foodCords = [x,y]
                 self.queue.append(f"FOOD_SPAWNED {x} {y}")
-
-        
+            elif "POWER_UP_COLLECTED" in line:
+                _, pw_id = line.split()
+                del self.power_ups[int(pw_id)]
+    
+        self.handle_powerup_spawn()
