@@ -8,6 +8,7 @@ from game.client import Client, FakeClient
 from game.snake_functions import draw_other_snakes, handle_snake_collisions
 from game.selector_screen import menu_screen
 from game.scenes.reject_screen import draw_rejected
+from game.scenes.settings_menu import settings_menu
 
 snake = [[13, 13], [13, 14]]
 direction = 0
@@ -213,7 +214,7 @@ while True:
             direction = handle_keypress(event, direction, powerup_drunk_collected)
         if event.type == pygame.MOUSEBUTTONDOWN:
             if settings_rect.collidepoint(event.pos):
-                print("Einstellungen öffnen!")
+                settings_menu(screen)
 
     if move_counter % snake_speed == 0:
         new_head = snake[0].copy()

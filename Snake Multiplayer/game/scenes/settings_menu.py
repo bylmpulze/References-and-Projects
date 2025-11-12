@@ -2,10 +2,13 @@
 import pygame
 import sys
 from pathlib import Path
+
 try:
+    import game.constants as CONSTANTS
     from game.settings import load_settings, save_settings
 except ImportError:
-    from settings import load_settings, save_settings
+    from game.settings import load_settings, save_settings
+    import constants as CONSTANTS
 
 # Für FileDialog
 import tkinter as tk
@@ -24,8 +27,8 @@ BLUE = (0, 100, 200)
 RED = (200, 50, 50)
 BLACK = (0, 0, 0)
 
-BUTTON_W, BUTTON_H = 40, 40
-AVATAR_SIZE = 64
+BUTTON_W, BUTTON_H = int(CONSTANTS.SCREEN_SIZE*0.05), int(CONSTANTS.SCREEN_SIZE*0.05)
+AVATAR_SIZE = int(CONSTANTS.SCREEN_SIZE*0.18)
 
 
 def draw_text(surface, text, pos, color=BLACK, font=FONT):
@@ -65,11 +68,11 @@ def settings_menu(screen):
         avatar_image = pygame.transform.scale(avatar_image, (AVATAR_SIZE, AVATAR_SIZE))
 
     # Button Rects
-    save_rect = pygame.Rect(150, 520, 120, 50)
-    cancel_rect = pygame.Rect(320, 520, 120, 50)
-    avatar_rect = pygame.Rect(500, 50, AVATAR_SIZE, AVATAR_SIZE)
-    choose_avatar_rect = pygame.Rect(500, 120, 150, 40)
-    reset_avatar_rect = pygame.Rect(500, 170, 150, 40)
+    save_rect = pygame.Rect(int(CONSTANTS.SCREEN_SIZE * 0.1), int(CONSTANTS.SCREEN_SIZE * 0.8), int(CONSTANTS.SCREEN_SIZE * 0.2), int(CONSTANTS.SCREEN_SIZE * 0.05))
+    cancel_rect = pygame.Rect(int(CONSTANTS.SCREEN_SIZE * 0.32), int(CONSTANTS.SCREEN_SIZE * 0.8), int(CONSTANTS.SCREEN_SIZE * 0.2), int(CONSTANTS.SCREEN_SIZE * 0.05))
+    avatar_rect = pygame.Rect(int(CONSTANTS.SCREEN_SIZE * 0.66), int(CONSTANTS.SCREEN_SIZE * 0.16), AVATAR_SIZE, AVATAR_SIZE)
+    choose_avatar_rect = pygame.Rect(int(CONSTANTS.SCREEN_SIZE * 0.56), int(CONSTANTS.SCREEN_SIZE * 0.4), int(CONSTANTS.SCREEN_SIZE * 0.2), int(CONSTANTS.SCREEN_SIZE * 0.05))
+    reset_avatar_rect = pygame.Rect(int(CONSTANTS.SCREEN_SIZE * 0.78), int(CONSTANTS.SCREEN_SIZE * 0.4),  int(CONSTANTS.SCREEN_SIZE * 0.2), int(CONSTANTS.SCREEN_SIZE * 0.05))
 
     running = True
     while running:
@@ -77,46 +80,46 @@ def settings_menu(screen):
         draw_text(screen, "⚙️ Einstellungen", (220, 10), BLUE, BIGFONT)
 
         # Volume
-        draw_text(screen, f"Lautstärke: {settings['volume']:.1f}", (100, 150))
-        minus_rect = pygame.Rect(380, 145, BUTTON_W, BUTTON_H)
-        plus_rect = pygame.Rect(430, 145, BUTTON_W, BUTTON_H)
+        draw_text(screen, f"Lautstärke: {settings['volume']:.1f}", (int(CONSTANTS.SCREEN_SIZE * 0.05), 150))
+        minus_rect = pygame.Rect(int(CONSTANTS.SCREEN_SIZE * 0.22), int(CONSTANTS.SCREEN_SIZE * 0.18), BUTTON_W, BUTTON_H)
+        plus_rect = pygame.Rect(int(CONSTANTS.SCREEN_SIZE * 0.28), int(CONSTANTS.SCREEN_SIZE * 0.18), BUTTON_W, BUTTON_H)
         draw_button(screen, minus_rect, "-")
         draw_button(screen, plus_rect, "+")
 
         # Fullscreen
-        fs_rect = pygame.Rect(100, 220, 25, 25)
+        fs_rect = pygame.Rect(int(CONSTANTS.SCREEN_SIZE * 0.16), 220, 25, 25)
         pygame.draw.rect(screen, BLACK, fs_rect, 2)
         if settings["fullscreen"]:
-            pygame.draw.line(screen, GREEN, (100, 220), (125, 245), 4)
-            pygame.draw.line(screen, GREEN, (125, 220), (100, 245), 4)
-        draw_text(screen, "Vollbild", (140, 220))
+            pygame.draw.line(screen, GREEN, (int(CONSTANTS.SCREEN_SIZE * 0.16), 220), (125, 245), 4)
+            pygame.draw.line(screen, GREEN, (125, 220), (int(CONSTANTS.SCREEN_SIZE * 0.16), 245), 4)
+        draw_text(screen, "Vollbild", (int(CONSTANTS.SCREEN_SIZE * 0.05), 220))
 
         # Tickrate
-        draw_text(screen, f"Tickrate: {settings['tickrate']}", (100, 290))
-        minus_t = pygame.Rect(380, 285, BUTTON_W, BUTTON_H)
-        plus_t = pygame.Rect(430, 285, BUTTON_W, BUTTON_H)
+        draw_text(screen, f"Tickrate: {settings['tickrate']}", (int(CONSTANTS.SCREEN_SIZE * 0.05), 290))
+        minus_t = pygame.Rect(int(CONSTANTS.SCREEN_SIZE * 0.2), 285, BUTTON_W, BUTTON_H)
+        plus_t = pygame.Rect(int(CONSTANTS.SCREEN_SIZE * 0.27), 285, BUTTON_W, BUTTON_H)
         draw_button(screen, minus_t, "-")
         draw_button(screen, plus_t, "+")
 
         # Player color
-        draw_text(screen, "Spielerfarbe:", (100, 360))
-        color_button = pygame.Rect(380, 355, 120, 40)
+        draw_text(screen, "Spielerfarbe:", (int(CONSTANTS.SCREEN_SIZE * 0.05), 360))
+        color_button = pygame.Rect(int(CONSTANTS.SCREEN_SIZE * 0.27), 355, 120, 40)
         draw_button(screen, color_button, settings["player_color"].upper())
 
         # Multiplayer-IP input
-        draw_text(screen, "Multiplayer-IP:", (100, 430))
-        ip_box = pygame.Rect(300, 425, 200, 40)
+        draw_text(screen, "Multiplayer-IP:", (int(CONSTANTS.SCREEN_SIZE * 0.05), 430))
+        ip_box = pygame.Rect(int(CONSTANTS.SCREEN_SIZE * 0.25), 425, 200, 40)
         pygame.draw.rect(screen, BLUE if input_active else DARKGRAY, ip_box, 2, border_radius=6)
-        draw_text(screen, input_text, (310, 430))
+        draw_text(screen, input_text, (int(CONSTANTS.SCREEN_SIZE * 0.26), 430))
 
         # Spielername
-        draw_text(screen, "Spielername:", (100, 480))
-        name_box = pygame.Rect(300, 475, 200, 40)
+        draw_text(screen, "Spielername:", (int(CONSTANTS.SCREEN_SIZE * 0.05), 480))
+        name_box = pygame.Rect(int(CONSTANTS.SCREEN_SIZE * 0.25), 475, 200, 40)
         pygame.draw.rect(screen, BLUE if name_active else DARKGRAY, name_box, 2, border_radius=6)
-        draw_text(screen, name_text, (310, 480))
+        draw_text(screen, name_text, (int(CONSTANTS.SCREEN_SIZE * 0.26), 480))
 
         # Avatar
-        draw_text(screen, "Avatar:", (500, 20))
+        draw_text(screen, "Avatar:", (int(CONSTANTS.SCREEN_SIZE * 0.55), int(CONSTANTS.SCREEN_SIZE * 0.16)))
         if avatar_image:
             screen.blit(avatar_image, avatar_rect)
         draw_button(screen, choose_avatar_rect, "Bild auswählen")
