@@ -1,3 +1,7 @@
+import os
+import time
+import hashlib
+from pathlib import Path
 
 #Game_Size
 SCREEN_SIZE = 800
@@ -23,3 +27,41 @@ PLAYER_COLORS = {
 
 PLAYER_KEYS = list(PLAYER_COLORS.keys())  # ["p1","p2","p3","p4""p5","p6","p7","p8""p9","p10","p11","p12"]
 
+def compute_project_hash(base_dir: str = ".") -> str:
+    """Erzeugt einen stabilen SHA1-Hash über alle .py-Dateien im Verzeichnis (rekursiv)."""
+    h = hashlib.sha1()
+    for root, _, files in os.walk(base_dir):
+        for f in sorted(files):
+            if f.endswith(".py"):
+                path = os.path.join(root, f)
+                try:
+                    with open(path, "rb") as fh:
+                        while chunk := fh.read(8192):
+                            h.update(chunk)
+                except Exception as e:
+                    print(f"[WARN] Datei übersprungen: {path} ({e})")
+    return h.hexdigest()[:8]
+
+
+def benchmark_compute_project_hash(base_dir: str = ".", repeat: int = 5):
+    """Misst die durchschnittliche Laufzeit des Hash-Vorgangs."""
+    durations = []
+    print(f"🔍 Starte Benchmark für compute_project_hash('{base_dir}') ...")
+
+    for i in range(repeat):
+        start = time.perf_counter()
+        _ = compute_project_hash(base_dir)
+        end = time.perf_counter()
+        dur = (end - start) * 1000  # ms
+        durations.append(dur)
+        print(f"  Durchlauf {i+1}: {dur:.2f} ms")
+
+    avg = sum(durations) / len(durations)
+    print(f"⏱️  Durchschnitt: {avg:.2f} ms für {repeat} Durchläufe "
+          f"({len(durations)} Dateien gescannt)")
+
+
+VERSION = compute_project_hash(Path(__file__).parent)
+
+if __name__ == "__main__":
+    benchmark_compute_project_hash("..", repeat=10)

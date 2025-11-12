@@ -7,6 +7,7 @@ from game.powerups import PowerUp, powerupconfig
 from game.client import Client, FakeClient
 from game.snake_functions import draw_other_snakes, handle_snake_collisions
 from game.selector_screen import menu_screen
+from game.scenes.reject_screen import draw_rejected
 
 snake = [[13, 13], [13, 14]]
 direction = 0
@@ -191,10 +192,15 @@ def process_server_messages():
                     continue
                 if pw_id in POWER_UPS:
                     del POWER_UPS[pw_id]
+        elif "REJECTED" in msg:
+            _, msg_str = msg.split()
+            draw_rejected(screen,msg_str)
+                        
         else:
             if ":" in msg:
                 snake_id, other_snakes_data = msg.split(":", 1)
                 other_snakes[snake_id] = json.loads(other_snakes_data)
+
 
 # Main Loop
 while True:

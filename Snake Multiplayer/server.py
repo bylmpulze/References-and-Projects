@@ -5,6 +5,7 @@ import json
 import random
 from typing import Dict, Tuple, List
 from game.snake_functions import get_random_food_coords
+import game.constants as CONSTANTS
 
 HOST = "127.0.0.1"
 PORT = 50007
@@ -83,8 +84,12 @@ class BroadcastServer:
 
         if not text.startswith("HELLO"):
             raise RuntimeError("invalid handshake verb")
-        parts = text.split(maxsplit=1)
-        name = parts[1].strip() if len(parts) == 2 else ""
+        _,name,client_version = text.split()
+        if client_version != CONSTANTS.VERSION:
+            writer.write("REJECTED Client_Server_Version_Missmatch\n".encode("utf-8"))
+            await writer.drain()
+            raise ValueError("Client Server Version Missmatch")
+        
 
         cid = self._next_id
         self._next_id += 1
@@ -102,13 +107,13 @@ class BroadcastServer:
             try:
                 writer.write(f"ERROR {str(e)}\n".encode("utf-8"))
                 await writer.drain()
-            except Exception:
-                pass
+            except Exception as E:
+                print(E)
             try:
                 writer.close()
                 await writer.wait_closed()
-            except Exception:
-                pass
+            except Exception as E:
+                print(E)
             print(f"Handshake failed from {peer}: {e}")
             return
 

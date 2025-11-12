@@ -6,6 +6,7 @@ import random
 import pygame
 from game.powerups import powerupconfig
 from game.snake_functions import get_random_food_coords
+import game.constants as CONSTANTS
 
 class Client:
     """
@@ -30,7 +31,7 @@ class Client:
         self._sender_thread = threading.Thread(target=self._send_loop, daemon=True)
         self._reader_thread.start()
         self._sender_thread.start()
-        self.queue_send(b"HELLO Player\n")
+        self.queue_send(f"HELLO Player {CONSTANTS.VERSION}\n".encode("utf-8"))
 
     def queue_send(self, data) -> None:
         """
