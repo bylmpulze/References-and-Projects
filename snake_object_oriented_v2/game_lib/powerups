@@ -2,10 +2,10 @@ import pygame
 
 class PowerUpConfig:
     def __init__(self):
-        self.speed_boost_x2 = True
+        self.speed_boost_x2 = False
         self.speed_half = False
         self.extra_life = False  
-        self.powerup_magnet = True
+        self.powerup_magnet = False
         self.powerup_drunk = False
         self.powerup_drunk_duration = 0 # Dauer - umgekehrte steuerung (nicht fertig)
         self.powerup_magnet_duration = 0 #Dauer Apfel heranziehen (nicht fertig)
@@ -18,7 +18,7 @@ powerupconfig = PowerUpConfig()
 
 class PowerupSettingsMenu():
     def __init__(self):
-        self.settingsMenu_powerup_magnet = "x"
+        self.settingsMenu_powerup_magnet = ""
         self.settingsMenu_speedx2 = []
         self.settingsMenu_speedHalf = []
         self.settingsMenu_immunity = []
@@ -36,7 +36,7 @@ class PowerupSettingsMenu():
             return
         if self.settingsMenu_magnet_duration >= 1:
             powerupconfig.powerup_magnet_duration = self.settingsMenu_magnet_duration  
-            print("Das Powerup Magnet wurde auf", powerupconfig.powerup_magnet_duration, " milisekunden gesetzt")
+            print("Das Powerup Magnet wurde auf", powerupconfig.powerup_magnet_duration, " millisekunden gesetzt")
             return powerupconfig.powerup_magnet_duration
         if self.settingsMenu_powerup_magnet:
             return self.settingsMenu_powerup_magnet
@@ -45,7 +45,7 @@ class PowerupSettingsMenu():
                 print("powerup Magnet ist deaktiviert")
                 return False
 
-    def setPowerupMenuToggle_speedx2(self ):
+    def setPowerupMenuToggle_speedx2(self):
         self.settingsMenu_speedx2 = bool(self.settingsMenu_speedx2)# bool in true oder false ->set ("x")/1/[1]  = true(1) 0/""/[] = false
         try:
             self.settingsMenu_speedx2 = int(self.settingsMenu_speedx2)
@@ -54,7 +54,7 @@ class PowerupSettingsMenu():
             return
         if self.settingsMenu_speedx2 >= 1:
             powerupconfig.powerup_magnet_duration = self.settingsMenu_speedx2  
-            print("Das Powerup Doppelte Geschwindigkeit wurde auf", powerupconfig.speed_boost_x2_duration, " milisekunden gesetzt")
+            print("Das Powerup Doppelte Geschwindigkeit wurde auf", powerupconfig.speed_boost_x2_duration, " millisekunden gesetzt")
             return powerupconfig.speed_boost_x2_duration
         if self.settingsMenu_speedx2:
             return self.settingsMenu_speedx2
