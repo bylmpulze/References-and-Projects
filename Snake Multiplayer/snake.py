@@ -168,6 +168,10 @@ def process_server_messages():
             dead_snake_id = msg.split()[2]
             if dead_snake_id in other_snakes:
                 del other_snakes[dead_snake_id]
+        elif "PLAYER_LEFT" in msg:
+            dead_snake_id = msg.split()[1]
+            if dead_snake_id in other_snakes:
+                del other_snakes[dead_snake_id]
         elif "FOOD_SPAWNED" in msg:
             _, x, y = msg.split()
             feedCordrnd = [[int(x), int(y)]]

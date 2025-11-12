@@ -176,6 +176,14 @@ class BroadcastServer:
                 prefix = f"{meta['id']}: ".encode("utf-8")
                 outbound = prefix + line
                 await self.broadcast(outbound, exclude=writer)
+        except (asyncio.IncompleteReadError, ConnectionResetError, BrokenPipeError):
+            print(f"[DISCONNECT] {meta['name']} (ID={meta['id']}) - connection lost")
+            await self.broadcast(
+                f"PLAYER_LEFT {meta['id']} {meta['name']}\n".encode("utf-8"),
+                exclude=writer
+            )
+        except Exception as e:
+            print(f"[ERROR] {meta['name']} (ID={meta['id']}): {type(e).__name__}: {e}")
         finally:
             if writer in self.clients:
                 self.clients.discard(writer)
