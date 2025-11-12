@@ -1,5 +1,5 @@
 import pygame
-from game.game_render import GameScreen
+from game_lib.game_render import GameScreen
 
 pygame.init()  
 
