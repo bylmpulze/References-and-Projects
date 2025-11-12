@@ -1,0 +1,63 @@
+import pygame
+
+class PowerUpConfig:
+    def __init__(self):
+        self.speed_boost_x2 = True
+        self.speed_half = False
+        self.extra_life = False  
+        self.powerup_magnet = True
+        self.powerup_drunk = False
+        self.powerup_drunk_duration = 0 # Dauer - umgekehrte steuerung (nicht fertig)
+        self.powerup_magnet_duration = 0 #Dauer Apfel heranziehen (nicht fertig)
+        self.speed_boost_x2_duration = 0 # Dauer - doppelte Geschwindigkeit  (1000 = 1 sec) (nicht fertig)
+        self.extra_life_duration = 0 #1.5 sekunden Unverwundbarkeit ( 1000 = 1 sec) (fertig)
+        self.power_up_activ_time = 0 #löscht powerup  (1000 = 1 sec) (fertig)
+        self.spawn_duration = 0 # spawnzeit nach letztem Powerup ( 1000 = 1 sec) (fertig)
+        
+powerupconfig = PowerUpConfig()
+
+class PowerupSettingsMenu():
+    def __init__(self):
+        self.settingsMenu_powerup_magnet = "x"
+        self.settingsMenu_speedx2 = []
+        self.settingsMenu_speedHalf = []
+        self.settingsMenu_immunity = []
+        self.settingsMenu_magnet_duration = "5000"
+        self.settingsMenu_speedx2_duration = ""
+        self.settingsMenu_speedHalf_duration = ""
+        self.settingsMenu_immunity_duration = ""
+
+    def setPowerupMenuToggleMagnet(self):
+        self.settingsMenu_powerup_magnet = bool(self.settingsMenu_powerup_magnet)# bool in true oder false ->set ("x")/1/[1]  = true(1) 0/""/[] = false
+        try:
+            self.settingsMenu_magnet_duration = int(self.settingsMenu_magnet_duration)
+        except ValueError:
+            print("falsche Eingabe für die Dauer des Magnet Powerups. Bitte gebe eine gültige zahl ein (1000 = 1 Sekunde)")
+            return
+        if self.settingsMenu_magnet_duration >= 1:
+            powerupconfig.powerup_magnet_duration = self.settingsMenu_magnet_duration  
+            print("Das Powerup Magnet wurde auf", powerupconfig.powerup_magnet_duration, " milisekunden gesetzt")
+            return powerupconfig.powerup_magnet_duration
+        if self.settingsMenu_powerup_magnet:
+            return self.settingsMenu_powerup_magnet
+        else:
+            if self.settingsMenu_powerup_magnet == False:
+                print("powerup Magnet ist deaktiviert")
+                return False
+
+    # def setPowerupMenuToggle_speedx2(self,settingsMenu_speedx2 ):
+    #     self.PowerupSettingsMenu_speedx2  = bool(settingsMenu_speedx2 ) # bool in true oder false ->set ("x")/1/[1]  = true(1) 0/""/[] = false
+    #     return self.settingsMenu_speedx2 
+
+    # def setPowerupMenuToggle_speedhalf(self,settingsMenu_speedHalf):
+    #     self.powerup_magnet = bool(settingsMenu_speedHalf) # bool in true oder false ->set ("x")/1/[1]  = true(1) 0/""/[] = false
+    #     return self.settingsMenu_speedHalf 
+    
+    # def setPowerupMenuToggle_immunity(self,settingsMenu_immunity):
+    #     self.powerup_magnet = bool(settingsMenu_immunity) # bool in true oder false ->set ("x")/1/[1]  = true(1) 0/""/[] = false
+    #     return self.settingsMenu_immunity 
+
+powerupsettingsmenu = PowerupSettingsMenu()
+
+
+powerupsettingsmenu.setPowerupMenuToggleMagnet()
