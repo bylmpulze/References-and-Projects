@@ -22,7 +22,7 @@ class PowerupSettingsMenu():
         self.settingsMenu_speedx2 = []
         self.settingsMenu_speedHalf = []
         self.settingsMenu_immunity = []
-        self.settingsMenu_magnet_duration = "5000"
+        self.settingsMenu_magnet_duration = ""
         self.settingsMenu_speedx2_duration = ""
         self.settingsMenu_speedHalf_duration = ""
         self.settingsMenu_immunity_duration = ""
@@ -45,10 +45,25 @@ class PowerupSettingsMenu():
                 print("powerup Magnet ist deaktiviert")
                 return False
 
-    # def setPowerupMenuToggle_speedx2(self,settingsMenu_speedx2 ):
-    #     self.PowerupSettingsMenu_speedx2  = bool(settingsMenu_speedx2 ) # bool in true oder false ->set ("x")/1/[1]  = true(1) 0/""/[] = false
-    #     return self.settingsMenu_speedx2 
+    def setPowerupMenuToggle_speedx2(self ):
+        self.settingsMenu_speedx2 = bool(self.settingsMenu_speedx2)# bool in true oder false ->set ("x")/1/[1]  = true(1) 0/""/[] = false
+        try:
+            self.settingsMenu_speedx2 = int(self.settingsMenu_speedx2)
+        except ValueError:
+            print("falsche Eingabe für die Dauer der Doppelten Geschwindigkeit. Bitte gebe eine gültige zahl ein (1000 = 1 Sekunde)")
+            return
+        if self.settingsMenu_speedx2 >= 1:
+            powerupconfig.powerup_magnet_duration = self.settingsMenu_speedx2  
+            print("Das Powerup Doppelte Geschwindigkeit wurde auf", powerupconfig.speed_boost_x2_duration, " milisekunden gesetzt")
+            return powerupconfig.speed_boost_x2_duration
+        if self.settingsMenu_speedx2:
+            return self.settingsMenu_speedx2
+        else:
+            if self.settingsMenu_speedx2 == False:
+                print("powerup Doppelte Geschwindigkeit ist deaktiviert")
+                return False
 
+#currently working on:
     # def setPowerupMenuToggle_speedhalf(self,settingsMenu_speedHalf):
     #     self.powerup_magnet = bool(settingsMenu_speedHalf) # bool in true oder false ->set ("x")/1/[1]  = true(1) 0/""/[] = false
     #     return self.settingsMenu_speedHalf 
@@ -58,6 +73,3 @@ class PowerupSettingsMenu():
     #     return self.settingsMenu_immunity 
 
 powerupsettingsmenu = PowerupSettingsMenu()
-
-
-powerupsettingsmenu.setPowerupMenuToggleMagnet()
