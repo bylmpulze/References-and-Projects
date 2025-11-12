@@ -17,8 +17,6 @@ class Display:
         settings_menu_vsync = bool(settings_menu_vsync) # bool in true oder false ->set ("x")/1/[1]  = true(1) 0/""/[] = false
         return self.vsync
 
-
-
 class GameScreen:
     def __init__(self):
         self.screen_size_height = 1000
