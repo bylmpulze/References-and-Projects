@@ -33,6 +33,7 @@ class PowerUpMain:
 
 class PowerupSettingsMenu():
     def __init__(self):
+        self.config = PowerUpConfig
         self.settingsMenu_powerup_magnet = ""
         self.settingsMenu_speedx2 = []
         self.settingsMenu_speedHalf = []
@@ -50,9 +51,9 @@ class PowerupSettingsMenu():
             print("falsche Eingabe für die Dauer des Magnet Powerups. Bitte gebe eine gültige zahl ein (1000 = 1 Sekunde)")
             return
         if self.settingsMenu_magnet_duration >= 1:
-            powerupconfig.powerup_magnet_duration = self.settingsMenu_magnet_duration  
-            print("Das Powerup Magnet wurde auf", powerupconfig.powerup_magnet_duration, " millisekunden gesetzt")
-            return powerupconfig.powerup_magnet_duration
+            self.config.powerup_magnet_duration = self.settingsMenu_magnet_duration  
+            print("Das Powerup Magnet wurde auf", self.config.powerup_magnet_duration, " millisekunden gesetzt")
+            return self.config.powerup_magnet_duration
         if self.settingsMenu_powerup_magnet:
             return self.settingsMenu_powerup_magnet
         else:
@@ -68,9 +69,9 @@ class PowerupSettingsMenu():
             print("falsche Eingabe für die Dauer der Doppelten Geschwindigkeit. Bitte gebe eine gültige zahl ein (1000 = 1 Sekunde)")
             return
         if self.settingsMenu_speedx2 >= 1:
-            powerupconfig.powerup_magnet_duration = self.settingsMenu_speedx2  
-            print("Das Powerup Doppelte Geschwindigkeit wurde auf", powerupconfig.speed_boost_x2_duration, " millisekunden gesetzt")
-            return powerupconfig.speed_boost_x2_duration
+            self.config.powerup_magnet_duration = self.settingsMenu_speedx2  
+            print("Das Powerup Doppelte Geschwindigkeit wurde auf", self.config.speed_boost_x2_duration, " millisekunden gesetzt")
+            return self.config.speed_boost_x2_duration
         if self.settingsMenu_speedx2:
             return self.settingsMenu_speedx2
         else:
