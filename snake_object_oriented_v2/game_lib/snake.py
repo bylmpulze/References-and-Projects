@@ -1,5 +1,6 @@
 import pygame
 
+#region Snakedisplay
 class Snakedisplay:
     def __init__(self):
         self.snake_cords = 0
