@@ -1,7 +1,7 @@
 import pygame
 
 
-
+#region Config
 class PowerUpConfig:
     def __init__(self):
         self.speed_boost_x2 = False
@@ -17,7 +17,7 @@ class PowerUpConfig:
         self.spawn_duration = 0 # spawnzeit nach letztem Powerup ( 1000 = 1 sec) (fertig)
         
 powerupconfig = PowerUpConfig()
-
+#region Main
 class PowerUpMain:
     def __init__(self, particle_size=25):
         self.particle_size = particle_size
@@ -31,6 +31,8 @@ class PowerUpMain:
         self.types = []
         self.image_files = {}
 
+
+#region SettingsMenu
 class PowerupSettingsMenu():
     def __init__(self):
         self.config = PowerUpConfig
@@ -89,3 +91,4 @@ class PowerupSettingsMenu():
     #     return self.settingsMenu_immunity 
 
 powerupsettingsmenu = PowerupSettingsMenu()
+
