@@ -10,7 +10,7 @@ from game.selector_screen import menu_screen
 from game.scenes.reject_screen import draw_rejected
 from game.scenes.settings_menu import settings_menu
 
-snake = [[13, 13], [13, 14]]
+snake = [[400, 400], [425, 425]]
 direction = 0
 feedCordrnd = []
 endgame = False
@@ -91,7 +91,7 @@ def draw_game_elements():
         Coords = [a[0] * CONSTANTS.PARTICLE_SIZE, a[1] * CONSTANTS.PARTICLE_SIZE + CONSTANTS.TOPBAR_HEIGHT]
         screen.blit(food_img, (Coords[0], Coords[1]))
     for i, x in enumerate(snake):
-        Coords = [x[0] * CONSTANTS.PARTICLE_SIZE, x[1] * CONSTANTS.PARTICLE_SIZE + CONSTANTS.TOPBAR_HEIGHT]
+        Coords = [x[0], x[1]]
         if i == 0:
             if direction == 0:
                 rotated_head = pygame.transform.rotate(head_img, 0)
@@ -99,11 +99,12 @@ def draw_game_elements():
                 rotated_head = pygame.transform.rotate(head_img, 270)
             elif direction == 2:
                 rotated_head = pygame.transform.rotate(head_img, 180)
-            elif direction == 3:
+            else:
                 rotated_head = pygame.transform.rotate(head_img, 90)
             screen.blit(rotated_head, (Coords[0], Coords[1]))
-        else:
-            screen.blit(body_img, (Coords[0], Coords[1]))
+
+        #else:
+        #    screen.blit(body_img, (Coords[0], Coords[1]))
 
 # Multiplayer Setup
 ip_addr = menu_screen(screen, CONSTANTS.SCREEN_SIZE)
@@ -216,85 +217,34 @@ while True:
             if settings_rect.collidepoint(event.pos):
                 settings_menu(screen)
 
-    if move_counter % snake_speed == 0:
-        new_head = snake[0].copy()
-        if direction == 0: new_head[1] -= 1
-        if direction == 1: new_head[0] += 1
-        if direction == 2: new_head[1] += 1
-        if direction == 3: new_head[0] -= 1
 
-        # Powerup-Kollisionen
-        to_keep: dict[int, PowerUp] = {}
-        for pw_id, power_up in list(POWER_UPS.items()):
-            collected = power_up.check_collision(new_head)
-            if collected:
-                # sofort an Server melden
-                client.queue_send(f"POWER_UP_COLLECTED {pw_id}\n".encode("utf-8"))
-                if collected == "speed_boost_x2":
-                    snake_speed = max(1, snake_speed // 2)
-                elif collected == "speed_half":
-                    snake_speed = snake_speed * 2
-                elif collected == "extra_life":
-                    immunity_collected_time = pygame.time.get_ticks()
-                elif collected == "powerup_drunk":
-                    powerup_drunk_collected = pygame.time.get_ticks()
-                elif collected == "powerup_magnet":
-                    powerup_magnet_collected_time = pygame.time.get_ticks()
-                    powerup_magnet_activ = True
-            else:
-                to_keep[pw_id] = power_up
-                power_up_not_collected_time = pygame.time.get_ticks() - (powerups.powerup_spawntime or 0)
-                if power_up_not_collected_time > powerupconfig.power_up_activ_time:
-                    pass
-        POWER_UPS = to_keep
+    new_head = snake[0].copy()
+    print(new_head)
+    if direction == 0: 
+        new_head[1] -= 1
+    if direction == 1:
+        new_head[0] += 1
+    if direction == 2:
+        new_head[1] += 1
+    if direction == 3:
+        new_head[0] -= 1
 
-        # Magnet-Effekt
-        if 0 < pygame.time.get_ticks() - powerup_magnet_collected_time < powerupconfig.powerup_magnet_duration and powerup_magnet_activ:
-            for i, food in enumerate(list(feedCordrnd)):
-                if food[0] < snake[0][0]:
-                    food[0] += 1
-                elif food[0] > snake[0][0]:
-                    food[0] -= 1
-                if food[1] < snake[0][1]:
-                    food[1] += 1
-                elif food[1] > snake[0][1]:
-                    food[1] -= 1
-                if food == snake[0]:
-                    del feedCordrnd[i]
-                    snake.append(snake[-1].copy())
-                    score += 10
-                    client.queue_send(b"FOOD_EATEN\n")
+   
+    snake = [new_head] + snake[:-1]
 
-        new_head[0] %= (CONSTANTS.SCREEN_SIZE // CONSTANTS.PARTICLE_SIZE)
-        new_head[1] %= (CONSTANTS.GAME_SIZE // CONSTANTS.PARTICLE_SIZE)
-
-        if handle_snake_collisions(new_head, snake, other_snakes, immunity_collected_time):
-            client.queue_send(f"DEAD SNAKE {PLAYERID}\n".encode("utf-8"))
-            game_over_screen()
-
-        if not endgame:
-            snake = [new_head] + snake[:-1]
-
-        for i, food in enumerate(list(feedCordrnd)):
-            if food == new_head:
-                snake.append(snake[-1].copy())
-                del feedCordrnd[i]
-                score += 10
-                client.queue_send(b"FOOD_EATEN\n")
-                break
+    for i, food in enumerate(list(feedCordrnd)):
+        if food == new_head:
+            snake.append(snake[-1].copy())
+            del feedCordrnd[i]
+            score += 10
+            client.queue_send(b"FOOD_EATEN\n")
+            break
 
     if move_counter % 2 == 0:
         client.queue_send((json.dumps(snake) + "\n").encode("utf-8"))
 
     draw_game_elements()
-    draw_other_snakes(other_snakes, CONSTANTS.PARTICLE_SIZE, screen, body_img, head_img)
-
-    for pw_id, powerup in POWER_UPS.items():
-        powerup.draw(screen)
-
     pygame.display.update()
-
-    process_server_messages()
 
     move_counter += 1
     clock.tick(60)
