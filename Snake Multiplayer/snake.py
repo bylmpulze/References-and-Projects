@@ -23,12 +23,16 @@ class Snake:
         self.segment_distance = particle_size
 
         # Sprites
-        self.head_img = self.get_head_img()
+        self.head_imgs = self.get_head_imgs()
         self.body_img = self.get_body_image()
 
-    def get_head_img(self):
+    def get_head_imgs(self):
         img = pygame.image.load(resource_path("game/assets/snakehead.jpg")).convert_alpha()
-        return pygame.transform.scale(img, (self.particle_size, self.particle_size))
+        img = pygame.transform.scale(img, (self.particle_size, self.particle_size))
+        return { 270 : pygame.transform.rotate(img, 270),
+                90:  pygame.transform.rotate(img, 90),
+                180: pygame.transform.rotate(img, 180),
+                0: pygame.transform.rotate(img, 0)}
 
     def get_body_image(self):
         img = pygame.image.load(resource_path("game/assets/snakebody.jpg")).convert_alpha()
@@ -69,20 +73,14 @@ class Snake:
             screen.blit(self.body_img, (int(seg[0]), int(seg[1])))
 
         # Head zuletzt
-
-        rotated_head = self.head_img
         if self.direction == (-1, 0):
-            rotated_head = pygame.transform.rotate(self.head_img, 270)
-            print("left")
+            rotated_head = self.head_imgs[270]
         elif self.direction == (1, 0):
-            rotated_head = pygame.transform.rotate(self.head_img, 90)
-            print("right")
+            rotated_head = self.head_imgs[90]
         elif self.direction ==  (0, -1):
-            rotated_head = pygame.transform.rotate(self.head_img,180)
-            print("up")
+            rotated_head = self.head_imgs[180]
         else:
-            print("down")
-            rotated_head = pygame.transform.rotate(self.head_img, 0)
+            rotated_head = self.head_imgs[0]
 
         screen.blit(rotated_head, (int(self.head_pos[0]), int(self.head_pos[1])))
 
