@@ -9,13 +9,14 @@ from game.snake_functions import draw_other_snakes, handle_snake_collisions
 from game.selector_screen import menu_screen
 from game.scenes.reject_screen import draw_rejected
 from game.scenes.settings_menu import settings_menu
+from snake import Snake
 
-snake = [[400, 400], [425, 425]]
+
+
 direction = 0
 feedCordrnd = []
 endgame = False
 score = 0
-snake_speed = 4  # mehr = langsamer
 move_counter = 0
 POWER_UPS: dict[int, PowerUp] = {}
 
@@ -24,48 +25,17 @@ screen = pygame.display.set_mode([CONSTANTS.SCREEN_SIZE, CONSTANTS.SCREEN_SIZE])
 clock = pygame.time.Clock()
 powerups = PowerUp(particle_size=CONSTANTS.PARTICLE_SIZE)
 
-def resource_path(rel_path: str) -> str:
-    try:
-        base_path = sys._MEIPASS
-        base_path = os.path.join(base_path, "Snake Multiplayer")
-    except Exception:
-        base_path = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(base_path, rel_path)
+SNAKE = Snake()
+
 
 # Assets
-food_img = pygame.image.load(resource_path("game/assets/apfel2.jpg"))
-food_img = pygame.transform.scale(food_img, (CONSTANTS.PARTICLE_SIZE, CONSTANTS.PARTICLE_SIZE))
+#food_img = pygame.image.load(resource_path("game/assets/apfel2.jpg"))
+#food_img = pygame.transform.scale(food_img, (CONSTANTS.PARTICLE_SIZE, CONSTANTS.PARTICLE_SIZE))
 
-body_img = pygame.image.load(resource_path("game/assets/snakebody.jpg")).convert_alpha()
-body_img = pygame.transform.scale(body_img, (CONSTANTS.PARTICLE_SIZE, CONSTANTS.PARTICLE_SIZE))
-
-head_img = pygame.image.load(resource_path("game/assets/snakehead.jpg")).convert_alpha()
-head_img = pygame.transform.scale(head_img, (CONSTANTS.PARTICLE_SIZE, CONSTANTS.PARTICLE_SIZE))
 
 PLAYERID = None
 font = pygame.font.SysFont(None, 40)
 
-def draw_topbar(just_rect = False):
-    settings_text = font.render("Einstellungen", True, (0, 0, 0))
-    settings_rect = settings_text.get_rect(topright=(CONSTANTS.SCREEN_SIZE - 10, 10))
-    if just_rect:
-        return settings_rect
-    pygame.draw.rect(screen, (200, 200, 200), (0, 0, CONSTANTS.SCREEN_SIZE, CONSTANTS.TOPBAR_HEIGHT))
-    score_text = font.render(f"Punkte: {score}", True, (0, 0, 0))
-    screen.blit(score_text, (10, 10))
-    screen.blit(settings_text, settings_rect)
-
-def restart_environment():
-    global snake, direction, feedCordrnd, score, endgame, powerup_active, snake_speed, powerup_magnet_activ
-    snake = [[13, 13], [13, 14]]
-    direction = 0
-    feedCordrnd = []
-    score = 0
-    endgame = False
-    powerup_magnet_activ = False
-    powerup_active = -9999
-    powerups.delete_powerup()
-    snake_speed = 4
 
 def game_over_screen():
     screen.fill((255, 255, 255))
@@ -86,26 +56,8 @@ def game_over_screen():
 
 def draw_game_elements():
     screen.fill((255, 255, 255))
-    draw_topbar()
-    for a in feedCordrnd:
-        Coords = [a[0] * CONSTANTS.PARTICLE_SIZE, a[1] * CONSTANTS.PARTICLE_SIZE + CONSTANTS.TOPBAR_HEIGHT]
-        screen.blit(food_img, (Coords[0], Coords[1]))
-    for i, x in enumerate(snake):
-        Coords = [x[0], x[1]]
-        if i == 0:
-            if direction == 0:
-                rotated_head = pygame.transform.rotate(head_img, 0)
-            elif direction == 1:
-                rotated_head = pygame.transform.rotate(head_img, 270)
-            elif direction == 2:
-                rotated_head = pygame.transform.rotate(head_img, 180)
-            else:
-                rotated_head = pygame.transform.rotate(head_img, 90)
-            screen.blit(rotated_head, (Coords[0], Coords[1]))
-
-        #else:
-        #    screen.blit(body_img, (Coords[0], Coords[1]))
-
+    SNAKE.draw(screen)
+    
 # Multiplayer Setup
 ip_addr = menu_screen(screen, CONSTANTS.SCREEN_SIZE)
 if ip_addr is None:
@@ -206,42 +158,30 @@ def process_server_messages():
 
 # Main Loop
 while True:
-    settings_rect = draw_topbar(True)
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
         if event.type == pygame.KEYDOWN:
             direction = handle_keypress(event, direction, powerup_drunk_collected)
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if settings_rect.collidepoint(event.pos):
-                settings_menu(screen)
 
 
-    new_head = snake[0].copy()
-    print(new_head)
     if direction == 0: 
-        new_head[1] -= 1
+        SNAKE.move_up()
     if direction == 1:
-        new_head[0] += 1
+        SNAKE.move_right()
     if direction == 2:
-        new_head[1] += 1
+        SNAKE.move_down()
     if direction == 3:
-        new_head[0] -= 1
+        SNAKE.move_left()
 
-   
-    snake = [new_head] + snake[:-1]
+    if move_counter % 50 == 0:
+        SNAKE.grow()
+    
 
-    for i, food in enumerate(list(feedCordrnd)):
-        if food == new_head:
-            snake.append(snake[-1].copy())
-            del feedCordrnd[i]
-            score += 10
-            client.queue_send(b"FOOD_EATEN\n")
-            break
-
-    if move_counter % 2 == 0:
-        client.queue_send((json.dumps(snake) + "\n").encode("utf-8"))
+    #snake = [new_head] + snake[:-1]
+    SNAKE.update()
 
     draw_game_elements()
     pygame.display.update()
