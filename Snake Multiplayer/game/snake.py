@@ -1,6 +1,6 @@
 import pygame
-from helper import resource_path
-import math
+from game.helper import resource_path
+
 
 class Snake:
     def __init__(self, particle_size=25, speed=4):
@@ -27,15 +27,15 @@ class Snake:
         self.body_img = self.get_body_image()
 
     def get_head_imgs(self):
-        img = pygame.image.load(resource_path("game/assets/snakehead.jpg")).convert_alpha()
+        img = pygame.image.load(resource_path("assets/snakehead.jpg")).convert_alpha()
         img = pygame.transform.scale(img, (self.particle_size, self.particle_size))
-        return { 270 : pygame.transform.rotate(img, 270),
+        return {270 : pygame.transform.rotate(img, 270),
                 90:  pygame.transform.rotate(img, 90),
                 180: pygame.transform.rotate(img, 180),
                 0: pygame.transform.rotate(img, 0)}
 
     def get_body_image(self):
-        img = pygame.image.load(resource_path("game/assets/snakebody.jpg")).convert_alpha()
+        img = pygame.image.load(resource_path("assets/snakebody.jpg")).convert_alpha()
         return pygame.transform.scale(img, (self.particle_size, self.particle_size))
 
     def update(self):
@@ -93,6 +93,13 @@ class Snake:
         self.direction = (0, -1)
     def move_down(self):
         self.direction = (0, 1)
+
+    def get_head_rect(self):
+        return pygame.Rect( self.head_pos[0],
+                            self.head_pos[1],
+                            self.head_pos[0]+self.particle_size,
+                            self.head_pos[1]+self.particle_size) 
+    
 
     # Optional: Body Segment hinzufügen (Wachstum)
     def grow(self):

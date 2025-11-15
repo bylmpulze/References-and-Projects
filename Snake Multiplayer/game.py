@@ -9,8 +9,8 @@ from game.snake_functions import draw_other_snakes, handle_snake_collisions
 from game.selector_screen import menu_screen
 from game.scenes.reject_screen import draw_rejected
 from game.scenes.settings_menu import settings_menu
-from snake import Snake
-
+from game.snake import Snake
+from game.food import Food
 
 
 direction = 0
@@ -21,17 +21,13 @@ move_counter = 0
 POWER_UPS: dict[int, PowerUp] = {}
 
 pygame.init()
+pygame.mixer.init()
 screen = pygame.display.set_mode([CONSTANTS.SCREEN_SIZE, CONSTANTS.SCREEN_SIZE])
 clock = pygame.time.Clock()
 powerups = PowerUp(particle_size=CONSTANTS.PARTICLE_SIZE)
 
 SNAKE = Snake()
-
-
-# Assets
-#food_img = pygame.image.load(resource_path("game/assets/apfel2.jpg"))
-#food_img = pygame.transform.scale(food_img, (CONSTANTS.PARTICLE_SIZE, CONSTANTS.PARTICLE_SIZE))
-
+foods = [Food(CONSTANTS.PARTICLE_SIZE)]
 
 PLAYERID = None
 font = pygame.font.SysFont(None, 40)
@@ -55,7 +51,19 @@ def game_over_screen():
                 restart_environment()
 
 def draw_game_elements():
+    global foods
     screen.fill((255, 255, 255))
+    to_delete = []
+    for food in foods:
+        food.draw(screen)   
+
+        if food.collides_with_rect(SNAKE.get_head_rect()):
+            SNAKE.grow()
+            food.on_eaten()
+            to_delete.append(food)
+
+    foods = [f for f in foods if f not in to_delete]
+            
     SNAKE.draw(screen)
     
 # Multiplayer Setup
@@ -166,7 +174,6 @@ while True:
         if event.type == pygame.KEYDOWN:
             direction = handle_keypress(event, direction, powerup_drunk_collected)
 
-
     if direction == 0: 
         SNAKE.move_up()
     if direction == 1:
@@ -176,11 +183,9 @@ while True:
     if direction == 3:
         SNAKE.move_left()
 
-    if move_counter % 50 == 0:
-        SNAKE.grow()
+    #if move_counter % 50 == 0:
+    #    SNAKE.grow()
     
-
-    #snake = [new_head] + snake[:-1]
     SNAKE.update()
 
     draw_game_elements()
