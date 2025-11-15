@@ -183,8 +183,8 @@ while True:
     if direction == 3:
         SNAKE.move_left()
 
-    #if move_counter % 50 == 0:
-    #    SNAKE.grow()
+    if move_counter % 25 == 0:
+        SNAKE.grow()
     
     SNAKE.update()
 
