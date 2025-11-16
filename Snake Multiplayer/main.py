@@ -35,7 +35,7 @@ while True:
     #draw snake/food
     snake_Display.draw_snake()
     food_main.draw_food()
-    food_main.food_kollision_check(snake_Display)
+    food_main.check_collision(snake_Display)
     
     #snake Movement
     snake_Display.snake_movement()

@@ -9,6 +9,7 @@ class FoodMain:
         self.foodImage = self.create_foodImage()
         self.grid_width = 25
         self.grid_height = 25
+        self.sound_file = pygame.mixer.Sound(resource_path('assets/sounds/food.mp3'))
 
 
     def create_foodImage(self):
@@ -28,18 +29,27 @@ class FoodMain:
         return self.foodcoords
     
     #region # need rework
-    def food_kollision_check(self, snake): 
+    def check_collision(self, snake): 
         foodcords = self.get_foodcords()[0]
         snake_coords = snake.get_snake_headcords()
-        if foodcords  in snake_coords:
-            self.screen.get_score()
-            self.screen.add_score(10)
-            print("Kollision, neues Food spawnen!")
-            self.spawn_food(snake_coords)
-            snake.add_snake_body()
+        if foodcords in snake_coords:
+            self.on_eaten(snake,snake_coords)
+        
 
     def draw_food(self):
         for a in self.foodcoords:
             x = a[0] * self.screen.get_particle_size()
             y = a[1] * self.screen.get_particle_size() + self.screen.get_topbar_height()
             self.screen.display(self.foodImage, (x, y))
+
+    def on_eaten(self,snake,snake_coords) -> None:
+        """
+        Sound etc.
+        """
+        self.sound_file.play()
+        self.screen.get_score()
+        self.screen.add_score(10)
+        print("Kollision, neues Food spawnen!")
+        self.spawn_food(snake_coords)
+        snake.add_snake_body()
+        
