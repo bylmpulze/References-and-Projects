@@ -1,6 +1,7 @@
 import pygame
 import sys
 
+
 #region Display
 class Display:
     def __init__(self):
@@ -80,4 +81,21 @@ class GameScreen:
                     sys.exit()
                 if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
                     waiting = False
+    
+    #region GameScreen helper functions
+    def get_topbar_height(self):
+        return self.topbar_height
+    
+    def get_particle_size(self):
+        return self.particle_size
+    
+    def get_screen_size_width(self):
+        return self.screen_size_width
 
+    def get_screen_size_height(self):
+        return self.screen_size_height
+       
+    def display(self, source, dest, area = None, special_flags= 0):
+        self.show_gameWindow.blit(source, dest, area, special_flags)
+
+    
