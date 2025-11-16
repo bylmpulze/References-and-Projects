@@ -86,6 +86,13 @@ class GameScreen:
     def get_topbar_height(self):
         return self.topbar_height
     
+    def get_score(self):
+        return self.show_score
+    
+    def add_score(self,points):
+        self.show_score += points
+        print("10 points added")
+    
     def get_particle_size(self):
         return self.particle_size
     
