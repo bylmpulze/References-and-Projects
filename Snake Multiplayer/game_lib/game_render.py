@@ -21,9 +21,9 @@ class Display:
 
 #region GameScreen
 class GameScreen:
-    def __init__(self):
-        self.screen_size_height = 1000
-        self.screen_size_width = 1000
+    def __init__(self, default_screen_size = 1000):
+        self.screen_size_height = default_screen_size
+        self.screen_size_width = default_screen_size
         self.topbar_height = 40
         self.particle_size = 25
         self.show_score = 0

@@ -7,7 +7,7 @@ from game_lib.helper import quit_game
 
 
 pygame.init()  
-game_screen_main = GameScreen()
+game_screen_main = GameScreen(800)
 snake_Display = SnakeDisplay(game_screen_main)  
 food_main = FoodMain(game_screen_main)
 
