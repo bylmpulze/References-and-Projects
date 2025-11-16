@@ -86,12 +86,7 @@ class SnakeDisplay:
     def add_snake_body(self):
         self.snake_head.append(self.snake_head[-1].copy())
         print("Snake verlängert:", self.snake_head)
-
-
-
-
-
-
+        
 def resource_path(rel_path: str) -> str:
     try:
         base_path = sys._MEIPASS
