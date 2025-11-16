@@ -11,9 +11,6 @@ game_screen_main = GameScreen(800)
 snake_Display = SnakeDisplay(game_screen_main)  
 food_main = Food(game_screen_main)
 
-#init pictures - snake/food
-snake_Display.create_snake_body_image()
-snake_Display.create_snake_head_image()
 #food_Display.create_foodImage()
 clock = pygame.time.Clock()
 food_main.spawn_food(snake_Display.get_snake_headcords())

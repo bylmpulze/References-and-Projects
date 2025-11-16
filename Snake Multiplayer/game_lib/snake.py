@@ -1,6 +1,7 @@
 import pygame
 import os
 import sys
+from game_lib.helper import resource_path
 
 #region Snakedisplay
 class SnakeDisplay:
@@ -13,17 +14,24 @@ class SnakeDisplay:
         self.snake_direction = 0
         self.move_counter = 0
         self.body_img = self.create_snake_body_image()
-        self.head_img = self.create_snake_head_image()
+        self.head_imgs = self.create_snake_head_images()
 
     def create_snake_body_image(self):    
             body_img = pygame.image.load(resource_path("assets/snakebody.jpg")).convert_alpha()
             body_img = pygame.transform.scale(body_img,(self.screen.particle_size, self.screen.particle_size))
             return body_img
+
     
-    def create_snake_head_image(self):    
-        head_img = pygame.image.load(resource_path("assets/snakehead.jpg")).convert_alpha()
-        head_img = pygame.transform.scale(head_img,(self.screen.particle_size, self.screen.particle_size))
-        return head_img
+    def create_snake_head_images(self):    
+        
+        img = pygame.image.load(resource_path("assets/snakehead.jpg")).convert_alpha()
+        img = pygame.transform.scale(img, ((self.screen.particle_size, self.screen.particle_size)))
+        return {
+            2:   pygame.transform.rotate(img, 0),
+            1:  pygame.transform.rotate(img, 90),
+            0: pygame.transform.rotate(img, 180),
+            3: pygame.transform.rotate(img, 270)
+        }
 
     def snake_movement(self):
         if self.move_counter % self.snake_speed == 0:
@@ -65,7 +73,8 @@ class SnakeDisplay:
     def draw_snake(self):
         # Kopf 
         head_x, head_y = self.snake_head[0]
-        self.screen.display(self.head_img, (head_x * self.screen.get_particle_size(), self.screen.get_topbar_height() + head_y * self.screen.get_particle_size()))
+        
+        self.screen.display(self.head_imgs[self.snake_direction], (head_x * self.screen.get_particle_size(), self.screen.get_topbar_height() + head_y * self.screen.get_particle_size()))
         #körper
         for segment in self.snake_head[1:]:
             x, y = segment
