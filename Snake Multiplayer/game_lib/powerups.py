@@ -17,7 +17,6 @@ class PowerUpConfig:
         self.powerup_immunity_duration = 5000 #Dauer - Unverwundbarkeit ( 1000 = 1 sec) 
 
         
-
 #region Main
 class PowerUpMain:
     def __init__(self, particle_size=25):
@@ -80,9 +79,6 @@ class PowerUpMain:
         }
 
 
-
-
-
 #region SettingsMenu
 class PowerupSettingsMenu():
     def __init__(self):
@@ -110,6 +106,7 @@ class PowerUp:
 
         self.start = None
         self._send = False
+        self.last = None
 
     def add_client(self,client):
         self.client = client
@@ -134,10 +131,9 @@ class PowerUp:
         screen.display(self.img, (x, y))  # statt screen.blit
 
 
-class GrowPowerUp(PowerUp):
+class MagnetPowerUp(PowerUp):
     def __init__(self,x,y) -> None:
         img = "assets/powerup_magnet.webp"
-        self.last = None
         super().__init__(img,x,y, 1000)     
 
     def effect(self,snake,food):
@@ -161,6 +157,34 @@ class GrowPowerUp(PowerUp):
          
         self.last = pygame.time.get_ticks()
 
+class SpeedupPowerUp(PowerUp):
+    def __init__(self,x,y) -> None:
+        img = "assets/assets+/Items/powerup speed.png"
+        super().__init__(img,x,y, 1000) 
+
+class ExtraLifePowerUp(PowerUp):
+    def __init__(self,x,y) -> None:
+        img = "assets/assets+/Items/powerup extra life.png"
+        super().__init__(img,x,y, 1000) 
+
+class SlowDownPowerUp(PowerUp):
+    def __init__(self,x,y) -> None:
+        img = "assets/assets+/Items/powerup slow.png"
+        super().__init__(img,x,y, 1000) 
+
+class DrunkPowerUp(PowerUp):
+    def __init__(self, x, y) -> None:
+        img = "assets/assets+/Items/powerup drunk.png"
+        super().__init__(img, x, y, 1000)
+
+POWERUP_CLASS_MAP = {
+    "speed_boost_x2": SpeedupPowerUp,
+    "speed_half": SlowDownPowerUp,
+    "extra_life": ExtraLifePowerUp,
+    "powerup_drunk": DrunkPowerUp,
+    "powerup_magnet": MagnetPowerUp,  # once you add it
+}
+
 class PowerUps:
     def __init__(self,screen) -> None:
         self.uncollected_power_ups = {}
@@ -172,7 +196,13 @@ class PowerUps:
         self.client = client
 
     def add(self, pw_id,x,y,pw_type):
-        self.uncollected_power_ups[pw_id] = GrowPowerUp(x,y)
+
+        cls = POWERUP_CLASS_MAP.get(pw_type)
+        if cls is None:
+            raise ValueError(f"Unknown power-up: {pw_type}")
+
+        obj = cls(x, y)
+        self.uncollected_power_ups[pw_id] = obj
         self.uncollected_power_ups[pw_id].add_client(self.client)
 
     def draw(self):
