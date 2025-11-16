@@ -12,6 +12,7 @@ class FoodMain:
 
 
 
+
     def create_foodImage(self):
         foodImage = pygame.image.load(resource_path("assets/apfel2.jpg"))
         foodImage = pygame.transform.scale(foodImage, (self.screen.get_particle_size(), self.screen.get_particle_size()))
@@ -24,6 +25,20 @@ class FoodMain:
             if [x, y] not in snake_coords:
                 self.foodcoords = [[x, y]]
                 break
+    
+    def get_foodcords(self):
+        return self.foodcoords
+    
+    #region # need rework
+    def food_kollision_check(self, snake): 
+        foodcords = self.get_foodcords()[0]
+        snake_coords = snake.get_snake_headcords()
+        if foodcords  in snake_coords:
+            self.screen.get_score()
+            self.screen.add_score(10)
+            print("Kollision, neues Food spawnen!")
+            self.spawn_food(snake_coords)
+            snake.add_snake_body()
 
 
     def draw_food(self):
