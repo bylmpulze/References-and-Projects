@@ -157,7 +157,7 @@ class PowerUps:
         for pw_id,pw_up in self.dct.items():
             pw_up.draw(self.screen)
     
-    def check_collison(self,snake):
+    def check_collision(self,snake):
 
         for k,v in self.dct.items():
             if v.check_collision(snake):
