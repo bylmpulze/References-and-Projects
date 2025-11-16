@@ -2,7 +2,7 @@ import pygame
 from .snake import resource_path
 import random
 
-class FoodMain:
+class Food:
     def __init__(self,screen):
         self.screen = screen
         self.foodcoords = []
@@ -13,8 +13,13 @@ class FoodMain:
 
 
     def create_foodImage(self):
-        foodImage = pygame.image.load(resource_path("assets/apfel2.jpg"))
-        foodImage = pygame.transform.scale(foodImage, (self.screen.get_particle_size(), self.screen.get_particle_size()))
+        foodImage = pygame.image.load(resource_path("assets/apfel.png"))
+        foodImage = pygame.transform.scale(
+            foodImage,
+            (self.screen.get_particle_size(), self.screen.get_particle_size())
+        )
+        foodImage.convert_alpha()
+
         return foodImage
 
     def spawn_food(self, snake_coords):
@@ -28,7 +33,6 @@ class FoodMain:
     def get_foodcords(self):
         return self.foodcoords
     
-    #region # need rework
     def check_collision(self, snake): 
         foodcords = self.get_foodcords()[0]
         snake_coords = snake.get_snake_headcords()

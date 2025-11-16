@@ -2,14 +2,14 @@ import sys
 import pygame
 from game_lib.game_render import GameScreen
 from game_lib.snake import SnakeDisplay
-from game_lib.food import FoodMain
+from game_lib.food import Food
 from game_lib.helper import quit_game
 
 
 pygame.init()  
 game_screen_main = GameScreen(800)
 snake_Display = SnakeDisplay(game_screen_main)  
-food_main = FoodMain(game_screen_main)
+food_main = Food(game_screen_main)
 
 #init pictures - snake/food
 snake_Display.create_snake_body_image()
