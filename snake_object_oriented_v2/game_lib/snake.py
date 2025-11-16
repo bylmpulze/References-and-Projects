@@ -2,26 +2,30 @@ import pygame
 import os
 import sys
 
-
 #region Snakedisplay
 class SnakeDisplay:
     def __init__(self,screen):
+        self.screen = screen
         self.snake_head = [[13, 13], [13, 14]]
         self.snake_body = 0
         self.snake_cords = 0
         self.snake_speed = 4  # mehr = langsamer
         self.snake_direction = 0
         self.move_counter = 0
-        self.body_img = ""
-        self.head_img = ""
-        self.screen = screen
+        self.body_img = self.create_snake_body_image()
+        self.head_img = self.create_snake_head_image()
 
 
-    def get_SnakeImages(self):    
-        self.body_img = pygame.image.load(resource_path("assets/snakebody.jpg")).convert_alpha()
-        self.body_img = pygame.transform.scale(self.body_img, (self.screen.particle_size, self.screen.particle_size))
-        self.head_img = pygame.image.load(resource_path("assets/snakehead.jpg")).convert_alpha()
-        self.head_img = pygame.transform.scale(self.head_img, (self.screen.particle_size, self.screen.particle_size))
+
+    def create_snake_body_image(self):    
+        body_img = pygame.image.load(resource_path("assets/snakebody.jpg")).convert_alpha()
+        body_img = pygame.transform.scale(body_img,(self.screen.particle_size, self.screen.particle_size))
+        return body_img
+    
+    def create_snake_head_image(self):    
+        head_img = pygame.image.load(resource_path("assets/snakehead.jpg")).convert_alpha()
+        head_img = pygame.transform.scale(head_img,(self.screen.particle_size, self.screen.particle_size))
+        return head_img
 
 
 
@@ -51,8 +55,8 @@ class SnakeDisplay:
         return direction
     
     def wrap_around(self):
-        max_x = self.screen.screen_size_width // self.screen.particle_size
-        max_y = (self.screen.screen_size_height - self.screen.topbar_height) // self.screen.particle_size
+        max_x = self.screen.get_screen_size_width() // self.screen.get_particle_size()
+        max_y = (self.screen.get_screen_size_height() - self.screen.get_topbar_height()) // self.screen.get_particle_size()
 
         head = self.snake_head[0]
 
@@ -65,12 +69,18 @@ class SnakeDisplay:
     def draw_snake(self):
         # Kopf 
         head_x, head_y = self.snake_head[0]
-        self.screen.show_gameWindow.blit(self.head_img, (head_x * self.screen.particle_size, self.screen.topbar_height + head_y * self.screen.particle_size))
+        self.screen.display(self.head_img, (head_x * self.screen.get_particle_size(), self.screen.get_topbar_height() + head_y * self.screen.get_particle_size()))
         #körper
         for segment in self.snake_head[1:]:
             x, y = segment
-            self.screen.show_gameWindow.blit(self.body_img, (x * self.screen.particle_size, self.screen.topbar_height + y * self.screen.particle_size))
-        
+            self.screen.display(self.body_img, (x * self.screen.get_particle_size(), self.screen.get_topbar_height() + y * self.screen.get_particle_size()))
+    
+    def get_snake_cords(self):
+        return self.snake_head
+
+
+
+
 def resource_path(rel_path: str) -> str:
     try:
         base_path = sys._MEIPASS
@@ -78,4 +88,6 @@ def resource_path(rel_path: str) -> str:
     except Exception:
         base_path = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(base_path, rel_path)
+
+
         
