@@ -5,18 +5,19 @@ from game_lib.food import FoodMain
 
 
 pygame.init()  
+game_screen_main = GameScreen() #erstellt ein objekt "game render" von der klasse "GameScreen"
+snake_Display = SnakeDisplay(game_screen_main) #erstellt ein objekt "snakedisplay" von der Klasse snakedisplay und gibt das objekt game_render mit - Das bedeutet SnakeDisplay hat zugriff auf die klasse GameScreen() 
+food_main = FoodMain(game_screen_main)
 
-game_render = GameScreen() #erstellt ein objekt "game render" von der klasse "GameScreen"
-snake_Display = SnakeDisplay(game_render) #erstellt ein objekt "snakedisplay" von der Klasse snakedisplay und gibt das objekt game_render mit - Das bedeutet SnakeDisplay hat zugriff auf die klasse GameScreen() 
-food_Display = FoodMain(game_render)
 
 
 #init pictures - snake/food
-snake_Display.create_snake_body_image(),snake_Display.create_snake_head_image(),food_Display.create_foodImage()
+snake_Display.create_snake_body_image(),snake_Display.create_snake_head_image(),#food_Display.create_foodImage()
 clock = pygame.time.Clock()
 game_Started = True
 endgame = True
-food_Display.spawn_food(snake_Display.get_snake_cords()) #init foodspawn
+food_main.spawn_food(snake_Display.get_snake_headcords()) #init foodspawn
+
 
 
 
@@ -30,11 +31,11 @@ while game_Started:
 
 
     #draw background
-    game_render.show_gameWindow.fill(game_render.background_colour)
-    game_render.draw_topbar()
+    game_screen_main.show_gameWindow.fill(game_screen_main.background_colour)
+    game_screen_main.draw_topbar(),food_main.food_kollision_check(snake_Display)
     
     #draw snake/food
-    snake_Display.draw_snake(),food_Display.draw_food()
+    snake_Display.draw_snake(),food_main.draw_food()
     
     #snake Movement
     snake_Display.snake_movement(), snake_Display.wrap_around()
