@@ -7,7 +7,6 @@ from game_lib.helper import quit_game
 from server_lib.client import get_client
 
 
-
 pygame.init()  
 game_screen_main = GameScreen(800)
 snake_Display = SnakeDisplay(game_screen_main)  
@@ -44,7 +43,8 @@ while True:
 
     client.process_messages()
     power_ups.draw()
-
+    power_ups.check_collison(snake_Display)
+    power_ups.handle_active(snake_Display,food_main)
 
     pygame.display.update()
     snake_Display.move_counter += 1

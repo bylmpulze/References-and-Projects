@@ -58,8 +58,8 @@ class FakeServer(GameNet):
             await self._spawn_one()
 
     async def _spawn_one(self) -> None:
-        x = random.randint(0, GRID_W - 1)
-        y = random.randint(0, GRID_H - 1)
+        x = random.randint(1, GRID_W - 1)
+        y = random.randint(1, GRID_H - 1)
         pw_type = random.choice(["speed_boost_x2", "speed_half", "extra_life", "powerup_drunk", "powerup_magnet"])
         pw_id = self._next_pw_id
         self._next_pw_id += 1

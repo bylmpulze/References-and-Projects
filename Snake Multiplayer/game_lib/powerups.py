@@ -99,21 +99,51 @@ class PowerupSettingsMenu():
 
 
 class PowerUp:
-    def __init__(self,img,x,y) -> None:
+    def __init__(self,img,x,y,running_duration) -> None:
     
         img = pygame.image.load(resource_path(img)).convert_alpha()
         self.img = pygame.transform.scale(img, ((25, 25)))
         self.x = int(x)
         self.y = int(y)
-    
+        self.running_duration = running_duration
+
+        self.start = None
+
+    def effect(self,snake,food):
+        pass
+
+    def activate(self,snake):
+        self.start = pygame.time.get_ticks()
+        
+    def check_collision(self,snake):        
+        return [self.x,self.y] in snake.get_snake_headcords()
+
+
     def draw(self,screen):
-        screen.blit(self.img,(self.x,self.y))
+        if self.start is not None:
+            return
+        x = self.x * screen.get_particle_size()
+        y = self.y * screen.get_particle_size()
+        x,y = int(x),int(y)
+        screen.blit(self.img,(x,y))
+
 
 class GrowPowerUp(PowerUp):
     def __init__(self,x,y) -> None:
         img = "assets/powerup_magnet.webp"
-        super().__init__(img,x,y)      
+        super().__init__(img,x,y, 1000)     
 
+    def effect(self,snake,food):
+        snake_x,snake_y = snake.get_snake_headcords()[0]
+        if food.foodcoords[0][0] < snake_x:
+            food.foodcoords[0][0] += 1
+        if food.foodcoords[0][0] > snake_x:
+            food.foodcoords[0][0] -= 1
+        if food.foodcoords[0][1] < snake_y:
+            food.foodcoords[0][1] += 1
+        if food.foodcoords[0][1] > snake_y:
+            food.foodcoords[0][1] -= 1
+         
 
 class PowerUps:
     def __init__(self,screen) -> None:
@@ -126,6 +156,25 @@ class PowerUps:
     def draw(self):
         for pw_id,pw_up in self.dct.items():
             pw_up.draw(self.screen)
+    
+    def check_collison(self,snake):
+
+        for k,v in self.dct.items():
+            if v.check_collision(snake):
+                v.activate(snake)
+               
+
+    def handle_active(self,snake,food):
+        now = pygame.time.get_ticks()
+        for k,v in self.dct.items():
+            if v.start is None:
+                continue
+            
+            if (v.start + v.running_duration) < now:
+                continue 
+
+            v.effect(snake,food)
+            
 
 
 if __name__ == "__main__":

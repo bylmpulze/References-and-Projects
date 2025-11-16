@@ -1,6 +1,4 @@
 import pygame
-import os
-import sys
 from game_lib.helper import resource_path
 
 #region Snakedisplay
@@ -20,7 +18,6 @@ class SnakeDisplay:
         body_img = pygame.image.load(resource_path("assets/snakebody.jpg")).convert_alpha()
         body_img = pygame.transform.scale(body_img,(self.screen.particle_size, self.screen.particle_size))
         return body_img
-
     
     def create_snake_head_images(self):    
         
@@ -90,13 +87,6 @@ class SnakeDisplay:
         self.snake_head.append(self.snake_head[-1].copy())
         print("Snake verlängert:", self.snake_head)
         
-def resource_path(rel_path: str) -> str:
-    try:
-        base_path = sys._MEIPASS
-        base_path = os.path.join(base_path, "snake_object_oriented_v2")
-    except Exception:
-        base_path = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(base_path, rel_path)
 
 
         
