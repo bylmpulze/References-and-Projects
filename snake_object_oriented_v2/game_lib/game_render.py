@@ -49,7 +49,6 @@ class GameScreen:
                 if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
                     waiting = False
 
-
     def draw_topbar(self):
         settings_text, settings_rect = self.get_settingsrekt()       
         pygame.draw.rect(self.show_gameWindow, (200, 200, 200),

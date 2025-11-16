@@ -15,19 +15,15 @@ class SnakeDisplay:
         self.body_img = self.create_snake_body_image()
         self.head_img = self.create_snake_head_image()
 
-
-
     def create_snake_body_image(self):    
-        body_img = pygame.image.load(resource_path("assets/snakebody.jpg")).convert_alpha()
-        body_img = pygame.transform.scale(body_img,(self.screen.particle_size, self.screen.particle_size))
-        return body_img
+            body_img = pygame.image.load(resource_path("assets/snakebody.jpg")).convert_alpha()
+            body_img = pygame.transform.scale(body_img,(self.screen.particle_size, self.screen.particle_size))
+            return body_img
     
     def create_snake_head_image(self):    
         head_img = pygame.image.load(resource_path("assets/snakehead.jpg")).convert_alpha()
         head_img = pygame.transform.scale(head_img,(self.screen.particle_size, self.screen.particle_size))
         return head_img
-
-
 
     def snake_movement(self):
         if self.move_counter % self.snake_speed == 0:
@@ -53,9 +49,7 @@ class SnakeDisplay:
         if event.key in [pygame.K_LEFT, pygame.K_a] and direction != 1:
             direction = 3 
         return direction
-    
-
-    
+       
     def wrap_around(self):
         max_x = self.screen.get_screen_size_width() // self.screen.get_particle_size()
         max_y = (self.screen.get_screen_size_height() - self.screen.get_topbar_height()) // self.screen.get_particle_size()

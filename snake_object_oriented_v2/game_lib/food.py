@@ -11,8 +11,6 @@ class FoodMain:
         self.grid_height = 25
 
 
-
-
     def create_foodImage(self):
         foodImage = pygame.image.load(resource_path("assets/apfel2.jpg"))
         foodImage = pygame.transform.scale(foodImage, (self.screen.get_particle_size(), self.screen.get_particle_size()))
@@ -39,7 +37,6 @@ class FoodMain:
             print("Kollision, neues Food spawnen!")
             self.spawn_food(snake_coords)
             snake.add_snake_body()
-
 
     def draw_food(self):
         for a in self.foodcoords:
