@@ -119,13 +119,13 @@ class PowerUp:
         return [self.x,self.y] in snake.get_snake_headcords()
 
 
-    def draw(self,screen):
+    def draw(self, screen):
         if self.start is not None:
             return
-        x = self.x * screen.get_particle_size()
-        y = self.y * screen.get_particle_size()
-        x,y = int(x),int(y)
-        screen.blit(self.img,(x,y))
+        cell = screen.get_particle_size()
+        x = int(self.x) * cell
+        y = screen.get_topbar_height() + int(self.y) * cell
+        screen.display(self.img, (x, y))  # statt screen.blit
 
 
 class GrowPowerUp(PowerUp):
