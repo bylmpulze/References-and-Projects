@@ -32,10 +32,11 @@ while game_Started:
 
     #draw background
     game_screen_main.show_gameWindow.fill(game_screen_main.background_colour)
-    game_screen_main.draw_topbar(),food_main.food_kollision_check(snake_Display)
+    game_screen_main.draw_topbar()
     
     #draw snake/food
     snake_Display.draw_snake(),food_main.draw_food()
+    food_main.food_kollision_check(snake_Display)
     
     #snake Movement
     snake_Display.snake_movement(), snake_Display.wrap_around()
