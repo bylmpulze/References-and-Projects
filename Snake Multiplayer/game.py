@@ -4,7 +4,8 @@ import sys
 import json
 import game.constants as CONSTANTS
 from game.powerups import PowerUp, powerupconfig
-from game.client import Client, FakeClient
+from game.client import Client
+from game.fake_client_adapter import FakeClient  # <— hinzufügen
 from game.snake_functions import draw_other_snakes, handle_snake_collisions
 from game.selector_screen import menu_screen
 from game.scenes.reject_screen import draw_rejected
@@ -125,6 +126,7 @@ powerup_magnet_activ = False
 def process_server_messages():
     global PLAYERID, feedCordrnd, POWER_UPS, other_snakes
     while (msg := client.receive_now()) is not None:
+        print(msg)
         if "WELCOME" in msg:
             PLAYERID = msg.split()[1]
         elif "DEAD SNAKE" in msg:
@@ -187,6 +189,7 @@ while True:
         SNAKE.grow()
     
     SNAKE.update()
+    process_server_messages()
 
     draw_game_elements()
     pygame.display.update()
