@@ -1,15 +1,17 @@
-import sys
 import pygame
 from game_lib.game_render import GameScreen
 from game_lib.snake import SnakeDisplay
 from game_lib.food import Food
 from game_lib.helper import quit_game
+from server_lib.client import get_client
 
 
 pygame.init()  
 game_screen_main = GameScreen(800)
 snake_Display = SnakeDisplay(game_screen_main)  
 food_main = Food(game_screen_main)
+power_ups = {}
+client = get_client(power_ups)
 
 #food_Display.create_foodImage()
 clock = pygame.time.Clock()
@@ -37,6 +39,8 @@ while True:
     #snake Movement
     snake_Display.snake_movement()
     snake_Display.wrap_around()
+
+    client.process_messages()
 
 
     pygame.display.update()

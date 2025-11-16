@@ -17,7 +17,7 @@ class FakeServer(GameNet):
     - POWER_UP_REMOVED <pw_id>
     - Loopback: "<id>: POS {json}"
     """
-    def __init__(self, version: str = "1.0", powerup_spawn_interval_ms: int = 8000) -> None:
+    def __init__(self, version: str = "1.0", powerup_spawn_interval_ms: int = 1000) -> None:
         super().__init__()
         self.version = version
         self._connected = False
@@ -47,7 +47,7 @@ class FakeServer(GameNet):
     async def _loop(self) -> None:
         try:
             while self._connected:
-                await asyncio.sleep(0.25)
+                await asyncio.sleep(0.005)
                 await self._maybe_spawn_powerup()
         except asyncio.CancelledError:
             return

@@ -3,17 +3,38 @@ import threading
 from collections import deque
 from typing import Optional, Dict, Any, Deque
 
-from game.server.net_fake import FakeServer
+from server_lib.net_fake import FakeServer
+
+class Client:
+    def __init__(self,power_ups) -> None:
+        self.power_ups = power_ups
+
+    def receive_now(self) -> Optional[str]:
+        pass
+
+    def process_messages(self):
+        msg = self.receive_now()
+        if msg is None:
+            return
+        if msg.startswith("POWER_UP_SPAWNED"):
+            _,pw_id, x, y, pw_type = msg.split()
+            self.power_ups[pw_id] = {
+                "x":x,
+                "y":y,
+                "pw_type":pw_type
+            }
+    
 
 
-class FakeClient:
+class FakeClient(Client):
     """
     Adapter mit eigenem asyncio-Loop im Hintergrund-Thread.
     - Startet beim Erzeugen einen Event-Loop in thread.
     - Alle async-Calls werden via run_coroutine_threadsafe in diesen Loop gescheduled.
     - receive_now bleibt non-blocking für die Pygame-Loop.
     """
-    def __init__(self, version: str = "1.0", name: str = "player"):
+    def __init__(self, power_ups,version: str = "1.0", name: str = "player"):
+        super().__init__(power_ups)
         self._version = version
         self._name = name
         self._server = FakeServer(version=version)
