@@ -17,9 +17,9 @@ class SnakeDisplay:
         self.head_imgs = self.create_snake_head_images()
 
     def create_snake_body_image(self):    
-            body_img = pygame.image.load(resource_path("assets/snakebody.jpg")).convert_alpha()
-            body_img = pygame.transform.scale(body_img,(self.screen.particle_size, self.screen.particle_size))
-            return body_img
+        body_img = pygame.image.load(resource_path("assets/snakebody.jpg")).convert_alpha()
+        body_img = pygame.transform.scale(body_img,(self.screen.particle_size, self.screen.particle_size))
+        return body_img
 
     
     def create_snake_head_images(self):    
