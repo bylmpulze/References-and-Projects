@@ -31,24 +31,6 @@ class GameScreen:
         self.show_gameWindow = pygame.display.set_mode([self.screen_size_height, self.screen_size_width])
         self.font = pygame.font.SysFont(None, 40)
 
-    def game_over_screen(self):
-        self.show_gameWindow.fill((255, 255, 255))
-        game_over_text = self.font.render(f"Spiel zuende! Deine Punktzahl: {self.show_score}", True, (255, 0, 0))
-        restart_text = self.font.render("Klicke oder Taste zum Neustart", True, (0, 0, 0))
-
-        self.show_gameWindow.blit(game_over_text, (50, 300))
-        self.show_gameWindow.blit(restart_text, (50, 350))
-        pygame.display.update()
-
-        waiting = True
-        while waiting:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
-                    waiting = False
-
     def draw_topbar(self):
         settings_text, settings_rect = self.get_settingsrekt()       
         pygame.draw.rect(self.show_gameWindow, (200, 200, 200),
