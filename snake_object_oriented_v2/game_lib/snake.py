@@ -7,7 +7,7 @@ class SnakeDisplay:
     def __init__(self,screen):
         self.screen = screen
         self.snake_head = [[13, 13], [13, 14]]
-        self.snake_body = 0
+        self.snake_body = []
         self.snake_cords = 0
         self.snake_speed = 4  # mehr = langsamer
         self.snake_direction = 0
@@ -54,6 +54,8 @@ class SnakeDisplay:
             direction = 3 
         return direction
     
+
+    
     def wrap_around(self):
         max_x = self.screen.get_screen_size_width() // self.screen.get_particle_size()
         max_y = (self.screen.get_screen_size_height() - self.screen.get_topbar_height()) // self.screen.get_particle_size()
@@ -75,8 +77,17 @@ class SnakeDisplay:
             x, y = segment
             self.screen.display(self.body_img, (x * self.screen.get_particle_size(), self.screen.get_topbar_height() + y * self.screen.get_particle_size()))
     
-    def get_snake_cords(self):
+    def get_snake_headcords(self):
         return self.snake_head
+
+    def get_snake_bodycords(self):
+        return self.snake_body
+    
+    def add_snake_body(self):
+        self.snake_head.append(self.snake_head[-1].copy())
+        print("Snake verlängert:", self.snake_head)
+
+
 
 
 
