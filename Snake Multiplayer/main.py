@@ -13,6 +13,7 @@ snake_Display = SnakeDisplay(game_screen_main)
 food_main = Food(game_screen_main)
 power_ups = PowerUps(game_screen_main)
 client = get_client(power_ups)
+power_ups.add_client(client)
 
 #food_Display.create_foodImage()
 clock = pygame.time.Clock()
@@ -43,7 +44,7 @@ while True:
 
     client.process_messages()
     power_ups.draw()
-    power_ups.check_collison(snake_Display)
+    power_ups.check_collision(snake_Display)
     power_ups.handle_active(snake_Display,food_main)
 
     pygame.display.update()

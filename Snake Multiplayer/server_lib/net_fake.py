@@ -76,6 +76,7 @@ class FakeServer(GameNet):
         if pw_id in self._power_ups:
             del self._power_ups[pw_id]
             self._emit(f"POWER_UP_REMOVED {pw_id}\n")
+            print("POWER_UP_REMOVED")
             # Optional direkt neues Powerup spawnen:
             await self._spawn_one()
 

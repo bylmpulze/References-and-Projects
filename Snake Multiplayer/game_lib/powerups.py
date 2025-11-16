@@ -105,15 +105,21 @@ class PowerUp:
         self.img = pygame.transform.scale(img, ((25, 25)))
         self.x = int(x)
         self.y = int(y)
+        self.id = None
         self.running_duration = running_duration
 
         self.start = None
+        self._send = False
+
+    def add_client(self,client):
+        self.client = client
 
     def effect(self,snake,food):
         pass
 
-    def activate(self,snake):
+    def activate(self,pw_id):
         self.start = pygame.time.get_ticks()
+        self.client.power_up_collected(int(pw_id))
         
     def check_collision(self,snake):        
         return [self.x,self.y] in snake.get_snake_headcords()
@@ -131,9 +137,18 @@ class PowerUp:
 class GrowPowerUp(PowerUp):
     def __init__(self,x,y) -> None:
         img = "assets/powerup_magnet.webp"
+        self.last = None
         super().__init__(img,x,y, 1000)     
 
     def effect(self,snake,food):
+
+        if self.last is None:
+            self.last = pygame.time.get_ticks()
+
+        now = pygame.time.get_ticks()
+        if now - self.last < 100:
+            return
+
         snake_x,snake_y = snake.get_snake_headcords()[0]
         if food.foodcoords[0][0] < snake_x:
             food.foodcoords[0][0] += 1
@@ -144,29 +159,37 @@ class GrowPowerUp(PowerUp):
         if food.foodcoords[0][1] > snake_y:
             food.foodcoords[0][1] -= 1
          
+        self.last = pygame.time.get_ticks()
 
 class PowerUps:
     def __init__(self,screen) -> None:
-        self.dct = {}
+        self.uncollected_power_ups = {}
+        self.active_power_ups = {}
         self.screen = screen
+        self.client = None
+
+    def add_client(self,client):
+        self.client = client
 
     def add(self, pw_id,x,y,pw_type):
-        self.dct[pw_id] = GrowPowerUp(x,y)
+        self.uncollected_power_ups[pw_id] = GrowPowerUp(x,y)
+        self.uncollected_power_ups[pw_id].add_client(self.client)
 
     def draw(self):
-        for pw_id,pw_up in self.dct.items():
+        for pw_id,pw_up in self.uncollected_power_ups.items():
             pw_up.draw(self.screen)
     
     def check_collision(self,snake):
-
-        for k,v in self.dct.items():
+        for pw_id,v in self.uncollected_power_ups.items():
             if v.check_collision(snake):
-                v.activate(snake)
+                v.activate(pw_id)
+                self.active_power_ups[pw_id] = v
+        
+        self.uncollected_power_ups = {k:v for k,v in self.uncollected_power_ups.items() if k not in self.active_power_ups }
                
-
     def handle_active(self,snake,food):
         now = pygame.time.get_ticks()
-        for k,v in self.dct.items():
+        for k,v in self.active_power_ups.items():
             if v.start is None:
                 continue
             
