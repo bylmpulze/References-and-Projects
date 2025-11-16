@@ -1,81 +1,71 @@
 import asyncio
+import threading
 from collections import deque
-from typing import Optional, Dict, Any, Deque, Callable
+from typing import Optional, Dict, Any, Deque
 
-# Importiere deine FakeServer-Implementierung
-# Falls deine Datei net_fake.py in game/net_fake.py liegt:
 from game.server.net_fake import FakeServer
 
 
 class FakeClient:
     """
-    Adapter, der FakeServer so kapselt, dass er dieselbe API wie dein echter Client hat:
-    - connect(name, version)
-    - receive_now() -> Optional[str]
-    - send_pos(pos_dict)
-    - power_up_collected(pw_id)
-    - close()
-    Intern nutzt er eine Inbox-Queue, die der FakeServer über on_message füllt.
+    Adapter mit eigenem asyncio-Loop im Hintergrund-Thread.
+    - Startet beim Erzeugen einen Event-Loop in thread.
+    - Alle async-Calls werden via run_coroutine_threadsafe in diesen Loop gescheduled.
+    - receive_now bleibt non-blocking für die Pygame-Loop.
     """
     def __init__(self, version: str = "1.0", name: str = "player"):
         self._version = version
         self._name = name
         self._server = FakeServer(version=version)
         self._inbox: Deque[str] = deque()
-        # Bridge: Server liefert Zeilen, die in die Inbox gepusht werden
+
+        # Bridge: FakeServer -> Inbox
         self._server.on_message(self._on_line)
 
+        # Eigener Event-Loop im Hintergrund-Thread
+        self._loop = asyncio.new_event_loop()
+        self._thread = threading.Thread(target=self._run_loop, name="FakeClientLoop", daemon=True)
+        self._thread.start()
+
+    def _run_loop(self):
+        asyncio.set_event_loop(self._loop)
+        self._loop.run_forever()
+
     def _on_line(self, line: str) -> None:
-        # line enthält bereits das '\n' aus dem Server
         self._inbox.append(line)
 
-    # Öffentliche API – synchron aufrufbar aus der Pygame-Loop
+    # Öffentliche, sync-kompatible API
 
     def connect(self, name: Optional[str] = None, version: Optional[str] = None) -> None:
-        """
-        Startet den FakeServer-Connect asynchron, ohne die Pygame-Loop zu blockieren.
-        """
         name = name or self._name
         version = version or self._version
-        try:
-            loop = asyncio.get_running_loop()
-            loop.create_task(self._server.connect(name=name, version=version))
-        except RuntimeError:
-            # Kein laufender Loop: kurzzeitig einen Event-Loop für den Connect ausführen
-            asyncio.run(self._server.connect(name=name, version=version))
+        asyncio.run_coroutine_threadsafe(
+            self._server.connect(name=name, version=version),
+            self._loop
+        )
 
     def receive_now(self) -> Optional[str]:
-        """
-        Nicht-blockierend: Gibt sofort die nächste volle Zeile zurück oder None.
-        """
         return self._inbox.popleft() if self._inbox else None
 
     def send_pos(self, pos: Dict[str, Any]) -> None:
-        """
-        Schickt Positions-Update in den FakeServer (asynchron).
-        """
-        try:
-            loop = asyncio.get_running_loop()
-            loop.create_task(self._server.send_pos(pos))
-        except RuntimeError:
-            asyncio.run(self._server.send_pos(pos))
+        asyncio.run_coroutine_threadsafe(
+            self._server.send_pos(pos),
+            self._loop
+        )
 
     def power_up_collected(self, pw_id: int) -> None:
-        """
-        Meldet eingesammeltes Power-Up an den FakeServer (asynchron).
-        """
-        try:
-            loop = asyncio.get_running_loop()
-            loop.create_task(self._server.power_up_collected(pw_id))
-        except RuntimeError:
-            asyncio.run(self._server.power_up_collected(pw_id))
+        asyncio.run_coroutine_threadsafe(
+            self._server.power_up_collected(pw_id),
+            self._loop
+        )
 
     def close(self) -> None:
-        """
-        Schließt den FakeServer (asynchron).
-        """
+        # Server-Task beenden
+        fut = asyncio.run_coroutine_threadsafe(self._server.close(), self._loop)
         try:
-            loop = asyncio.get_running_loop()
-            loop.create_task(self._server.close())
-        except RuntimeError:
-            asyncio.run(self._server.close())
+            fut.result(timeout=1.0)
+        except Exception:
+            pass
+        # Loop stoppen
+        self._loop.call_soon_threadsafe(self._loop.stop)
+        self._thread.join(timeout=1.0)

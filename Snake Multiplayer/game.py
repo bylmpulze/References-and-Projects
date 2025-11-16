@@ -68,14 +68,18 @@ def draw_game_elements():
     SNAKE.draw(screen)
     
 # Multiplayer Setup
+
 ip_addr = menu_screen(screen, CONSTANTS.SCREEN_SIZE)
-if ip_addr is None:
-    client = FakeClient()
+if not ip_addr:
+    client = FakeClient(version=CONSTANTS.VERSION, name="player")
+    client.connect()
 else:
     try:
-        client = Client(ip_addr)
+        client = Client(ip_addr)           # echter Socket-Client
+        client.connect(name="player", version=CONSTANTS.VERSION)
     except Exception:
-        client = FakeClient()
+        client = FakeClient(version=CONSTANTS.VERSION, name="player")
+        client.connect()
 
 other_snakes: dict[str, list[list[int]]] = {}
 
@@ -185,8 +189,8 @@ while True:
     if direction == 3:
         SNAKE.move_left()
 
-    if move_counter % 25 == 0:
-        SNAKE.grow()
+    #if move_counter % 25 == 0:
+    #    SNAKE.grow()
     
     SNAKE.update()
     process_server_messages()
