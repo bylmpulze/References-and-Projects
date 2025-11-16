@@ -18,11 +18,7 @@ class Client:
             return
         if msg.startswith("POWER_UP_SPAWNED"):
             _,pw_id, x, y, pw_type = msg.split()
-            self.power_ups[pw_id] = {
-                "x":x,
-                "y":y,
-                "pw_type":pw_type
-            }
+            self.power_ups.add(pw_id,x,y,pw_type)
     
 
 

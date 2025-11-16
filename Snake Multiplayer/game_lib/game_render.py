@@ -86,4 +86,6 @@ class GameScreen:
     def display(self, source, dest, area = None, special_flags= 0):
         self.show_gameWindow.blit(source, dest, area, special_flags)
 
+    def blit(self, source, dest, area = None, special_flags= 0):
+        self.show_gameWindow.blit(source, dest, area, special_flags)
     

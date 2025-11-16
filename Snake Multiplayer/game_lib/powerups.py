@@ -1,6 +1,5 @@
 import pygame
-
-
+from game_lib.helper import resource_path
 
 #region Config
 class PowerUpConfig:
@@ -99,18 +98,46 @@ class PowerupSettingsMenu():
         self.settingsMenu_change_direction_duration = "1000"
 
 
-        
+class PowerUp:
+    def __init__(self,img,x,y) -> None:
+    
+        img = pygame.image.load(resource_path(img)).convert_alpha()
+        self.img = pygame.transform.scale(img, ((25, 25)))
+        self.x = int(x)
+        self.y = int(y)
+    
+    def draw(self,screen):
+        screen.blit(self.img,(self.x,self.y))
+
+class GrowPowerUp(PowerUp):
+    def __init__(self,x,y) -> None:
+        img = "assets/powerup_magnet.webp"
+        super().__init__(img,x,y)      
 
 
+class PowerUps:
+    def __init__(self,screen) -> None:
+        self.dct = {}
+        self.screen = screen
 
-main = PowerUpMain()
-powerup = main.powerupTypes["powerup_speed_boost_x2"]
-menu_obj = powerup["menu_att"]
-menu_button = powerup["menu_button"]
-duration_menu = powerup["duration_menu"]
+    def add(self, pw_id,x,y,pw_type):
+        self.dct[pw_id] = GrowPowerUp(x,y)
 
-status = getattr(menu_obj, menu_button)
-duration = int(getattr(menu_obj, duration_menu))
+    def draw(self):
+        for pw_id,pw_up in self.dct.items():
+            pw_up.draw(self.screen)
 
-print("Status:", status)
-print("Dauer:", duration)
+
+if __name__ == "__main__":
+
+    main = PowerUpMain()
+    powerup = main.powerupTypes["powerup_speed_boost_x2"]
+    menu_obj = powerup["menu_att"]
+    menu_button = powerup["menu_button"]
+    duration_menu = powerup["duration_menu"]
+
+    status = getattr(menu_obj, menu_button)
+    duration = int(getattr(menu_obj, duration_menu))
+
+    print("Status:", status)
+    print("Dauer:", duration)

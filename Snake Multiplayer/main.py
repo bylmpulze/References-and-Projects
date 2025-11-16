@@ -2,15 +2,17 @@ import pygame
 from game_lib.game_render import GameScreen
 from game_lib.snake import SnakeDisplay
 from game_lib.food import Food
+from game_lib.powerups import PowerUps
 from game_lib.helper import quit_game
 from server_lib.client import get_client
+
 
 
 pygame.init()  
 game_screen_main = GameScreen(800)
 snake_Display = SnakeDisplay(game_screen_main)  
 food_main = Food(game_screen_main)
-power_ups = {}
+power_ups = PowerUps(game_screen_main)
 client = get_client(power_ups)
 
 #food_Display.create_foodImage()
@@ -41,6 +43,7 @@ while True:
     snake_Display.wrap_around()
 
     client.process_messages()
+    power_ups.draw()
 
 
     pygame.display.update()
