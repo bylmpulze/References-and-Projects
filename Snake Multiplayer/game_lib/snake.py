@@ -89,7 +89,7 @@ class SnakeDisplay:
         self.snake_head.append(self.snake_head[-1].copy())
         print("Snake verlängert:", self.snake_head)
 
-    def get_random_Snake_cords(self, Screen_size_width, screen_size_height, topbar_size):
+    def get_random_snake_cords(self, Screen_size_width, screen_size_height, topbar_size):
 
         self.snake_cords = (
         random.randint(0, Screen_size_width),
