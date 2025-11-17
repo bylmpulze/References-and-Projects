@@ -1,33 +1,23 @@
 import pygame
 from game_lib.game_render import GameScreen
-from game_lib.snake import SnakeDisplay
-from game_lib.food import Food
-from game_lib.powerups import PowerUps
-from game_lib.helper import quit_game
-from server_lib.client import get_client
 from game_lib.scenes.scene_manager import SceneManager
 from game_lib.scenes.main_menu import MainMenuScene
 from game_lib.scenes.settings_menu import SettingsMenuScene
+from game_lib.scenes.game_scene import GameScene
 
 pygame.init()  
 game_screen_main = GameScreen(800)
-snake_Display = SnakeDisplay(game_screen_main)  
-food_main = Food(game_screen_main)
-power_ups = PowerUps(game_screen_main)
-client = get_client(power_ups)
-power_ups.add_client(client)
-
-#food_Display.create_foodImage()
 clock = pygame.time.Clock()
-food_main.spawn_food(snake_Display.get_snake_headcords())
 
 scene_manager = SceneManager(game_screen_main.show_gameWindow)
 main_menu = MainMenuScene(game_screen_main.show_gameWindow,scene_manager)
 settings_menu = SettingsMenuScene(game_screen_main.show_gameWindow,scene_manager)
+game_scene = GameScene(game_screen_main.show_gameWindow,scene_manager, game_screen_main)
 
-scene_manager.add_scene("main_menu", main_menu)
+scene_manager.add_scene("MainMenu", main_menu)
 scene_manager.add_scene("SettingsScene",settings_menu)
-scene_manager.switch_scene("main_menu")
+scene_manager.add_scene("GameScene",game_scene)
+scene_manager.switch_scene("MainMenu")
 
 while True:
     scene_manager.run_current_scene()
@@ -35,35 +25,5 @@ while True:
     clock.tick(60)
 
 
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            quit_game()
-        if event.type == pygame.KEYDOWN:
-            snake_Display.snake_direction = snake_Display.handle_normal_movement(event,snake_Display.snake_direction)
-            if event.key == pygame.K_ESCAPE:
-                quit_game()
-
-    #draw background
-    game_screen_main.show_gameWindow.fill(game_screen_main.background_colour)
-    game_screen_main.draw_topbar()
-    
-    #draw snake/food
-    snake_Display.draw_snake()
-    food_main.draw_food()
-    food_main.check_collision(snake_Display)
-    
-    #snake Movement
-    snake_Display.snake_movement()
-    snake_Display.wrap_around()
-
-    client.process_messages()
-    power_ups.draw()
-    power_ups.check_collision(snake_Display)
-    power_ups.handle_active(snake_Display,food_main)
-
-    pygame.display.update()
-    snake_Display.move_counter += 1
-    clock.tick(60)
 
 

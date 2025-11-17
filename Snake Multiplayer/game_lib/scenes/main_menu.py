@@ -53,6 +53,7 @@ class MainMenuScene:
 
         if self.selected_option == 0:
             print("Continue selected")
+            self.scene_manager.switch_scene("GameScene")
             # Add continue logic here
         elif self.selected_option == 1:
             print("New Game selected")
