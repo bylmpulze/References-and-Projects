@@ -4,15 +4,16 @@ import queue
 import json
 import random
 import pygame
-from server_lib.fake_client_adapter import FakeClient
+from server_lib.fake_client_adapter import FakeClient, Client
 
 
-class TCPClient:
+class TCPClient(Client):
     """
     TCP client with a reader thread (incoming queue) and a sender thread (outgoing queue).
     """
 
     def __init__(self, host: str = "127.0.0.1", port: int = 50007) -> None:
+        super().__init__(None)
         self.server_host = host
         self.server_port = port
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -30,7 +31,7 @@ class TCPClient:
         self._sender_thread = threading.Thread(target=self._send_loop, daemon=True)
         self._reader_thread.start()
         self._sender_thread.start()
-        self.queue_send(f"HELLO Player {CONSTANTS.VERSION}\n".encode("utf-8"))
+        self.queue_send("HELLO Player 1.0\n".encode("utf-8"))
 
     def queue_send(self, data) -> None:
         """
@@ -59,9 +60,9 @@ class TCPClient:
                     break
                 self.incoming_messages.put(line.rstrip("\n"))
         finally:
-            try: 
+            try:
                 f_in.close()
-            except Exception: 
+            except Exception:
                 pass
 
     def _send_loop(self) -> None:
@@ -115,7 +116,6 @@ class TCPClient:
             self.socket.close()
         except OSError:
             pass
-
 
 
 def get_client(power_ups):
