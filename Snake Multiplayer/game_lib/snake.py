@@ -1,5 +1,7 @@
 import pygame
 from game_lib.helper import resource_path
+import random
+
 
 #region Snakedisplay
 class SnakeDisplay:
@@ -86,6 +88,14 @@ class SnakeDisplay:
     def add_snake_body(self):
         self.snake_head.append(self.snake_head[-1].copy())
         print("Snake verlängert:", self.snake_head)
+
+    def get_random_Snake_cords(self, Screen_size_width, screen_size_height, topbar_size):
+
+        self.snake_cords = (
+        random.randint(0, Screen_size_width),
+        random.randint(0, screen_size_height - topbar_size)
+        )
+        return self.snake_cords
         
 
 
