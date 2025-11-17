@@ -5,7 +5,9 @@ from game_lib.food import Food
 from game_lib.powerups import PowerUps
 from game_lib.helper import quit_game
 from server_lib.client import get_client
-
+from game_lib.scenes.scene_manager import SceneManager
+from game_lib.scenes.main_menu import MainMenuScene
+from game_lib.scenes.settings_menu import SettingsMenuScene
 
 pygame.init()  
 game_screen_main = GameScreen(800)
@@ -18,6 +20,19 @@ power_ups.add_client(client)
 #food_Display.create_foodImage()
 clock = pygame.time.Clock()
 food_main.spawn_food(snake_Display.get_snake_headcords())
+
+scene_manager = SceneManager(game_screen_main.show_gameWindow)
+main_menu = MainMenuScene(game_screen_main.show_gameWindow,scene_manager)
+settings_menu = SettingsMenuScene(game_screen_main.show_gameWindow,scene_manager)
+
+scene_manager.add_scene("main_menu", main_menu)
+scene_manager.add_scene("SettingsScene",settings_menu)
+scene_manager.switch_scene("main_menu")
+
+while True:
+    scene_manager.run_current_scene()
+    pygame.display.update()
+    clock.tick(60)
 
 
 while True:
