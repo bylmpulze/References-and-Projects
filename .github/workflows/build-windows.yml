@@ -13,11 +13,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.13"
       - run: |
           python -m pip install --upgrade pip
-          pip install pygame pyinstaller
-      - run: pyinstaller "Snake Multiplayer/snake.py" --name Snake --onefile --noconsole --add-data "Snake Multiplayer/game/assets;Snake Multiplayer/game/assets" --hidden-import pygame
+          pip install pygame-ce pyinstaller
+      - run: pyinstaller "Snake Multiplayer/main.py" --name Snake --onefile --noconsole --add-data "Snake Multiplayer/game/assets;Snake Multiplayer/game/assets" --hidden-import pygame
         shell: pwsh
       - uses: actions/upload-artifact@v4
         with:
