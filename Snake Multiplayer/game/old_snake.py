@@ -1,15 +1,17 @@
 import pygame
-from game.helper import resource_path
+from game_lib.helper import resource_path
 
 WORLD_SIZE = 800   # world is 800x800
 
 
-class Snake:
-    def __init__(self, particle_size=25, speed=4):
+class SnakeDisplay:
+    def __init__(self, screen, particle_size=25, speed=4):
+        self.screen = screen
         self.particle_size = particle_size
         self.speed = speed  # pixels per frame
         self.direction = (1, 0)
-
+        self.move_counter = 0
+        self.snake_direction = 0
         # Use floats for smooth movement
         self.head_pos = [400.0, 400.0]
 
@@ -83,16 +85,26 @@ class Snake:
             # keep the newest max_nodes entries
             self.nodes = self.nodes[:max_nodes]
 
+    def handle_normal_movement(self,event, direction):
+        if event.key in [pygame.K_UP, pygame.K_w]:
+            self.direction = (0, -1) 
+        if event.key in [pygame.K_RIGHT, pygame.K_d]:
+            self.direction = (1, 0)
+        if event.key in [pygame.K_DOWN, pygame.K_s]:
+            self.direction = (0, 1)
+        if event.key in [pygame.K_LEFT, pygame.K_a]:
+            self.direction = (-1, 0)
+        return direction
     # ---------- drawing helpers ----------
     def _wrap_point(self, pos):
         """Return a tuple with wrapped coordinates for drawing: (x % WORLD_SIZE, y % WORLD_SIZE)."""
         return (pos[0] % WORLD_SIZE, pos[1] % WORLD_SIZE)
 
-    def draw(self, screen):
+    def draw(self):
         # Draw body segments (skip index 0 which is head)
         for seg in self.body_segments[1:]:
             rx, ry = self._wrap_point(seg)
-            screen.blit(self.body_img, (int(rx), int(ry)))
+            self.screen.blit(self.body_img, (int(rx), int(ry)))
 
         # choose correct head image
         if self.direction == (-1, 0):
@@ -106,13 +118,26 @@ class Snake:
 
         # draw head wrapped
         hx, hy = self._wrap_point(self.head_pos)
-        screen.blit(rotated_head, (int(hx), int(hy)))
+        self.screen.blit(rotated_head, (int(hx), int(hy)))
 
     # ---------- controls ----------
-    def move_left(self): self.direction = (-1, 0)
-    def move_right(self): self.direction = (1, 0)
-    def move_up(self): self.direction = (0, -1)
-    def move_down(self): self.direction = (0, 1)
+    def move_left(self):
+        self.direction = (-1, 0)
+    def move_right(self):
+        self.direction = (1, 0)
+    def move_up(self):
+        self.direction = (0, -1)
+    def move_down(self): 
+        self.direction = (0, 1)
+
+    def get_snake_headcords(self):
+        """
+        Gibt die Kopfposition als Grid-Koordinaten zurück.
+        Beispiel: Bei head_pos=(400,400) und particle_size=25 → (16,16)
+        """
+        gx = int((self.head_pos[0] % WORLD_SIZE) // self.particle_size)
+        gy = int((self.head_pos[1] % WORLD_SIZE) // self.particle_size)
+        return gx, gy
 
     # ---------- collision helpers ----------
     def get_head_rect(self, wrapped=True):
