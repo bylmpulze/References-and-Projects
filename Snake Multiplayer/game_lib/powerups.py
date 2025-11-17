@@ -133,7 +133,7 @@ class PowerUp:
 
 class MagnetPowerUp(PowerUp):
     def __init__(self,x,y) -> None:
-        img = "assets/powerup_magnet.webp"
+        img = "assets/Items/powerup magnet.png"
         super().__init__(img,x,y, 1000)     
 
     def effect(self,snake,food):
@@ -159,22 +159,22 @@ class MagnetPowerUp(PowerUp):
 
 class SpeedupPowerUp(PowerUp):
     def __init__(self,x,y) -> None:
-        img = "assets/assets+/Items/powerup speed.png"
+        img = "assets/Items/powerup speed.png"
         super().__init__(img,x,y, 1000) 
 
 class ExtraLifePowerUp(PowerUp):
     def __init__(self,x,y) -> None:
-        img = "assets/assets+/Items/powerup extra life.png"
+        img = "assets/Items/powerup extra life.png"
         super().__init__(img,x,y, 1000) 
 
 class SlowDownPowerUp(PowerUp):
     def __init__(self,x,y) -> None:
-        img = "assets/assets+/Items/powerup slow.png"
+        img = "assets/Items/powerup slow.png"
         super().__init__(img,x,y, 1000) 
 
 class DrunkPowerUp(PowerUp):
     def __init__(self, x, y) -> None:
-        img = "assets/assets+/Items/powerup drunk.png"
+        img = "assets/Items/powerup drunk.png"
         super().__init__(img, x, y, 1000)
 
 POWERUP_CLASS_MAP = {

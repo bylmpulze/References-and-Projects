@@ -13,7 +13,7 @@ class Food:
 
 
     def create_foodImage(self):
-        foodImage = pygame.image.load(resource_path("assets/apfel.png"))
+        foodImage = pygame.image.load(resource_path("assets/Items/apple.png"))
         foodImage = pygame.transform.scale(
             foodImage,
             (self.screen.get_particle_size(), self.screen.get_particle_size())

@@ -21,7 +21,7 @@ class SnakeDisplay:
     
     def create_snake_head_images(self):    
         
-        img = pygame.image.load(resource_path("assets/snakehead.jpg")).convert_alpha()
+        img = pygame.image.load(resource_path("assets/Snake/Green/snake head.png")).convert_alpha()
         img = pygame.transform.scale(img, ((self.screen.particle_size, self.screen.particle_size)))
         return {
             2:   pygame.transform.rotate(img, 0),
