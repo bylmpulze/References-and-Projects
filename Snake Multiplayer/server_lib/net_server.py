@@ -6,6 +6,7 @@ from typing import Dict, Optional
 GRID_W = 28
 GRID_H = 28
 
+
 class SocketBroadcastServer:
     """
     Asyncio-Streams-basierter Server:
@@ -16,7 +17,14 @@ class SocketBroadcastServer:
         "POWER_UP_SPAWNED <pw_id> <x> <y> <type>"
         "POWER_UP_REMOVED <pw_id>"
     """
-    def __init__(self, version: str = "1.0", powerup_spawn_interval_ms: int = 8000, max_line: int = 8192, handshake_timeout: float = 5.0) -> None:
+
+    def __init__(
+        self,
+        version: str = "1.0",
+        powerup_spawn_interval_ms: int = 8000,
+        max_line: int = 8192,
+        handshake_timeout: float = 5.0,
+    ) -> None:
         self.version = version
         self.max_line = max_line
         self.handshake_timeout = handshake_timeout
@@ -25,7 +33,13 @@ class SocketBroadcastServer:
         self.client_meta: dict[asyncio.StreamWriter, dict] = {}
         self._next_id = 1
 
-        self.available_powerups = ["speed_boost_x2", "speed_half", "extra_life", "powerup_drunk", "powerup_magnet"]
+        self.available_powerups = [
+            "speed_boost_x2",
+            "speed_half",
+            "extra_life",
+            "powerup_drunk",
+            "powerup_magnet",
+        ]
         self.powerup_spawn_interval_ms = powerup_spawn_interval_ms
         self._last_powerup_spawn_ms = self._now_ms()
         self._next_powerup_id = 1
@@ -44,9 +58,13 @@ class SocketBroadcastServer:
             raise ValueError("line too long")
         return line
 
-    async def _do_handshake(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> dict:
+    async def _do_handshake(
+        self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter
+    ) -> dict:
         try:
-            line = await asyncio.wait_for(self._readline_capped(reader), timeout=self.handshake_timeout)
+            line = await asyncio.wait_for(
+                self._readline_capped(reader), timeout=self.handshake_timeout
+            )
         except asyncio.TimeoutError:
             raise RuntimeError("handshake timeout")
         if not line:
@@ -68,6 +86,7 @@ class SocketBroadcastServer:
 
         writer.write(f"WELCOME {cid}\n".encode("utf-8"))
         await writer.drain()
+        print(f"WELCOME {cid}")
         return {"id": cid, "name": name}
 
     async def _periodic_loop(self) -> None:
@@ -93,7 +112,9 @@ class SocketBroadcastServer:
 
     async def _maybe_spawn_powerup(self) -> None:
         now = self._now_ms()
-        if not self.power_ups and (now - self._last_powerup_spawn_ms >= self.powerup_spawn_interval_ms):
+        if not self.power_ups and (
+            now - self._last_powerup_spawn_ms >= self.powerup_spawn_interval_ms
+        ):
             await self._spawn_one_powerup_if_none()
 
     async def _spawn_one_powerup_if_none(self) -> None:
@@ -108,9 +129,13 @@ class SocketBroadcastServer:
         self.power_ups[pw_id] = {"x": x, "y": y, "pw_type": pw_type}
         self._last_powerup_spawn_ms = self._now_ms()
 
-        await self.broadcast(f"POWER_UP_SPAWNED {pw_id} {x} {y} {pw_type}\n".encode("utf-8"))
+        await self.broadcast(
+            f"POWER_UP_SPAWNED {pw_id} {x} {y} {pw_type}\n".encode("utf-8")
+        )
 
-    async def broadcast(self, data: bytes, exclude: Optional[asyncio.StreamWriter] = None) -> None:
+    async def broadcast(
+        self, data: bytes, exclude: Optional[asyncio.StreamWriter] = None
+    ) -> None:
         dead: list[asyncio.StreamWriter] = []
         for w in list(self.clients):
             if exclude is not None and w is exclude:
@@ -120,8 +145,12 @@ class SocketBroadcastServer:
             except Exception:
                 dead.append(w)
         await asyncio.gather(
-            *(w.drain() for w in list(self.clients) if (exclude is None or w is not exclude) and w not in dead),
-            return_exceptions=True
+            *(
+                w.drain()
+                for w in list(self.clients)
+                if (exclude is None or w is not exclude) and w not in dead
+            ),
+            return_exceptions=True,
         )
         for w in dead:
             if w in self.clients:
@@ -133,7 +162,9 @@ class SocketBroadcastServer:
             except Exception:
                 pass
 
-    async def handle_client(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
+    async def handle_client(
+        self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter
+    ) -> None:
         try:
             meta = await self._do_handshake(reader, writer)
         except Exception:
@@ -150,7 +181,11 @@ class SocketBroadcastServer:
 
         # Sync bestehende Powerups
         for pw_id, pu in self.power_ups.items():
-            writer.write(f"POWER_UP_SPAWNED {pw_id} {pu['x']} {pu['y']} {pu['pw_type']}\n".encode("utf-8"))
+            writer.write(
+                f"POWER_UP_SPAWNED {pw_id} {pu['x']} {pu['y']} {pu['pw_type']}\n".encode(
+                    "utf-8"
+                )
+            )
         await writer.drain()
 
         try:
@@ -175,7 +210,9 @@ class SocketBroadcastServer:
                         pw_id = None
                     if pw_id is not None and pw_id in self.power_ups:
                         del self.power_ups[pw_id]
-                        await self.broadcast(f"POWER_UP_REMOVED {pw_id}\n".encode("utf-8"))
+                        await self.broadcast(
+                            f"POWER_UP_REMOVED {pw_id}\n".encode("utf-8")
+                        )
                         await self._spawn_one_powerup_if_none()
                     continue
 
@@ -199,11 +236,16 @@ class SocketBroadcastServer:
             if not self.clients:
                 await self.stop_periodic()
 
-async def run_server(host: str = "127.0.0.1", port: int = 50007, version: str = "1.0") -> None:
+
+async def run_server(
+    host: str = "127.0.0.1", port: int = 50007, version: str = "1.0"
+) -> None:
+    print(f"Server running at {host} {port}")
     logic = SocketBroadcastServer(version=version)
     server = await asyncio.start_server(logic.handle_client, host, port)
     async with server:
         await server.serve_forever()
+
 
 if __name__ == "__main__":
     asyncio.run(run_server())
