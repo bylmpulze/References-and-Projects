@@ -8,8 +8,9 @@ class TCPClient(Client):
     TCP client with a reader thread (incoming queue) and a sender thread (outgoing queue).
     """
 
-    def __init__(self, host: str = "127.0.0.1", port: int = 50007) -> None:
+    def __init__(self, power_ups, host: str = "127.0.0.1", port: int = 50007) -> None:
         super().__init__(None)
+        self.power_ups = power_ups
         self.server_host = host
         self.server_port = port
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

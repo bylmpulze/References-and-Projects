@@ -5,23 +5,37 @@ from game_lib.snake import SnakeDisplay
 from game_lib.food import Food
 from game_lib.powerups import PowerUps
 from game_lib.helper import quit_game
-from server_lib.client import get_client
+from server_lib.net_fake_client import FakeClient
+from server_lib.net_tcp_client import TCPClient
 
 
 class GameScene:
-    def __init__(self, screen, scene_manager, game_screen_main):
+    def __init__(self, screen, scene_manager, game_screen_main, play_mode = "single"):
         self.screen = screen
         self.scene_manager = scene_manager
         self.game_screen_main = game_screen_main
         self.font = pygame.font.Font(None, 36)
+        self.play_mode = "single"
 
         self.snake_Display = SnakeDisplay(game_screen_main)
         self.food_main = Food(game_screen_main)
         self.power_ups = PowerUps(game_screen_main)
-        self.client = get_client(self.power_ups)
+        self.client = self.get_client()
         self.power_ups.add_client(self.client)
 
         self.food_main.spawn_food(self.snake_Display.get_snake_headcords())
+
+    def get_client(self):
+        if self.play_mode == "single":
+            return FakeClient(self.power_ups)
+
+        try:
+            client = TCPClient(self.power_ups)
+        except Exception as E:
+            client = FakeClient(self.power_ups)
+
+        return client
+    
 
     def setup(self):
         pass

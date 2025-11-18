@@ -4,7 +4,6 @@ import re
 import sys
 import pygame
 from game.settings import save_settings, load_settings
-from server_lib.client import TCPClient
 
 
 class MainMenuScene:
@@ -102,20 +101,10 @@ class MainMenuScene:
                     self.selected_mode = None
 
                 elif event.key == pygame.K_RETURN:
-                    ip_to_check = self.input_text or settings.get("multiplayer_ip")
+                    ip_to_check = self.input_text or settings.get("multiplayer_ip","")
                     if self.is_valid_ip(ip_to_check):
                         settings["multiplayer_ip"] = ip_to_check
                         save_settings(settings)
-                        self.scene_manager.scenes["GameScene"].client = TCPClient(
-                            "127.0.0.1"
-                        )
-
-                        self.scene_manager.scenes[
-                            "GameScene"
-                        ].client.power_ups = self.scene_manager.scenes[
-                            "GameScene"
-                        ].power_ups
-
                         self.scene_manager.switch_scene("GameScene")
                     else:
                         self.error_text = f"❌ Ungültige IP-Adresse: {ip_to_check}"
