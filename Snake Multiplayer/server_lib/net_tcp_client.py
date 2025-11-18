@@ -1,11 +1,7 @@
+import queue
 import socket
 import threading
-import queue
-import json
-import random
-import pygame
-from server_lib.fake_client_adapter import FakeClient, Client
-
+from server_lib.net_api import Client
 
 class TCPClient(Client):
     """
@@ -118,7 +114,3 @@ class TCPClient(Client):
             pass
 
 
-def get_client(power_ups):
-    client = FakeClient(power_ups)
-    client.connect()
-    return client
