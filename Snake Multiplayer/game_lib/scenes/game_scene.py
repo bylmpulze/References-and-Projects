@@ -23,7 +23,7 @@ class GameScene:
         self.client = self.get_client()
         self.power_ups.add_client(self.client)
 
-        self.food_main.spawn_food(self.snake_Display.get_snake_headcords())
+        self.food_main.spawn_food(self.snake_Display.get_snake_segments())
 
     def get_client(self):
         if self.play_mode == "single":

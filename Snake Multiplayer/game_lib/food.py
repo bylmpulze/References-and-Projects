@@ -35,7 +35,7 @@ class Food:
     
     def check_collision(self, snake): 
         foodcords = self.get_foodcords()[0]
-        snake_coords = snake.get_snake_headcords()
+        snake_coords = snake.get_snake_segments()
         if foodcords in snake_coords:
             self.on_eaten(snake,snake_coords)
         
