@@ -7,7 +7,7 @@ import random
 class SnakeDisplay:
     def __init__(self,screen):
         self.screen = screen
-        self.snake_head = [[13, 13], [13, 14]]
+        self.snake_head = self.get_random_snake_cords()
         self.snake_body = []
         self.snake_cords = 0
         self.snake_speed = 4  # mehr = langsamer
@@ -89,13 +89,15 @@ class SnakeDisplay:
         self.snake_head.append(self.snake_head[-1].copy())
         print("Snake verlängert:", self.snake_head)
 
-    def get_random_snake_cords(self, Screen_size_width, screen_size_height, topbar_size):
+    def get_random_snake_cords(self):
 
-        self.snake_cords = (
-        random.randint(0, Screen_size_width),
-        random.randint(0, screen_size_height - topbar_size)
-        )
-        return self.snake_cords
+        max_x = self.screen.get_screen_size_width() // self.screen.get_particle_size()
+        max_y = (self.screen.get_screen_size_height() - self.screen.get_topbar_height()) // self.screen.get_particle_size()
+
+        x = random.randint(0, max_x)
+        y = random.randint(0, max_y)
+
+        return [[x,y],[x,y+1]]
         
 
 
