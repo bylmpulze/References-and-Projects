@@ -3,6 +3,7 @@ from game_lib.helper import resource_path
 import random
 from collections import deque
 
+
 class SnakeDisplay:
     def __init__(self, screen):
         self.screen = screen
@@ -14,16 +15,24 @@ class SnakeDisplay:
         self.head_imgs = self._create_snake_head_images()
 
     def _create_snake_body_image(self):
-        body_img = pygame.image.load(resource_path("assets/snakebody.jpg")).convert_alpha()
-        body_img = pygame.transform.scale(body_img, (self.screen.particle_size, self.screen.particle_size))
+        body_img = pygame.image.load(
+            resource_path("assets/snakebody.jpg")
+        ).convert_alpha()
+        body_img = pygame.transform.scale(
+            body_img, (self.screen.particle_size, self.screen.particle_size)
+        )
         return body_img
 
     def _create_snake_head_images(self):
-        img = pygame.image.load(resource_path("assets/Snake/Green/snake head.png")).convert_alpha()
-        img = pygame.transform.scale(img, (self.screen.particle_size, self.screen.particle_size))
+        img = pygame.image.load(
+            resource_path("assets/Snake/Green/snake head.png")
+        ).convert_alpha()
+        img = pygame.transform.scale(
+            img, (self.screen.particle_size, self.screen.particle_size)
+        )
         return {
-            2: pygame.transform.rotate(img, 0),    # down
-            1: pygame.transform.rotate(img, 90),   # right
+            2: pygame.transform.rotate(img, 0),  # down
+            1: pygame.transform.rotate(img, 90),  # right
             0: pygame.transform.rotate(img, 180),  # up
             3: pygame.transform.rotate(img, 270),  # left
         }
@@ -61,7 +70,9 @@ class SnakeDisplay:
 
     def wrap_around(self):
         max_x = self.screen.get_screen_size_width() // self.screen.get_particle_size()
-        max_y = (self.screen.get_screen_size_height() - self.screen.get_topbar_height()) // self.screen.get_particle_size()
+        max_y = (
+            self.screen.get_screen_size_height() - self.screen.get_topbar_height()
+        ) // self.screen.get_particle_size()
 
         head = self.segments[0]
         head[0] = head[0] % max_x
@@ -72,30 +83,35 @@ class SnakeDisplay:
         top = self.screen.get_topbar_height()
 
         hx, hy = self.segments[0]
-        self.screen.display(self.head_imgs[self.snake_direction], (hx * ps, top + hy * ps))
+        self.screen.display(
+            self.head_imgs[self.snake_direction], (hx * ps, top + hy * ps)
+        )
 
         for x, y in list(self.segments)[1:]:
             self.screen.display(self.body_img, (x * ps, top + y * ps))
 
     def get_snake_segments(self):
-        """ Copy for external use """ 
+        """Copy for external use"""
         return list(self.segments)
 
+    def get_head_cords(self):
+        return list(self.segments[0])
+
     def add_snake_body(self):
-        """ Grow by duplicating current tail """
+        """Grow by duplicating current tail"""
         tail_copy = self.segments[-1].copy()
         self.segments.append(tail_copy)
         print("Snake verlängert:", list(self.segments))
 
-    
     def _random_snake_segments(self):
         max_x = self.screen.get_screen_size_width() // self.screen.get_particle_size()
-        max_y = (self.screen.get_screen_size_height() - self.screen.get_topbar_height()) // self.screen.get_particle_size()
+        max_y = (
+            self.screen.get_screen_size_height() - self.screen.get_topbar_height()
+        ) // self.screen.get_particle_size()
 
-      
         x = random.randint(0, max_x - 1)
         y = random.randint(1, max_y - 1)  # ensure y-1 >= 0
 
         y2 = y + 1 if (y + 1) < max_y else y - 1
-        
+
         return [[x, y], [x, y2]]

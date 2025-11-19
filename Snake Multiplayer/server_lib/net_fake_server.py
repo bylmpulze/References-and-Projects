@@ -9,6 +9,7 @@ from .net_api import GameNet
 GRID_W = 28
 GRID_H = 28
 
+
 class FakeServer(GameNet):
     """
     In-Process „Server“, der Netzwerk nur simuliert:
@@ -17,13 +18,18 @@ class FakeServer(GameNet):
     - POWER_UP_REMOVED <pw_id>
     - Loopback: "<id>: POS {json}"
     """
-    def __init__(self, version: str = "1.0", powerup_spawn_interval_ms: int = 1000) -> None:
+
+    def __init__(
+        self, version: str = "1.0", powerup_spawn_interval_ms: int = 1000
+    ) -> None:
         super().__init__()
         self.version = version
         self._connected = False
         self._task: Optional[asyncio.Task] = None
         self._client_id = 1
-        self._power_ups: Dict[int, Dict[str, Any]] = {}
+        self._power_ups: Dict[int, Dict[str, Any]] = {
+            1: {"x": 6, "y": 6, "pw_type": "powerup_magnet"}
+        }
         self._next_pw_id = 1
         self._last_spawn_ms = self._now_ms()
         self._powerup_spawn_interval_ms = powerup_spawn_interval_ms
@@ -41,7 +47,9 @@ class FakeServer(GameNet):
         self._emit(f"WELCOME {self._client_id}\n")
         # Bereits existierende Powerups senden (Start: keine).
         for pw_id, pu in self._power_ups.items():
-            self._emit(f"POWER_UP_SPAWNED {pw_id} {pu['x']} {pu['y']} {pu['pw_type']}\n")
+            self._emit(
+                f"POWER_UP_SPAWNED {pw_id} {pu['x']} {pu['y']} {pu['pw_type']}\n"
+            )
         self._task = asyncio.create_task(self._loop())
 
     async def _loop(self) -> None:
@@ -54,13 +62,24 @@ class FakeServer(GameNet):
 
     async def _maybe_spawn_powerup(self) -> None:
         now = self._now_ms()
-        if not self._power_ups and now - self._last_spawn_ms >= self._powerup_spawn_interval_ms:
+        if (
+            not self._power_ups
+            and now - self._last_spawn_ms >= self._powerup_spawn_interval_ms
+        ):
             await self._spawn_one()
 
     async def _spawn_one(self) -> None:
         x = random.randint(1, GRID_W - 1)
         y = random.randint(1, GRID_H - 1)
-        pw_type = random.choice(["speed_boost_x2", "speed_half", "extra_life", "powerup_drunk", "powerup_magnet"])
+        pw_type = random.choice(
+            [
+                "speed_boost_x2",
+                "speed_half",
+                "extra_life",
+                "powerup_drunk",
+                "powerup_magnet",
+            ]
+        )
         pw_id = self._next_pw_id
         self._next_pw_id += 1
         self._power_ups[pw_id] = {"x": x, "y": y, "pw_type": pw_type}
