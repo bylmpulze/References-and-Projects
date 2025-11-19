@@ -68,6 +68,8 @@ class PowerUp:
         else:
             self.sound_file = sound_file
 
+        self.fadeout_started = False
+
         self.x = int(x)
         self.y = int(y)
         self.id = None
@@ -112,7 +114,7 @@ class MagnetPowerUp(PowerUp):
             self.last = pygame.time.get_ticks()
 
         now = pygame.time.get_ticks()
-        if now - self.last < 100:
+        if (now - self.last) < 100:
             return
 
         snake_x, snake_y = snake.get_head_cords()
@@ -210,14 +212,20 @@ class PowerUps:
             if v.start is None:
                 continue
 
-            if (v.start + v.running_duration) < now + 1000:
-                if v.sound_file:
-                    v.sound_file.fadeout(1000)
-                continue
-            if (v.start + v.running_duration) < now:
-                continue
+            end_time = v.start + v.running_duration
+            time_left = end_time - now
 
-            v.effect(snake, food)
+            # Fade-out: last 1000 ms
+            if 0 < time_left <= 1000:
+                if v.sound_file and not v.fadeout_started :
+                    v.sound_file.fadeout(time_left)
+                    v.fadeout_started = True
+
+            if time_left > 0:
+                v.effect(snake, food)
+                
+
+  
 
 
 if __name__ == "__main__":
