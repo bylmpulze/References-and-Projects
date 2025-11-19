@@ -30,7 +30,7 @@ class FakeServer(GameNet):
         self._power_ups: Dict[int, Dict[str, Any]] = {
             1: {"x": 6, "y": 6, "pw_type": "powerup_magnet"}
         }
-        self._next_pw_id = 1
+        self._next_pw_id = 2
         self._last_spawn_ms = self._now_ms()
         self._powerup_spawn_interval_ms = powerup_spawn_interval_ms
         self.food_locations: List[Tuple[int, int]] = []

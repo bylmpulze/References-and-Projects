@@ -184,8 +184,8 @@ class PowerUps:
             raise ValueError(f"Unknown power-up: {pw_type}")
 
         obj = cls(x, y)
+        obj.add_client(self.client)
         self.uncollected_power_ups[pw_id] = obj
-        self.uncollected_power_ups[pw_id].add_client(self.client)
 
     def draw(self):
         for pw_id, pw_up in self.uncollected_power_ups.items():
@@ -196,6 +196,7 @@ class PowerUps:
             if v.check_collision(snake):
                 v.activate(pw_id)
                 self.active_power_ups[pw_id] = v
+                self.client.power_up_collected(pw_id)
 
         self.uncollected_power_ups = {
             k: v
