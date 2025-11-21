@@ -75,7 +75,7 @@ class MainMenuScene:
             pygame.draw.rect(self.screen, (40,40,40), rect.move(0,5), border_radius=16, width=0)
 
             # Buttontext & Icon
-            text_surface = self.font_small.render(f"{btn['icon']} {btn['label']}", True, (30,30,30) if hovered else (255,255,255))
+            text_surface = self.font_small.render(f"{btn['icon']} {btn['label']}", True, (255,255,255) if hovered else (150,150,150))
             self.screen.blit(text_surface, (x+28, y+15))
 
         # Info links unten
@@ -124,6 +124,11 @@ class MainMenuScene:
                     self.scene_manager.switch_scene("GameScene")
                 if event.key == pygame.K_2:
                     self.selected_mode = "multi"
+                if event.key == pygame.K_3:
+                    self.scene_manager.switch_scene("SettingsScene")
+                if event.key == pygame.K_4:
+                    pygame.quit()
+                    sys.exit()
 
             # --- Multiplayer IP entry ---
             elif self.selected_mode == "multi":
