@@ -10,7 +10,7 @@ from server_lib.net_tcp_client import TCPClient
 
 
 class GameScene:
-    def __init__(self, screen, scene_manager, game_screen_main, play_mode = "single"):
+    def __init__(self, screen, scene_manager, game_screen_main, play_mode="single"):
         self.screen = screen
         self.scene_manager = scene_manager
         self.game_screen_main = game_screen_main
@@ -27,15 +27,20 @@ class GameScene:
 
     def get_client(self):
         if self.play_mode == "single":
-            return FakeClient(self.power_ups)
-
+            print("using fake client")
+            fc = FakeClient(self.power_ups)
+            fc.connect()
+            return fc
         try:
             client = TCPClient(self.power_ups)
+            client.connect()
         except Exception as E:
+            print("Connecting to multiplayer failed! using single player client")
+            print("Error", E)
             client = FakeClient(self.power_ups)
+            client.connect()
 
         return client
-    
 
     def setup(self):
         pass

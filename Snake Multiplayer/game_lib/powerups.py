@@ -1,24 +1,33 @@
 import pygame
 from game_lib.helper import resource_path
 
-#region Config
+
+# region Config
 class PowerUpConfig:
     def __init__(self):
         self.powerup_speed_boost_x2 = True
         self.powerup_speed_half = False
-        self.powerup_immunity = False  
+        self.powerup_immunity = False
         self.powerup_magnet = False
         self.powerup_change_direction = False
         self.powerup_jump = False
 
-        self.powerup_change_direction_duration = 1000 #Dauer - umgekehrte steuerung  (1000 = 1 sec) 
-        self.powerup_magnet_duration = 1000 #Dauer Apfel heranziehen  (1000 = 1 sec) 
-        self.powerup_speed_boost_x2_duration = 1500 # Dauer - doppelte Geschwindigkeit  (1000 = 1 sec) 
-        self.powerup_speed_half_duration = 1000 # Dauer - halbierte Geschwindigkeit  (1000 = 1 sec) 
-        self.powerup_immunity_duration = 5000 #Dauer - Unverwundbarkeit ( 1000 = 1 sec) 
+        self.powerup_change_direction_duration = (
+            1000  # Dauer - umgekehrte steuerung  (1000 = 1 sec)
+        )
+        self.powerup_magnet_duration = 1000  # Dauer Apfel heranziehen  (1000 = 1 sec)
+        self.powerup_speed_boost_x2_duration = (
+            1500  # Dauer - doppelte Geschwindigkeit  (1000 = 1 sec)
+        )
+        self.powerup_speed_half_duration = (
+            1000  # Dauer - halbierte Geschwindigkeit  (1000 = 1 sec)
+        )
+        self.powerup_immunity_duration = (
+            5000  # Dauer - Unverwundbarkeit ( 1000 = 1 sec)
+        )
 
-        
-#region Main
+
+# region Main
 class PowerUpMain:
     def __init__(self, particle_size=25):
         self.particle_size = particle_size
@@ -28,13 +37,14 @@ class PowerUpMain:
         self.powerup_spawntime = 0
         self.powerup_despawntime = 0
         self.spawn_powerup_delay = 0
-        self.power_up_activ_time = 5000 #löscht powerup  (1000 = 1 sec) 
-        self.spawn_duration = 1000 # spawnzeit nach letztem Powerup ( 1000 = 1 sec) 
-        self.config = PowerUpConfig ()
-        self.menu = PowerupSettingsMenu() 
+        self.power_up_activ_time = 5000  # löscht powerup  (1000 = 1 sec)
+        self.spawn_duration = 1000  # spawnzeit nach letztem Powerup ( 1000 = 1 sec)
+        self.config = PowerUpConfig()
+        self.menu = PowerupSettingsMenu()
 
-#region SettingsMenu
-class PowerupSettingsMenu():
+
+# region SettingsMenu
+class PowerupSettingsMenu:
     def __init__(self):
         self.config = PowerUpConfig()
         self.settingsMenu_powerup_magnet = False
@@ -49,10 +59,17 @@ class PowerupSettingsMenu():
 
 
 class PowerUp:
-    def __init__(self,img,x,y,running_duration) -> None:
-    
+    def __init__(self, img, x, y, running_duration, sound_file=None) -> None:
         img = pygame.image.load(resource_path(img)).convert_alpha()
         self.img = pygame.transform.scale(img, ((25, 25)))
+
+        if sound_file is not None:
+            self.sound_file = pygame.mixer.Sound(resource_path(sound_file))
+        else:
+            self.sound_file = sound_file
+
+        self.fadeout_started = False
+
         self.x = int(x)
         self.y = int(y)
         self.id = None
@@ -62,19 +79,20 @@ class PowerUp:
         self._send = False
         self.last = None
 
-    def add_client(self,client):
+    def add_client(self, client):
         self.client = client
 
-    def effect(self,snake,food):
+    def effect(self, snake, food):
         pass
 
-    def activate(self,pw_id):
+    def activate(self, pw_id):
         self.start = pygame.time.get_ticks()
         self.client.power_up_collected(int(pw_id))
-        
-    def check_collision(self,snake):        
-        return [self.x,self.y] in snake.get_snake_headcords()
+        if self.sound_file is not None:
+            self.sound_file.play()
 
+    def check_collision(self, snake):
+        return [self.x, self.y] == snake.get_head_cords()
 
     def draw(self, screen):
         if self.start is not None:
@@ -86,20 +104,20 @@ class PowerUp:
 
 
 class MagnetPowerUp(PowerUp):
-    def __init__(self,x,y) -> None:
+    def __init__(self, x, y) -> None:
         img = "assets/Items/powerup magnet.png"
-        super().__init__(img,x,y, 1000)     
+        sound_file = "assets/Sounds/magnet.flac"
+        super().__init__(img, x, y, 1000, sound_file)
 
-    def effect(self,snake,food):
-
+    def effect(self, snake, food):
         if self.last is None:
             self.last = pygame.time.get_ticks()
 
         now = pygame.time.get_ticks()
-        if now - self.last < 100:
+        if (now - self.last) < 100:
             return
 
-        snake_x,snake_y = snake.get_snake_headcords()[0]
+        snake_x, snake_y = snake.get_head_cords()
         if food.foodcoords[0][0] < snake_x:
             food.foodcoords[0][0] += 1
         if food.foodcoords[0][0] > snake_x:
@@ -108,33 +126,39 @@ class MagnetPowerUp(PowerUp):
             food.foodcoords[0][1] += 1
         if food.foodcoords[0][1] > snake_y:
             food.foodcoords[0][1] -= 1
-         
+
         self.last = pygame.time.get_ticks()
 
+
 class SpeedupPowerUp(PowerUp):
-    def __init__(self,x,y) -> None:
+    def __init__(self, x, y) -> None:
         img = "assets/Items/powerup speed.png"
-        super().__init__(img,x,y, 1000) 
+        super().__init__(img, x, y, 1000)
+
 
 class ExtraLifePowerUp(PowerUp):
-    def __init__(self,x,y) -> None:
+    def __init__(self, x, y) -> None:
         img = "assets/Items/powerup extra life.png"
-        super().__init__(img,x,y, 1000) 
+        super().__init__(img, x, y, 1000)
+
 
 class SlowDownPowerUp(PowerUp):
-    def __init__(self,x,y) -> None:
+    def __init__(self, x, y) -> None:
         img = "assets/Items/powerup slow.png"
-        super().__init__(img,x,y, 1000) 
+        super().__init__(img, x, y, 1000)
+
 
 class DrunkPowerUp(PowerUp):
     def __init__(self, x, y) -> None:
         img = "assets/Items/powerup drunk.png"
         super().__init__(img, x, y, 1000)
 
+
 class JumpPowerUp(PowerUp):
     def __init__(self, x, y) -> None:
         img = "assets/Items/GET_IMG_HERE!!!!.png"
         super().__init__(img, x, y, 1000)
+
 
 POWERUP_CLASS_MAP = {
     "speed_boost_x2": SpeedupPowerUp,
@@ -145,53 +169,66 @@ POWERUP_CLASS_MAP = {
     "powerup_jump": JumpPowerUp,
 }
 
+
 class PowerUps:
-    def __init__(self,screen) -> None:
+    def __init__(self, screen) -> None:
         self.uncollected_power_ups = {}
         self.active_power_ups = {}
         self.screen = screen
         self.client = None
 
-    def add_client(self,client):
+    def add_client(self, client):
         self.client = client
 
-    def add(self, pw_id,x,y,pw_type):
-
+    def add(self, pw_id, x, y, pw_type):
         cls = POWERUP_CLASS_MAP.get(pw_type)
         if cls is None:
             raise ValueError(f"Unknown power-up: {pw_type}")
 
         obj = cls(x, y)
+        obj.add_client(self.client)
         self.uncollected_power_ups[pw_id] = obj
-        self.uncollected_power_ups[pw_id].add_client(self.client)
 
     def draw(self):
-        for pw_id,pw_up in self.uncollected_power_ups.items():
+        for pw_id, pw_up in self.uncollected_power_ups.items():
             pw_up.draw(self.screen)
-    
-    def check_collision(self,snake):
-        for pw_id,v in self.uncollected_power_ups.items():
+
+    def check_collision(self, snake):
+        for pw_id, v in self.uncollected_power_ups.items():
             if v.check_collision(snake):
                 v.activate(pw_id)
                 self.active_power_ups[pw_id] = v
-        
-        self.uncollected_power_ups = {k:v for k,v in self.uncollected_power_ups.items() if k not in self.active_power_ups }
-               
-    def handle_active(self,snake,food):
+                self.client.power_up_collected(pw_id)
+
+        self.uncollected_power_ups = {
+            k: v
+            for k, v in self.uncollected_power_ups.items()
+            if k not in self.active_power_ups
+        }
+
+    def handle_active(self, snake, food):
         now = pygame.time.get_ticks()
-        for k,v in self.active_power_ups.items():
+        for k, v in self.active_power_ups.items():
             if v.start is None:
                 continue
-            
-            if (v.start + v.running_duration) < now:
-                continue 
 
-            v.effect(snake,food)
-            
+            end_time = v.start + v.running_duration
+            time_left = end_time - now
+
+            # Fade-out: last 1000 ms
+            if 0 < time_left <= 1000:
+                if v.sound_file and not v.fadeout_started :
+                    v.sound_file.fadeout(time_left)
+                    v.fadeout_started = True
+
+            if time_left > 0:
+                v.effect(snake, food)
+                
+
+  
 
 
 if __name__ == "__main__":
-
     main = PowerUpMain()
     powerup = main.powerupTypes["powerup_speed_boost_x2"]
     menu_obj = powerup["menu_att"]

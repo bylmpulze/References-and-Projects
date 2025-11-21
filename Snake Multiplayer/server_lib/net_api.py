@@ -3,8 +3,10 @@ import abc
 
 MessageCallback = Callable[[str], None]
 
+
 class GameNet(abc.ABC):
     """Abstrakte Netz-API für Snake-Game-Clients."""
+
     def __init__(self) -> None:
         self._cb: Optional[MessageCallback] = None
 
@@ -17,24 +19,20 @@ class GameNet(abc.ABC):
             self._cb(line)
 
     @abc.abstractmethod
-    async def connect(self, name: str, version: str) -> None:
-        ...
+    async def connect(self, name: str, version: str) -> None: ...
 
     @abc.abstractmethod
-    async def send_pos(self, pos: Dict[str, Any]) -> None:
-        ...
+    async def send_pos(self, pos: Dict[str, Any]) -> None: ...
 
     @abc.abstractmethod
-    async def power_up_collected(self, pw_id: int) -> None:
-        ...
+    async def power_up_collected(self, pw_id: int) -> None: ...
 
     @abc.abstractmethod
-    async def close(self) -> None:
-        ...
+    async def close(self) -> None: ...
 
 
 class Client:
-    def __init__(self,power_ups) -> None:
+    def __init__(self, power_ups) -> None:
         self.power_ups = power_ups
 
     def receive_now(self) -> Optional[str]:
@@ -44,7 +42,8 @@ class Client:
         msg = self.receive_now()
         if msg is None:
             return
+        print(msg)
         if msg.startswith("POWER_UP_SPAWNED"):
-            _,pw_id, x, y, pw_type = msg.split()
-            self.power_ups.add(pw_id,x,y,pw_type)
-    
+            _, pw_id, x, y, pw_type = msg.split()
+            print("client received", msg)
+            self.power_ups.add(pw_id, x, y, pw_type)
