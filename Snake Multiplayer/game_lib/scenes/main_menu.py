@@ -4,6 +4,7 @@ import re
 import sys
 import pygame
 from game.settings import save_settings, load_settings
+from game_lib.scenes.helper.cog import GearSprite
 
 
 class MainMenuScene:
@@ -21,11 +22,19 @@ class MainMenuScene:
             center=(screen.get_width() // 2, 100)
         )
 
+        self.mouse_pos = (0, 0)
+
         self.input_text = ""
         self.selected_mode = None
         self.error_text = ""
 
-        self.menu_options = ["Continue", "New Game", "Settings", "Quit"]
+        self.menu_options = [
+            {"label": "Singleplayer (1)", "color": (80, 200, 90), "y": 180, "icon": "🐍"},
+            {"label": "Multiplayer (2)",  "color": (70, 140, 230), "y": 300, "icon": "👥"},
+            {"label": "Optionen (3)",     "color": (230, 200, 40), "y": 420, "icon": "⚙"},
+            {"label": "Beenden (4)",      "color": (200, 60, 80),  "y": 540, "icon": "✖"},
+        ]
+
         self.selected_option = 0
 
     def setup(self):
@@ -37,26 +46,44 @@ class MainMenuScene:
     def update(self):
         pass
 
+    def _create_raster_background(self):
+        # Rasterhintergrund
+        for x in range(0, self.screen.get_width(), 40):
+            pygame.draw.line(self.screen, (38,48,67), (x,0), (x,self.screen.get_height()))
+        for y in range(0, self.screen.get_height(), 40):
+            pygame.draw.line(self.screen, (38,48,67), (0,y), (self.screen.get_width(),y))
+
     def render(self):
-        self.screen.fill((0, 0, 0))
-        self.screen.blit(self.title_text, self.title_rect)
+        self.screen.fill((20, 26, 38))
 
-        for i, option in enumerate(self.menu_options):
-            color = (255, 255, 255) if i == self.selected_option else (150, 150, 150)
-            text = self.font.render(option, True, color)
-            rect = text.get_rect(center=(self.screen.get_width() // 2, 200 + i * 50))
-            self.screen.blit(text, rect)
+        self._create_raster_background()
+        self.draw_text_centered("🐍 Snake Game 🐍", self.font_big, (255, 255, 255), int(self.screen.get_height() * 0.1))
 
+        for btn in self.menu_options:
+            w, h = 440, 80
+            x, y =  self.screen.get_width() //2 - w//2, btn["y"]
+            rect = pygame.Rect(x, y, w, h)
+            hovered = rect.collidepoint(self.mouse_pos[0],self.mouse_pos[1])
+            color = btn["color"]
+            if hovered:
+                # Hover-Effekt: heller + Rand
+                color = tuple(min(c+40,255) for c in color)
+                pygame.draw.rect(self.screen, (255,240,100), rect.inflate(8,8), border_radius=16)
+            pygame.draw.rect(self.screen, color, rect, border_radius=16)
+
+            # Schatten für Retro/Effekt
+            pygame.draw.rect(self.screen, (40,40,40), rect.move(0,5), border_radius=16, width=0)
+
+            # Buttontext & Icon
+            text_surface = self.font_small.render(f"{btn['icon']} {btn['label']}", True, (30,30,30) if hovered else (255,255,255))
+            self.screen.blit(text_surface, (x+28, y+15))
+
+        # Info links unten
+        info = self.font_small.render("v1.0  | bylmpulze & MMA92 |  © 2025", True, (170,170,170))
+        self.screen.blit(info, (20,self.screen.get_height()-60))
+
+            
         settings = load_settings()
-
-        self.screen.fill((255, 255, 255))
-        self.draw_text_centered("🐍 Snake Game 🐍", self.font_big, (0, 0, 0), 200)
-        self.draw_text_centered(
-            "Drücke 1 für Singleplayer", self.font_small, (0, 100, 0), 350
-        )
-        self.draw_text_centered(
-            "Drücke 2 für Multiplayer", self.font_small, (0, 0, 200), 400
-        )
 
         if self.selected_mode == "multi":
             self.draw_text_centered(
@@ -83,10 +110,14 @@ class MainMenuScene:
                     self.error_text, self.font_small, (255, 0, 0), 660
                 )
 
+
     def handle_event(self, event):
         settings = load_settings()
 
-        if event.type == pygame.KEYDOWN:
+        if event.type == pygame.MOUSEMOTION:
+            self.mouse_pos = event.pos
+
+        elif event.type == pygame.KEYDOWN:
             # --- Mode selection ---
             if self.selected_mode is None:
                 if event.key == pygame.K_1:
