@@ -41,6 +41,8 @@ class SettingsMenuScene:
         self.name_text = ""
         self.input_active = False
         self.name_active = False
+        self.avatar_image = None
+        self.avatar_path = None
 
         
         self.colors = ["p1", "p2", "p3", "p4"]
@@ -132,9 +134,10 @@ class SettingsMenuScene:
                 self.settings["default_name"] = self.name_text or "Spieler1"
                 self.settings["avatar_path"] = self.avatar_path
                 save_settings(self.settings)
+                self.scene_manager.switch_scene("MainMenu")
             
             elif self.cancel_rect.collidepoint(mx, my):
-                print("Abbrechen noch nicht implementiert")
+                self.scene_manager.switch_scene("MainMenu")
 
         elif event.type == pygame.KEYDOWN:
             # IP input
