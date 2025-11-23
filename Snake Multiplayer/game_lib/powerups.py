@@ -63,11 +63,6 @@ class PowerUp:
         img = pygame.image.load(resource_path(img)).convert_alpha()
         self.img = pygame.transform.scale(img, ((25, 25)))
 
-        if sound_file is not None:
-            self.sound_file = pygame.mixer.Sound(resource_path(sound_file))
-        else:
-            self.sound_file = sound_file
-
         self.fadeout_started = False
 
         self.x = int(x)
@@ -78,6 +73,17 @@ class PowerUp:
         self.start = None
         self._send = False
         self.last = None
+        self.volume = 1.0
+
+        if sound_file is not None:
+            self.sound_file = pygame.mixer.Sound(resource_path(sound_file))
+        else:
+            self.sound_file = sound_file
+    
+    def set_volume(self, vol: float):
+        self.volume = vol
+        if self.sound_file:
+            self.sound_file.set_volume(vol)
 
     def add_client(self, client):
         self.client = client
@@ -171,11 +177,12 @@ POWERUP_CLASS_MAP = {
 
 
 class PowerUps:
-    def __init__(self, screen) -> None:
+    def __init__(self, screen, scene_manager) -> None:
         self.uncollected_power_ups = {}
         self.active_power_ups = {}
         self.screen = screen
         self.client = None
+        self.settings = scene_manager.settings
 
     def add_client(self, client):
         self.client = client
@@ -187,6 +194,7 @@ class PowerUps:
 
         obj = cls(x, y)
         obj.add_client(self.client)
+        obj.set_volume(self.settings.volume)
         self.uncollected_power_ups[pw_id] = obj
 
     def draw(self):

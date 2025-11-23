@@ -3,13 +3,15 @@ from .snake import resource_path
 import random
 
 class Food:
-    def __init__(self,screen):
+    def __init__(self,screen,scene_manager):
         self.screen = screen
         self.foodcoords = []
         self.foodImage = self.create_foodImage()
         self.grid_width = 25
         self.grid_height = 25
+        self.settings = scene_manager.settings
         self.sound_file = pygame.mixer.Sound(resource_path('assets/sounds/food.mp3'))
+        self.sound_file.set_volume(self.settings.volume)    
 
 
     def create_foodImage(self):

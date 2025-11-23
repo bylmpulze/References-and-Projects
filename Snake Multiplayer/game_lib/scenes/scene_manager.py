@@ -2,12 +2,14 @@
 
 import pygame
 import sys
+from game.settings import AppSettings
 
 class SceneManager:
     def __init__(self, screen):
         self.screen = screen
         self.scenes = {}
         self.current_scene = None
+        self.settings = AppSettings()
 
     def add_scene(self, scene_name, scene):
         self.scenes[scene_name] = scene

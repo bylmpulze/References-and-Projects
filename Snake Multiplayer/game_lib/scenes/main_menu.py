@@ -3,7 +3,6 @@
 import re
 import sys
 import pygame
-from game.settings import save_settings, load_settings
 from game_lib.scenes.helper.cog import GearSprite
 
 
@@ -36,6 +35,7 @@ class MainMenuScene:
         ]
 
         self.selected_option = 0
+        self.settings = scene_manager.settings
 
     def setup(self):
         pass
@@ -83,7 +83,7 @@ class MainMenuScene:
         self.screen.blit(info, (20,self.screen.get_height()-60))
 
             
-        settings = load_settings()
+        settings = self.settings
 
         if self.selected_mode == "multi":
             self.draw_text_centered(
@@ -112,8 +112,7 @@ class MainMenuScene:
 
 
     def handle_event(self, event):
-        settings = load_settings()
-
+        settings = self.settings
         if event.type == pygame.MOUSEMOTION:
             self.mouse_pos = event.pos
 

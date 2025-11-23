@@ -18,8 +18,8 @@ class GameScene:
         self.play_mode = "single"
 
         self.snake_Display = SnakeDisplay(game_screen_main)
-        self.food_main = Food(game_screen_main)
-        self.power_ups = PowerUps(game_screen_main)
+        self.food_main = Food(game_screen_main,scene_manager)
+        self.power_ups = PowerUps(game_screen_main, scene_manager)
         self.client = self.get_client()
         self.power_ups.add_client(self.client)
 

@@ -2,7 +2,6 @@
 import pygame
 import sys
 from pathlib import Path
-from game.settings import load_settings, save_settings
 
 # Für FileDialog
 import tkinter as tk
@@ -35,7 +34,7 @@ class SettingsMenuScene:
         self.title_rect = self.title_text.get_rect(center=(screen.get_width() // 2, 100))
 
       
-        self.settings = load_settings()
+        self.settings = scene_manager.settings
         self.selected_option = 0
         self.input_text = ""
         self.name_text = ""
