@@ -1,3 +1,4 @@
+import re
 import pygame
 from pathlib import Path
 
@@ -230,6 +231,15 @@ class MultiplayerScene:
 
         self.draw_button(self.save_rect, "💾 Speichern", GREEN, hover=save_hover)
         self.draw_button(self.cancel_rect, "❌ Abbrechen", RED, hover=cancel_hover)
+
+    
+    def is_valid_ip(self, ip: str) -> bool:
+        """Checks whether the given string is a valid IPv4 address."""
+        if not ip or len(ip) > 15:
+            return False
+        pattern = r"^(25[0-5]|2[0-4]\d|1?\d{1,2})(\.(25[0-5]|2[0-4]\d|1?\d{1,2})){3}$"
+        return re.match(pattern, ip) is not None
+
 
 
 

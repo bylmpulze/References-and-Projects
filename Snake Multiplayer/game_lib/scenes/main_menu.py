@@ -32,6 +32,9 @@ class MainMenuScene:
             {"label": "Beenden (4)",      "color": (200, 60, 80),  "y": 540, "icon": "✖"},
         ]
 
+        self.button_width = 440
+        self.button_height = 80
+
     def setup(self):
         pass
 
@@ -55,7 +58,7 @@ class MainMenuScene:
         self.draw_text_centered("🐍 Snake Game 🐍", self.font_big, (255, 255, 255), int(self.screen.get_height() * 0.1))
 
         for btn in self.menu_options:
-            w, h = 440, 80
+            w,h =  self.button_width, self.button_height
             x, y =  self.screen.get_width() //2 - w//2, btn["y"]
             rect = pygame.Rect(x, y, w, h)
             hovered = rect.collidepoint(self.mouse_pos[0],self.mouse_pos[1])
@@ -82,6 +85,23 @@ class MainMenuScene:
     def handle_event(self, event):
         if event.type == pygame.MOUSEMOTION:
             self.mouse_pos = event.pos
+        
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:  # Linksklick
+                for btn in self.menu_options:
+                    w,h =  self.button_width, self.button_height
+                    x, y =  self.screen.get_width() //2 - w//2, btn["y"]
+                    rect = pygame.Rect(x, y, w, h)
+                    if rect.collidepoint(event.pos):
+                        if btn["label"].startswith("Singleplayer"):
+                            self.scene_manager.switch_scene("GameScene")
+                        elif btn["label"].startswith("Multiplayer"):
+                            self.scene_manager.switch_scene("MultiplayerScene")
+                        elif btn["label"].startswith("Optionen"):
+                            self.scene_manager.switch_scene("SettingsScene")
+                        elif btn["label"].startswith("Beenden"):
+                            pygame.quit()
+                            sys.exit()
 
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_1:
@@ -93,14 +113,6 @@ class MainMenuScene:
             if event.key == pygame.K_4:
                 pygame.quit()
                 sys.exit()
-
-
-    def is_valid_ip(self, ip: str) -> bool:
-        """Checks whether the given string is a valid IPv4 address."""
-        if not ip or len(ip) > 15:
-            return False
-        pattern = r"^(25[0-5]|2[0-4]\d|1?\d{1,2})(\.(25[0-5]|2[0-4]\d|1?\d{1,2})){3}$"
-        return re.match(pattern, ip) is not None
 
     def draw_text_centered(self, text, font, color, y):
         """Hilfsfunktion für zentrierten Text"""
