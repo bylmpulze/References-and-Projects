@@ -98,7 +98,7 @@ class MultiplayerScene:
         self.name_text = self.settings.get("default_name", "Spieler1")
 
     def setup(self):
-        pass
+        pygame.key.set_repeat(300, 50)  # delay 300ms before repeat, then every 50ms
 
     def cleanup(self):
         # Reset to stored values
@@ -106,6 +106,7 @@ class MultiplayerScene:
         self.name_text = self.settings.get("default_name", "Spieler1")
         self.ip_active = False
         self.name_active = False
+        pygame.key.set_repeat(0, 0)  # disable key repeat
 
     def update(self):
         pass
@@ -118,16 +119,29 @@ class MultiplayerScene:
             self.ip_active = self.ip_box.collidepoint(mx, my)
             self.name_active = self.name_box.collidepoint(mx, my)
 
-            # Buttons (no real logic here yet, just placeholders)
+            # Buttons
             if self.save_rect.collidepoint(mx, my):
-                self.settings["multiplayer_ip"] = self.ip_text
-                self.settings["default_name"] = self.name_text
+                if self.is_valid_ip(self.ip_text) and self.name_text.strip():
+                    self.settings["multiplayer_ip"] = self.ip_text
+                    self.settings["default_name"] = self.name_text
 
             if self.cancel_rect.collidepoint(mx, my):
                 self.cleanup()
                 self.scene_manager.switch_scene("MainMenu")
 
         elif event.type == pygame.KEYDOWN:
+            # TAB switching between fields
+            if event.key == pygame.K_TAB:
+                if self.ip_active:
+                    self.ip_active = False
+                    self.name_active = True
+                elif self.name_active:
+                    self.name_active = False
+                    self.ip_active = True
+                else:
+                    self.ip_active = True
+                return  # Prevent adding tab character to input
+
             # IP input
             if self.ip_active:
                 if event.key == pygame.K_RETURN:
@@ -147,6 +161,7 @@ class MultiplayerScene:
                 else:
                     if len(event.unicode) == 1:
                         self.name_text += event.unicode
+
             else:
                 if event.key == pygame.K_ESCAPE:
                     self.cleanup()
@@ -196,23 +211,25 @@ class MultiplayerScene:
         self.draw_text_left("Server-IP", (self.ip_box.x, self.ip_box.y - 24), DARKGRAY, SMALLFONT)
         pygame.draw.rect(
             self.screen,
-            BLUE if self.ip_active else GRAY,
+            BLUE if self.ip_active else (RED if not self.is_valid_ip(self.ip_text) else GRAY),
             self.ip_box,
             2,
             border_radius=8
         )
-        self.draw_text_left(self.ip_text, (self.ip_box.x + 10, self.ip_box.y + 10))
+        self.draw_text_left(self.ip_text or "z.B. 127.0.0.1", (self.ip_box.x + 10, self.ip_box.y + 10),
+                            DARKGRAY if not self.ip_text else BLACK)
 
         # Name label + field
         self.draw_text_left("Spielername", (self.name_box.x, self.name_box.y - 24), DARKGRAY, SMALLFONT)
         pygame.draw.rect(
             self.screen,
-            BLUE if self.name_active else GRAY,
+            BLUE if self.name_active else (RED if not self.name_text.strip() else GRAY),
             self.name_box,
             2,
             border_radius=8
         )
-        self.draw_text_left(self.name_text, (self.name_box.x + 10, self.name_box.y + 10))
+        self.draw_text_left(self.name_text or "Dein Spielername", (self.name_box.x + 10, self.name_box.y + 10),
+                            DARKGRAY if not self.name_text else BLACK)
 
         # Avatar
         pygame.draw.rect(self.screen, GRAY, self.avatar_rect, border_radius=16)
@@ -229,18 +246,18 @@ class MultiplayerScene:
         save_hover = self.save_rect.collidepoint(mouse_pos)
         cancel_hover = self.cancel_rect.collidepoint(mouse_pos)
 
-        self.draw_button(self.save_rect, "💾 Speichern", GREEN, hover=save_hover)
+        # Save button enabled only if IP and name valid
+        save_enabled = self.is_valid_ip(self.ip_text) and self.name_text.strip()
+        save_color = GREEN if save_enabled else GRAY
+        self.draw_button(self.save_rect, "💾 Speichern", save_color, hover=save_hover and save_enabled)
         self.draw_button(self.cancel_rect, "❌ Abbrechen", RED, hover=cancel_hover)
 
-    
     def is_valid_ip(self, ip: str) -> bool:
         """Checks whether the given string is a valid IPv4 address."""
         if not ip or len(ip) > 15:
             return False
         pattern = r"^(25[0-5]|2[0-4]\d|1?\d{1,2})(\.(25[0-5]|2[0-4]\d|1?\d{1,2})){3}$"
         return re.match(pattern, ip) is not None
-
-
 
 
 if __name__ == "__main__":
