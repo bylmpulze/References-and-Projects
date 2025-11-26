@@ -1,65 +1,8 @@
 import pygame
 from game_lib.helper import resource_path
 
-
-# region Config
-class PowerUpConfig:
-    def __init__(self):
-        self.powerup_speed_boost_x2 = True
-        self.powerup_speed_half = False
-        self.powerup_immunity = False
-        self.powerup_magnet = False
-        self.powerup_change_direction = False
-        self.powerup_jump = False
-
-        self.powerup_change_direction_duration = (
-            1000  # Dauer - umgekehrte steuerung  (1000 = 1 sec)
-        )
-        self.powerup_magnet_duration = 1000  # Dauer Apfel heranziehen  (1000 = 1 sec)
-        self.powerup_speed_boost_x2_duration = (
-            1500  # Dauer - doppelte Geschwindigkeit  (1000 = 1 sec)
-        )
-        self.powerup_speed_half_duration = (
-            1000  # Dauer - halbierte Geschwindigkeit  (1000 = 1 sec)
-        )
-        self.powerup_immunity_duration = (
-            5000  # Dauer - Unverwundbarkeit ( 1000 = 1 sec)
-        )
-
-
-# region Main
-class PowerUpMain:
-    def __init__(self, particle_size=25):
-        self.particle_size = particle_size
-        self.position = None
-        self.active_powerup = None
-        self.powerup_spawned = True
-        self.powerup_spawntime = 0
-        self.powerup_despawntime = 0
-        self.spawn_powerup_delay = 0
-        self.power_up_activ_time = 5000  # löscht powerup  (1000 = 1 sec)
-        self.spawn_duration = 1000  # spawnzeit nach letztem Powerup ( 1000 = 1 sec)
-        self.config = PowerUpConfig()
-        self.menu = PowerupSettingsMenu()
-
-
-# region SettingsMenu
-class PowerupSettingsMenu:
-    def __init__(self):
-        self.config = PowerUpConfig()
-        self.settingsMenu_powerup_magnet = False
-        self.settingsMenu_speedx2 = True
-        self.settingsMenu_speedHalf = False
-        self.settingsMenu_immunity = False
-        self.settingsMenu_magnet_duration = "1000"
-        self.settingsMenu_speedx2_duration = "1500"
-        self.settingsMenu_speedHalf_duration = "1000"
-        self.settingsMenu_immunity_duration = "1000"
-        self.settingsMenu_change_direction_duration = "1000"
-
-
 class PowerUp:
-    def __init__(self, img, x, y, running_duration, sound_file=None) -> None:
+    def __init__(self, img, x, y, running_duration, sound_file=None,onetime = False) -> None:
         img = pygame.image.load(resource_path(img)).convert_alpha()
         self.img = pygame.transform.scale(img, ((25, 25)))
 
@@ -68,6 +11,7 @@ class PowerUp:
         self.x = int(x)
         self.y = int(y)
         self.id = None
+        self.onetime = onetime
         self.running_duration = running_duration
 
         self.start = None
@@ -88,9 +32,10 @@ class PowerUp:
     def add_client(self, client):
         self.client = client
 
+
     def effect(self, snake, food):
         pass
-
+        
     def activate(self, pw_id):
         self.start = pygame.time.get_ticks()
         self.client.power_up_collected(int(pw_id))
@@ -140,6 +85,14 @@ class SpeedupPowerUp(PowerUp):
     def __init__(self, x, y) -> None:
         img = "assets/Items/powerup speed.png"
         super().__init__(img, x, y, 1000)
+    
+    def effect(self,snake,food):
+        if self.last is not None:
+            return
+        snake_speed = snake.get_snake_speed()
+        snake.snake_speed = snake_speed / 2
+        print(snake_speed)
+        self.last = pygame.time.get_ticks()
 
 
 class ExtraLifePowerUp(PowerUp):
@@ -216,21 +169,21 @@ class PowerUps:
 
     def handle_active(self, snake, food):
         now = pygame.time.get_ticks()
-        for k, v in self.active_power_ups.items():
-            if v.start is None:
+        for pw_id, pw_up in self.active_power_ups.items():
+            if pw_up.start is None:
                 continue
 
-            end_time = v.start + v.running_duration
+            end_time = pw_up.start + pw_up.running_duration
             time_left = end_time - now
 
             # Fade-out: last 1000 ms
             if 0 < time_left <= 1000:
-                if v.sound_file and not v.fadeout_started :
-                    v.sound_file.fadeout(time_left)
-                    v.fadeout_started = True
+                if pw_up.sound_file and not pw_up.fadeout_started :
+                    pw_up.sound_file.fadeout(time_left)
+                    pw_up.fadeout_started = True
 
             if time_left > 0:
-                v.effect(snake, food)
+                pw_up.effect(snake, food)
                 
 
   
