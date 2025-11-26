@@ -1,0 +1,26 @@
+{
+    "speed_boost_x2": {
+        "enabled": true,
+        "duration": 1500
+    },
+    "speed_half": {
+        "enabled": false,
+        "duration": 1000
+    },
+    "immunity": {
+        "enabled": false,
+        "duration": 5000
+    },
+    "magnet": {
+        "enabled": true,
+        "duration": 1000
+    },
+    "change_direction": {
+        "enabled": false,
+        "duration": 1000
+    },
+    "jump": {
+        "enabled": false,
+        "duration": 1000
+    }
+}
