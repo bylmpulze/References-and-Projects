@@ -96,6 +96,9 @@ class SnakeDisplay:
 
     def get_head_cords(self):
         return list(self.segments[0])
+    
+    def get_snake_speed(self):
+        return self.snake_speed
 
     def add_snake_body(self):
         """Grow by duplicating current tail"""
