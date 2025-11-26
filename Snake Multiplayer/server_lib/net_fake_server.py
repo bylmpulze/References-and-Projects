@@ -10,6 +10,7 @@ GRID_W = 28
 GRID_H = 28
 
 
+
 class FakeServer(GameNet):
     """
     In-Process „Server“, der Netzwerk nur simuliert:
@@ -28,7 +29,7 @@ class FakeServer(GameNet):
         self._task: Optional[asyncio.Task] = None
         self._client_id = 1
         self._power_ups: Dict[int, Dict[str, Any]] = {
-            1: {"x": 6, "y": 6, "pw_type": "powerup_magnet"}
+            1: {"x": 6, "y": 6, "pw_type": "speed_boost_x2"}
         }
         self._next_pw_id = 2
         self._last_spawn_ms = self._now_ms()
@@ -74,10 +75,10 @@ class FakeServer(GameNet):
         pw_type = random.choice(
             [
                 "speed_boost_x2",
-                "speed_half",
-                "extra_life",
-                "powerup_drunk",
-                "powerup_magnet",
+                # "speed_half",
+                # "extra_life",
+                # "powerup_drunk",
+                # "powerup_magnet",
             ]
         )
         pw_id = self._next_pw_id
