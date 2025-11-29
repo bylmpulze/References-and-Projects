@@ -12,16 +12,23 @@ game_screen_main = GameScreen(800)
 clock = pygame.time.Clock()
 
 scene_manager = SceneManager(game_screen_main.show_gameWindow)
-main_menu = MainMenuScene(game_screen_main.show_gameWindow,scene_manager)
-multiplayer_scene = MultiplayerScene(game_screen_main.show_gameWindow,scene_manager)
-settings_menu = SettingsMenuScene(game_screen_main.show_gameWindow,scene_manager)
+
+#Game Scenes
+
 game_scene = GameScene(game_screen_main.show_gameWindow,scene_manager, game_screen_main)
+multiplayer_scene = MultiplayerScene(game_screen_main.show_gameWindow,scene_manager)
+
+#Main Menu scenes
+main_menu = MainMenuScene(game_screen_main.show_gameWindow,scene_manager)
+settings_menu = SettingsMenuScene(game_screen_main.show_gameWindow,scene_manager)
 powerup_settings_scene = PowerupSettingsScene(game_screen_main.show_gameWindow,scene_manager)
+
+#Scene Manager 
+scene_manager.add_scene("GameScene",game_scene)
+scene_manager.add_scene("MultiplayerScene",multiplayer_scene)
 
 scene_manager.add_scene("MainMenu", main_menu)
 scene_manager.add_scene("SettingsScene",settings_menu)
-scene_manager.add_scene("GameScene",game_scene)
-scene_manager.add_scene("MultiplayerScene",multiplayer_scene)
 scene_manager.add_scene("powerup_settings",powerup_settings_scene)
 
 scene_manager.switch_scene("powerup_settings")
